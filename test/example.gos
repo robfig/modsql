@@ -1,0 +1,33 @@
+#!/usr/bin/goscript
+
+package main
+
+import . "github.com/kless/sqlmodel"
+
+func main() {
+	metadata := Metadata()
+
+	Table("server", metadata,
+//		Column("id", Integer).PrimaryKey(),
+		Column("uuid", Text),
+		Column("access_log", Text),
+		Column("error_log", Text),
+		Column("chroot", Text).Default("/var/www"),
+		Column("pid_File", Text),
+		Column("default_host", Integer),
+		Column("name", Text),
+		Column("port", Integer),
+	)
+
+	Table("host", metadata,
+		Column("id", Integer).PrimaryKey(),
+		Column("server_id", Integer),
+		Column("maintenance", Boolean).Default(false),
+		Column("name", Text),
+		Column("matching", Text),
+	)
+
+	metadata.CreateAll().Write(STDOUT)
+//	metadata.Write(FILEOUT)
+}
+
