@@ -7,13 +7,18 @@ neither it isn't goint to be it since an ORM creates an extra layer to the
 database access.
 
 The API is based in [SQLAlchemy's][4] and here they are all [SQLAlchmey's
-types][5]. But I've only added these basic types:
+types][5], althought I've only added these basic types:
 
 + Blob
 + Boolean
 + Float
 + Integer
 + Text
+
+At generating SQL, it creates an extra table (that starts wich ***_***) for
+each model; it is for stuff related to localization.  
+And when is generated the file Go, it's used ***_*** as package name so rename
+it at your project's name.
 
 ***NOTE:*** it is tested with SQLite3, and you have in mind that it isn't ready
 to working with relations between tables since I don't need it by now.
