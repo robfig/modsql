@@ -2,12 +2,18 @@ SQLModel
 ========
 
 The ***SQLModel*** package allows to use a Go script to define a database model
-and so to generate its corresponding SQL language and Go types. The API is based
-in [SQLAlchemy's][4], but I've only used basic types; here they are all
-[SQLAlchmey's types][5].
+and so to generate its corresponding SQL language and Go types. It is not an ORM
+neither it isn't goint to be it since an ORM creates an extra layer to the
+database access.
 
-I'm against using an ORM since it creates an extra layer but it's important to
-have a model which generates both SQL and Go types.
+The API is based in [SQLAlchemy's][4] and here they are all [SQLAlchmey's
+types][5]. But I've only added these basic types:
+
++ Blob
++ Boolean
++ Float
++ Integer
++ Text
 
 ***NOTE:*** it is tested with SQLite3, and you have in mind that it isn't ready
 to working with relations between tables since I don't need it by now.
