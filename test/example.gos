@@ -2,7 +2,7 @@
 
 package main
 
-import . "github.com/kless/sqlmodel"
+import . "github.com/kless/SQLModel/sqlmodel"
 
 func main() {
 	metadata := Metadata()

@@ -9,7 +9,7 @@
 
 include $(GOROOT)/src/Make.inc
 
-TARG=github.com/kless/sqlmodel
+TARG=github.com/kless/SQLModel/sqlmodel
 GOFILES=\
 	sqlmodel.go\
 
