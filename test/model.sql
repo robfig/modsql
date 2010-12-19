@@ -17,7 +17,7 @@ CREATE TABLE _types (id TEXT PRIMARY KEY,
 CREATE TABLE default_value (id INTEGER PRIMARY KEY,
     def_int INTEGER DEFAULT 55,
     def_float FLOAT DEFAULT 10.1,
-    def_text TEXT DEFAULT "string",
+    def_text TEXT DEFAULT 'string',
     def_bool BOOLEAN DEFAULT 0);
 
 CREATE TABLE _default_value (id TEXT PRIMARY KEY,

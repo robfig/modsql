@@ -101,7 +101,7 @@ func (self *metadata) CreateAll() *metadata {
 
 				switch col.defaultValue.(type) {
 				case string:
-					extra += fmt.Sprintf("%q", col.defaultValue)
+					extra += fmt.Sprintf("'%s'", col.defaultValue)
 
 				case bool:
 					// SQLite has not boolean type
