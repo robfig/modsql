@@ -9,10 +9,6 @@
 
 package sqlmodel
 
-import (
-	"fmt"
-	"os"
-)
 
 type table struct {
 	name    string
@@ -22,8 +18,7 @@ type table struct {
 
 func Table(name string, meta *metadata, col ...*column) *table {
 	if errors {
-		fmt.Fprintf(os.Stderr, " == Table: %q\n", name)
-		os.Exit(2)
+		fatal(" == Table: %q", name)
 	}
 
 	_table := new(table)

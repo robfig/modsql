@@ -137,8 +137,7 @@ func (self *metadata) Write(out output) {
 // Writes SQL statements to given files.
 func (self *metadata) WriteTo(sqlFile, goFile string) {
 	if len(self.queries) == 0 {
-		fmt.Fprintf(os.Stderr, "No tables created. Use CreateAll()\n")
-		os.Exit(2)
+		fatal("No tables created. Use CreateAll()")
 	}
 
 	err := ioutil.WriteFile(sqlFile, self.queries, 0644)
@@ -156,8 +155,7 @@ func (self *metadata) WriteTo(sqlFile, goFile string) {
 	return
 
 _error:
-	fmt.Fprintf(os.Stderr, "Can not write file:", err)
-	os.Exit(2)
+	fatal("Failed to write file: %s", err)
 }
 
 // Formats the Go source code.
@@ -177,7 +175,6 @@ func (self *metadata) format(out io.Writer) {
 	return
 
 _error:
-	fmt.Fprintf(os.Stderr, "Can not format Go source code:", err)
-	os.Exit(2)
+	fatal("Failed to format Go source code: %s", err)
 }
 
