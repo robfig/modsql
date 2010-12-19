@@ -9,19 +9,20 @@ database access.
 The API is based in [SQLAlchemy's][4] and here they are all [SQLAlchmey's
 types][5], althought I've only added these basic types:
 
++ Integer
++ Float
++ Text
 + Blob
 + Boolean
-+ Float
-+ Integer
-+ Text
 
-At generating SQL, it creates an extra table (that starts wich "***_***") for
-each model; it is for stuff related to localization.  
-And when is generated the file Go, it's used "***_***" as package name so rename
-it at your project's name.
+Function *Metadata* has method *Mode* to create tables related to localization.
+If it's set, then at generating SQL, it creates an extra table (that starts wich
+"***_***") for each model.
 
 ***NOTE:*** it is tested with SQLite3, and you have in mind that it isn't ready
-to working with relations between tables since I don't need it by now.
+to working with relations between tables since I don't need it by now.  
+And when is generated the file Go, it's used "***_***" as package name so rename
+it at your project's name.
 
 
 [4]: http://www.sqlalchemy.org/
