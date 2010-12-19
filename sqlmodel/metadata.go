@@ -28,29 +28,51 @@ const (
 	_TAB_WIDTH    = 8
 )
 
+// === Type
+// ===
+
+// The mode parameter to the Metadata function is a set of flags (or 0).
+const (
+	Localiza uint = 1 << iota // Create tables related to localization
+)
+
 // Defines a collection of table definitions.
 type metadata struct {
+	mode    uint
 	tables  []*table
 	queries []byte
 	model   []byte
 }
 
-
+// Initializes the type metadata.
 func Metadata() *metadata {
 	return &metadata{}
 }
 
+// Sets mode.
+func (self *metadata) Mode(m uint) *metadata {
+	self.mode = m
+	return self
+}
+
+// ===
+// ==
+
 // Issues both CREATE statements and Go definitions for all tables.
 func (self *metadata) CreateAll() *metadata {
-	var create, model vector.StringVector
+	create := new(vector.StringVector)
+	model := new(vector.StringVector)
 
 	create.Push("BEGIN TRANSACTION;\n")
 	model.Push("// MACHINE GENERATED.\n\npackage _\n")
 
 	for _, table := range self.tables {
-		var createLang vector.StringVector
-		createLang.Push(fmt.Sprintf("\nCREATE TABLE _%s (id TEXT PRIMARY KEY,\n",
-			table.name))
+		createLang := new(vector.StringVector)
+
+		if self.mode == Localiza {
+			createLang.Push(fmt.Sprintf("\nCREATE TABLE _%s (id TEXT PRIMARY KEY,\n",
+				table.name))
+		}
 
 		create.Push(fmt.Sprintf("\nCREATE TABLE %s (", table.name))
 		model.Push(fmt.Sprintf("\ntype %s struct {\n", table.name))
@@ -98,7 +120,7 @@ func (self *metadata) CreateAll() *metadata {
 			create.Push(extra)
 
 			// Add table for translation of fields comments
-			if col.name != "id" {
+			if self.mode == Localiza && col.name != "id" {
 				createLang.Push("    " + col.name + " TEXT")
 				createLang.Push(",\n")
 			}
@@ -108,9 +130,11 @@ func (self *metadata) CreateAll() *metadata {
 				create.Push(");\n")
 				model.Push("}\n")
 
-				createLang.Pop()
-				createLang.Push(");\n")
-				create.AppendVector(&createLang)
+				if self.mode == Localiza {
+					createLang.Pop()
+					createLang.Push(");\n")
+					create.AppendVector(createLang)
+				}
 			} else {
 				create.Push(",\n")
 			}
@@ -119,8 +143,8 @@ func (self *metadata) CreateAll() *metadata {
 
 	create.Push("\nCOMMIT;\n")
 
-	self.queries = []byte(strings.Join(create, ""))
-	self.model = []byte(strings.Join(model, ""))
+	self.queries = []byte(strings.Join(*create, ""))
+	self.model = []byte(strings.Join(*model, ""))
 	return self
 }
 
@@ -175,6 +199,6 @@ func (self *metadata) format(out io.Writer) {
 	return
 
 _error:
-	fatal("Failed to format Go source code: %s", err)
+	fatal("Failed to format Go code: %s", err)
 }
 

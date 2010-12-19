@@ -5,26 +5,24 @@ package main
 import . "github.com/kless/SQLModel/sqlmodel"
 
 func main() {
-	metadata := Metadata()
+	metadata := Metadata().Mode(Localiza)
+	//blob := []byte("123")
 
-	Table("server", metadata,
-//		Column("id", Integer).PrimaryKey(),
-		Column("uuid", Text),
-		Column("access_log", Text),
-		Column("error_log", Text),
-		Column("chroot", Text).Default("/var/www"),
-		Column("pid_File", Text),
-		Column("default_host", Integer),
-		Column("name", Text),
-		Column("port", Integer),
+	Table("types", metadata,
+		Column("field_int", Integer),
+		Column("field_float", Float),
+		Column("field_text", Text),
+		Column("field_blob", Blob),
+		Column("field_bool", Boolean),
 	)
 
-	Table("host", metadata,
+	Table("default_value", metadata,
 		Column("id", Integer).PrimaryKey(),
-		Column("server_id", Integer),
-		Column("maintenance", Boolean).Default(false),
-		Column("name", Text),
-		Column("matching", Text),
+		Column("def_int", Integer).Default(55),
+		Column("def_float", Float).Default(10.10),
+		Column("def_text", Text).Default("string by default"),
+		//Column("def_blob", Blob).Default(blob),
+		Column("def_bool", Boolean).Default(false),
 	)
 
 	metadata.CreateAll().Write(STDOUT)
