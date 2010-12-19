@@ -21,18 +21,6 @@ import (
 	"strings"
 )
 
-
-type output int
-
-// Output where to write
-const (
-	FILEOUT output = iota // To file
-	STDOUT                // To standard output
-
-	_SQL_OUTPUT   = "model.sql"
-	_MODEL_OUTPUT = "model.go" // Go definitions related to each SQL table
-)
-
 // To format Go source code.
 const (
 	_PARSER_MODE  = parser.ParseComments
@@ -40,144 +28,13 @@ const (
 	_TAB_WIDTH    = 8
 )
 
-var errors bool
-
-
-// === SQL type
-// ===
-
-type sqlType int
-
-const (
-	Blob sqlType = iota
-	Boolean
-	Float
-	Integer
-	Text
-)
-
-var (
-	typeSQL_String = map[sqlType]string{
-		Blob:    "Blob",
-		Boolean: "Boolean",
-		Float:   "Float",
-		Integer: "Integer",
-		Text:    "Text",
-	}
-	typeSQL_Go = map[sqlType]string{
-		Blob:    "[]byte",
-		Boolean: "bool",
-		Float:   "float",
-		Integer: "int",
-		Text:    "string",
-	}
-)
-
-
-func (self sqlType) String() string {
-	return typeSQL_String[self]
-}
-
-func (self sqlType) Go() string {
-	return typeSQL_Go[self]
-}
-
-
-// === Column
-// ===
-
-type column struct {
-	name         string
-	type_        sqlType
-	defaultValue interface{}
-	isPrimaryKey bool
-}
-
-func Column(name string, type_ sqlType) *column {
-	col := new(column)
-	col.name = name
-	col.type_ = type_
-	return col
-}
-
-func (self *column) Default(i interface{}) *column {
-	self.defaultValue = i
-
-	if ok := self.check(); !ok {
-		fmt.Fprintf(os.Stderr, "wrong type in column %q\n", self.name)
-		errors = true
-	}
-
-	return self
-}
-
-func (self *column) PrimaryKey() *column {
-	self.isPrimaryKey = true
-	return self
-}
-
-// Checks if the value by default has the correct type.
-func (self *column) check() bool {
-	switch t := self.defaultValue.(type) {
-	case bool:
-		if self.type_ != Boolean {
-			return false
-		}
-	case float:
-		if self.type_ != Float {
-			return false
-		}
-	case int:
-		if self.type_ != Integer {
-			return false
-		}
-	case string:
-		if self.type_ != Text {
-			return false
-		}
-	default:
-		return false
-	}
-
-	return true
-}
-
-
-// === Table
-// ===
-
-type table struct {
-	name    string
-	columns []column
-}
-
-func Table(name string, meta *metadata, col ...*column) *table {
-	if errors {
-		fmt.Fprintf(os.Stderr, " == Table: %q\n", name)
-		os.Exit(2)
-	}
-
-	_table := new(table)
-	_table.name = name
-
-	for _, v := range col {
-		_table.columns = append(_table.columns, *v)
-	}
-	meta.tables = append(meta.tables, _table)
-
-	return _table
-}
-
-
-// === Metadata
-// ===
-
 // Defines a collection of table definitions.
 type metadata struct {
 	tables  []*table
 	queries []byte
 	model   []byte
 }
+
 
 func Metadata() *metadata {
 	return &metadata{}

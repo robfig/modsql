@@ -15,9 +15,9 @@ types][5], althought I've only added these basic types:
 + Integer
 + Text
 
-At generating SQL, it creates an extra table (that starts wich ***_***) for
+At generating SQL, it creates an extra table (that starts wich "***_***") for
 each model; it is for stuff related to localization.  
-And when is generated the file Go, it's used ***_*** as package name so rename
+And when is generated the file Go, it's used "***_***" as package name so rename
 it at your project's name.
 
 ***NOTE:*** it is tested with SQLite3, and you have in mind that it isn't ready

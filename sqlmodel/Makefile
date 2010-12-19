@@ -11,7 +11,11 @@ include $(GOROOT)/src/Make.inc
 
 TARG=github.com/kless/SQLModel/sqlmodel
 GOFILES=\
-	sqlmodel.go\
+	column.go\
+	main.go\
+	metadata.go\
+	table.go\
+	type.go\
 
 include $(GOROOT)/src/Make.pkg
 
