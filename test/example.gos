@@ -20,12 +20,12 @@ func main() {
 		Column("id", Integer).PrimaryKey(),
 		Column("def_int", Integer).Default(55),
 		Column("def_float", Float).Default(10.10),
-		Column("def_text", Text).Default("string by default"),
+		Column("def_text", Text).Default("string"),
 		//Column("def_blob", Blob).Default(blob),
 		Column("def_bool", Boolean).Default(false),
 	)
 
 	metadata.CreateAll().Write(STDOUT)
-//	metadata.Write(FILEOUT)
+	//metadata.Write(FILEOUT)
 }
 

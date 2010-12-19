@@ -2,21 +2,18 @@
 
 package _
 
-type server struct {
-	uuid         string
-	access_log   string
-	error_log    string
-	chroot       string
-	pid_File     string
-	default_host int
-	name         string
-	port         int
+type types struct {
+	field_int   int
+	field_float float
+	field_text  string
+	field_blob  []byte
+	field_bool  bool
 }
 
-type host struct {
-	id          int
-	server_id   int
-	maintenance bool
-	name        string
-	matching    string
+type default_value struct {
+	id        int
+	def_int   int
+	def_float float
+	def_text  string
+	def_bool  bool
 }

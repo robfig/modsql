@@ -1,35 +1,29 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE server (
-    uuid TEXT,
-    access_log TEXT,
-    error_log TEXT,
-    chroot TEXT DEFAULT "/var/www",
-    pid_File TEXT,
-    default_host INTEGER,
-    name TEXT,
-    port INTEGER);
+CREATE TABLE types (
+    field_int INTEGER,
+    field_float FLOAT,
+    field_text TEXT,
+    field_blob BLOB,
+    field_bool BOOLEAN);
 
-CREATE TABLE _server (id TEXT PRIMARY KEY,
-    uuid TEXT,
-    access_log TEXT,
-    error_log TEXT,
-    chroot TEXT,
-    pid_File TEXT,
-    default_host TEXT,
-    name TEXT,
-    port TEXT);
+CREATE TABLE _types (id TEXT PRIMARY KEY,
+    field_int TEXT,
+    field_float TEXT,
+    field_text TEXT,
+    field_blob TEXT,
+    field_bool TEXT);
 
-CREATE TABLE host (id INTEGER PRIMARY KEY,
-    server_id INTEGER,
-    maintenance BOOLEAN DEFAULT 0,
-    name TEXT,
-    matching TEXT);
+CREATE TABLE default_value (id INTEGER PRIMARY KEY,
+    def_int INTEGER DEFAULT 55,
+    def_float FLOAT DEFAULT 10.1,
+    def_text TEXT DEFAULT "string",
+    def_bool BOOLEAN DEFAULT 0);
 
-CREATE TABLE _host (id TEXT PRIMARY KEY,
-    server_id TEXT,
-    maintenance TEXT,
-    name TEXT,
-    matching TEXT);
+CREATE TABLE _default_value (id TEXT PRIMARY KEY,
+    def_int TEXT,
+    def_float TEXT,
+    def_text TEXT,
+    def_bool TEXT);
 
 COMMIT;
