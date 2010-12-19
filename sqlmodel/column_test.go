@@ -36,9 +36,9 @@ func TestColumn(t *testing.T) {
 // ===
 
 func checkError(t *testing.T, value interface{}) {
-	if errors == true {
+	if anyColumnErr == true {
 		t.Error("It must have an error for:", value)
 	}
-	errors = false
+	anyColumnErr = false
 }
 

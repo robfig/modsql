@@ -9,16 +9,18 @@
 
 package sqlmodel
 
-import (
-	"fmt"
-	"os"
+// For columns with a wrong type
+var (
+	anyColumnErr bool
+	columnsErr   []string
 )
+
 
 type column struct {
 	name         string
 	type_        sqlType
-	defaultValue interface{}
 	isPrimaryKey bool
+	defaultValue interface{}
 }
 
 
@@ -33,8 +35,8 @@ func (self *column) Default(i interface{}) *column {
 	self.defaultValue = i
 
 	if ok := self.check(); !ok {
-		fmt.Fprintf(os.Stderr, "wrong type in column %q\n", self.name)
-		errors = true
+		columnsErr = append(columnsErr, self.name)
+		anyColumnErr = true
 	}
 
 	return self

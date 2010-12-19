@@ -9,6 +9,9 @@
 
 package sqlmodel
 
+import (
+	"strings"
+)
 
 type table struct {
 	name    string
@@ -17,8 +20,9 @@ type table struct {
 
 
 func Table(name string, meta *metadata, col ...*column) *table {
-	if errors {
-		fatal(" == Table: %q", name)
+	if anyColumnErr {
+		fatal("Wrong type for default value in table %q: %s",
+			name, strings.Join(columnsErr, ", "))
 	}
 
 	_table := new(table)
