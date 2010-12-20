@@ -18,6 +18,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -140,8 +141,37 @@ func (self *metadata) CreateAll() *metadata {
 			}
 		}
 	}
-
 	create.Push("\nCOMMIT;\n")
+
+	// === Insert
+	var useInsert bool
+	insert := new(vector.StringVector)
+	insert.Push("BEGIN TRANSACTION;\n")
+
+	for _, table := range self.tables {
+		if len(table.values) != 0 {
+			useInsert = true
+			var columns []string
+
+			for _, col := range table.columns {
+				columns = append(columns, col.name)
+			}
+
+			for _, v1 := range table.values {
+				insert.Push(fmt.Sprintf("\nINSERT INTO %q (%s) VALUES(%s);",
+					table.name,
+					strings.Join(columns, ", "),
+					strings.Join(toString(v1), ", ")))
+			}
+			insert.Push("\n")
+		}
+	}
+
+	if useInsert {
+		insert.Push("\nCOMMIT;\n")
+		create.AppendVector(insert)
+	}
+	// ===
 
 	self.queries = []byte(strings.Join(*create, ""))
 	self.model = []byte(strings.Join(*model, ""))
@@ -200,5 +230,32 @@ func (self *metadata) format(out io.Writer) {
 
 _error:
 	fatal("Failed to format Go code: %s", err)
+}
+
+
+// === Utility
+// ===
+
+// Converts a vector of interfaces to string array.
+func toString(v *vector.Vector) (a []string) {
+	for _, val := range *v {
+		switch v := val.(type) {
+		case int:
+			a = append(a, strconv.Itoa(val.(int)))
+		case float:
+			a = append(a, strconv.Ftoa(val.(float), 'g', -1))
+		case string:
+			a = append(a, fmt.Sprintf("'%s'", val.(string)))
+		case []uint8:
+			a = append(a, fmt.Sprintf("'%s'", val.([]uint8)))
+		case bool:
+			b := 0
+			if val == true {
+				b = 1
+			}
+			a = append(a, strconv.Itoa(b))
+		}
+	}
+	return
 }
 

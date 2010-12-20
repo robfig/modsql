@@ -10,12 +10,14 @@
 package sqlmodel
 
 import (
+	"container/vector"
 	"strings"
 )
 
 type table struct {
 	name    string
 	columns []column
+	values  []*vector.Vector
 }
 
 
@@ -31,8 +33,23 @@ func Table(name string, meta *metadata, col ...*column) *table {
 	for _, v := range col {
 		_table.columns = append(_table.columns, *v)
 	}
-	meta.tables = append(meta.tables, _table)
 
+	meta.tables = append(meta.tables, _table)
 	return _table
+}
+
+// Creates SQL statements to insert values.
+func (self *table) Insert(a... interface{}) {
+	if len(a) != len(self.columns) {
+		fatal("incorrect number of arguments for Insert in table %q:"+
+			" have %d, want %d", self.name, len(a), len(self.columns))
+	}
+
+	vec := new(vector.Vector)
+	for _, v := range a {
+		vec.Push(v)
+	}
+
+	self.values = append(self.values, vec)
 }
 

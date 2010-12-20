@@ -3,17 +3,17 @@
 package _
 
 type types struct {
-	field_int   int
-	field_float float
-	field_text  string
-	field_blob  []byte
-	field_bool  bool
+	t_int   int
+	t_float float
+	t_text  string
+	t_blob  []byte
+	t_bool  bool
 }
 
 type default_value struct {
-	id        int
-	def_int   int
-	def_float float
-	def_text  string
-	def_bool  bool
+	id      int
+	d_int   int
+	d_float float
+	d_text  string
+	d_bool  bool
 }
