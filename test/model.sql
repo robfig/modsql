@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE types (
+CREATE TABLE types (id INTEGER PRIMARY KEY,
     t_int INTEGER,
     t_float FLOAT,
     t_text TEXT,
@@ -29,8 +29,15 @@ CREATE TABLE _default_value (id TEXT PRIMARY KEY,
 COMMIT;
 BEGIN TRANSACTION;
 
-INSERT INTO "types" (t_int, t_float, t_text, t_blob, t_bool) VALUES(1, 1.1, 'one', 'one', 1);
-INSERT INTO "types" (t_int, t_float, t_text, t_blob, t_bool) VALUES(2, 2.2, 'two', 'two', 0);
+INSERT INTO "types" (id, t_int, t_float, t_text, t_blob, t_bool) VALUES('en', 'integer', 'float', 'text', 'binary', 'boolean');
+
+INSERT INTO "default_value" (id, d_int, d_float, d_text, d_bool) VALUES('en', 'integer', 'float', 'text', 'boolean');
+
+COMMIT;
+BEGIN TRANSACTION;
+
+INSERT INTO "types" (id, t_int, t_float, t_text, t_blob, t_bool) VALUES(1, 10, 1.1, 'one', 'one', 1);
+INSERT INTO "types" (id, t_int, t_float, t_text, t_blob, t_bool) VALUES(2, 20, 2.2, 'two', 'two', 0);
 
 INSERT INTO "default_value" (id, d_int, d_float, d_text, d_bool) VALUES(1, 10, 10.1, 'foo', 1);
 

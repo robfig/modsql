@@ -17,7 +17,9 @@ import (
 type table struct {
 	name    string
 	columns []column
-	values  []*vector.Vector
+	help    []*vector.Vector
+	data    []*vector.Vector
+	meta    *metadata
 }
 
 
@@ -29,6 +31,7 @@ func Table(name string, meta *metadata, col ...*column) *table {
 
 	_table := new(table)
 	_table.name = name
+	_table.meta = meta
 
 	for _, v := range col {
 		_table.columns = append(_table.columns, *v)
@@ -39,10 +42,11 @@ func Table(name string, meta *metadata, col ...*column) *table {
 }
 
 // Creates SQL statements to insert values.
-func (self *table) Insert(a... interface{}) {
+func (self *table) Insert(a ...interface{}) {
 	if len(a) != len(self.columns) {
 		fatal("incorrect number of arguments for Insert in table %q:"+
-			" have %d, want %d", self.name, len(a), len(self.columns))
+			" have %d, want %d",
+			self.name, len(a), len(self.columns))
 	}
 
 	vec := new(vector.Vector)
@@ -50,6 +54,28 @@ func (self *table) Insert(a... interface{}) {
 		vec.Push(v)
 	}
 
-	self.values = append(self.values, vec)
+	self.data = append(self.data, vec)
+	self.meta.useInsert = true
+}
+
+// Creates SQL statements to insert values on its help table.
+func (self *table) InsertHelp(a ...string) {
+	if self.meta.mode != Help {
+		fatal("Metadata Help mode is unset")
+	}
+
+	if len(a) != len(self.columns) {
+		fatal("incorrect number of arguments for Insert in table %q:"+
+			" have %d, want %d",
+			self.name, len(a), len(self.columns))
+	}
+
+	vec := new(vector.Vector)
+	for _, v := range a {
+		vec.Push(v)
+	}
+
+	self.help = append(self.help, vec)
+	self.meta.useInsertHelp = true
 }
 

@@ -3,6 +3,7 @@
 package _
 
 type types struct {
+	id      int
 	t_int   int
 	t_float float
 	t_text  string

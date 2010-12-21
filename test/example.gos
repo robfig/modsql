@@ -5,9 +5,10 @@ package main
 import . "github.com/kless/SQLModel/sqlmodel"
 
 func main() {
-	metadata := Metadata().Mode(Localiza)
+	metadata := Metadata().Mode(Help)
 
 	types := Table("types", metadata,
+		Column("id", Integer).PrimaryKey(),
 		Column("t_int", Integer),
 		Column("t_float", Float),
 		Column("t_text", Text),
@@ -25,9 +26,11 @@ func main() {
 	)
 
 	// === Insert values
-	types.Insert(1, 1.1, "one", []byte("one"), true)
-	types.Insert(2, 2.2, "two", []byte("two"), false)
+	types.InsertHelp("en", "integer", "float", "text", "binary", "boolean")
+	types.Insert(1, 10, 1.1, "one", []byte("one"), true)
+	types.Insert(2, 20, 2.2, "two", []byte("two"), false)
 
+	def.InsertHelp("en", "integer", "float", "text", "boolean")
 	def.Insert(1, 10, 10.1, "foo", true)
 	// ===
 

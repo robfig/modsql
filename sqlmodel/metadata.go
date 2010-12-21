@@ -22,27 +22,20 @@ import (
 	"strings"
 )
 
-// To format Go source code.
-const (
-	_PARSER_MODE  = parser.ParseComments
-	_PRINTER_MODE = printer.TabIndent | printer.UseSpaces
-	_TAB_WIDTH    = 8
-)
-
-// === Type
-// ===
-
 // The mode parameter to the Metadata function is a set of flags (or 0).
 const (
-	Localiza uint = 1 << iota // Create tables related to localization
+	Help uint = 1 << iota // Create tables related to the help.
 )
+
 
 // Defines a collection of table definitions.
 type metadata struct {
-	mode    uint
-	tables  []*table
-	queries []byte
-	model   []byte
+	mode          uint
+	useInsert     bool
+	useInsertHelp bool
+	tables        []*table
+	queries       []byte
+	model         []byte
 }
 
 // Initializes the type metadata.
@@ -70,7 +63,7 @@ func (self *metadata) CreateAll() *metadata {
 	for _, table := range self.tables {
 		createLang := new(vector.StringVector)
 
-		if self.mode == Localiza {
+		if self.mode == Help {
 			createLang.Push(fmt.Sprintf("\nCREATE TABLE _%s (id TEXT PRIMARY KEY,\n",
 				table.name))
 		}
@@ -121,7 +114,7 @@ func (self *metadata) CreateAll() *metadata {
 			create.Push(extra)
 
 			// Add table for translation of fields comments
-			if self.mode == Localiza && col.name != "id" {
+			if self.mode == Help && col.name != "id" {
 				createLang.Push("    " + col.name + " TEXT")
 				createLang.Push(",\n")
 			}
@@ -131,7 +124,7 @@ func (self *metadata) CreateAll() *metadata {
 				create.Push(");\n")
 				model.Push("}\n")
 
-				if self.mode == Localiza {
+				if self.mode == Help {
 					createLang.Pop()
 					createLang.Push(");\n")
 					create.AppendVector(createLang)
@@ -144,34 +137,12 @@ func (self *metadata) CreateAll() *metadata {
 	create.Push("\nCOMMIT;\n")
 
 	// === Insert
-	var useInsert bool
-	insert := new(vector.StringVector)
-	insert.Push("BEGIN TRANSACTION;\n")
-
-	for _, table := range self.tables {
-		if len(table.values) != 0 {
-			useInsert = true
-			var columns []string
-
-			for _, col := range table.columns {
-				columns = append(columns, col.name)
-			}
-
-			for _, v1 := range table.values {
-				insert.Push(fmt.Sprintf("\nINSERT INTO %q (%s) VALUES(%s);",
-					table.name,
-					strings.Join(columns, ", "),
-					strings.Join(toString(v1), ", ")))
-			}
-			insert.Push("\n")
-		}
+	if self.useInsertHelp {
+		self.insert(create, _INSERT_HELP)
 	}
-
-	if useInsert {
-		insert.Push("\nCOMMIT;\n")
-		create.AppendVector(insert)
+	if self.useInsert {
+		self.insert(create, _INSERT_DATA)
 	}
-	// ===
 
 	self.queries = []byte(strings.Join(*create, ""))
 	self.model = []byte(strings.Join(*model, ""))
@@ -212,31 +183,63 @@ _error:
 	fatal("Failed to write file: %s", err)
 }
 
-// Formats the Go source code.
-func (self *metadata) format(out io.Writer) {
-	fset := token.NewFileSet()
-
-	ast, err := parser.ParseFile(fset, "", self.model, _PARSER_MODE)
-	if err != nil {
-		goto _error
-	}
-
-	_, err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH, nil}).Fprint(out, fset, ast)
-	if err != nil {
-		goto _error
-	}
-
-	return
-
-_error:
-	fatal("Failed to format Go code: %s", err)
-}
-
 
 // === Utility
 // ===
 
-// Converts a vector of interfaces to string array.
+const (
+	_INSERT_HELP uint = iota
+	_INSERT_DATA
+)
+
+// To format Go source code.
+const (
+	_PARSER_MODE  = parser.ParseComments
+	_PRINTER_MODE = printer.TabIndent | printer.UseSpaces
+	_TAB_WIDTH    = 8
+)
+
+
+// Creates SQL statements to insert values; they are finally added to the main
+// vector.
+func (self *metadata) insert(main *vector.StringVector, value uint) {
+	if value != _INSERT_HELP && value != _INSERT_DATA {
+		fatal("argument \"value\" not valid for \"metadata.insert\": %d", value)
+	}
+
+	insert := new(vector.StringVector)
+	insert.Push("BEGIN TRANSACTION;\n")
+
+	var data []*vector.Vector
+
+	for _, table := range self.tables {
+		if value == _INSERT_HELP {
+			data = table.help
+		} else if value == _INSERT_DATA {
+			data = table.data
+		}
+
+		if len(data) != 0 {
+			var columns []string
+
+			for _, col := range table.columns {
+				columns = append(columns, col.name)
+			}
+
+			for _, v := range data {
+				insert.Push(fmt.Sprintf("\nINSERT INTO %q (%s) VALUES(%s);",
+					table.name,
+					strings.Join(columns, ", "),
+					strings.Join(toString(v), ", ")))
+			}
+			insert.Push("\n")
+		}
+	}
+	insert.Push("\nCOMMIT;\n")
+	main.AppendVector(insert)
+}
+
+// Converts a vector of interfaces to array of strings.
 func toString(v *vector.Vector) (a []string) {
 	for _, val := range *v {
 		switch v := val.(type) {
@@ -257,5 +260,25 @@ func toString(v *vector.Vector) (a []string) {
 		}
 	}
 	return
+}
+
+// Formats the Go source code.
+func (self *metadata) format(out io.Writer) {
+	fset := token.NewFileSet()
+
+	ast, err := parser.ParseFile(fset, "", self.model, _PARSER_MODE)
+	if err != nil {
+		goto _error
+	}
+
+	_, err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH, nil}).Fprint(out, fset, ast)
+	if err != nil {
+		goto _error
+	}
+
+	return
+
+_error:
+	fatal("Failed to format Go code: %s", err)
 }
 
