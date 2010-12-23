@@ -23,9 +23,7 @@ import (
 )
 
 // The mode parameter to the Metadata function is a set of flags (or 0).
-const (
-	Help uint = 1 << iota // Create tables related to the help.
-)
+const Help uint = iota // Create tables related to the help.
 
 
 // Defines a collection of table definitions.
@@ -213,8 +211,11 @@ func (self *metadata) insert(main *vector.StringVector, value uint) {
 	var data []*vector.Vector
 
 	for _, table := range self.tables {
+		tableName := table.name
+
 		if value == _INSERT_HELP {
 			data = table.help
+			tableName = "_" + tableName
 		} else if value == _INSERT_DATA {
 			data = table.data
 		}
@@ -228,7 +229,7 @@ func (self *metadata) insert(main *vector.StringVector, value uint) {
 
 			for _, v := range data {
 				insert.Push(fmt.Sprintf("\nINSERT INTO %q (%s) VALUES(%s);",
-					table.name,
+					tableName,
 					strings.Join(columns, ", "),
 					strings.Join(toString(v), ", ")))
 			}

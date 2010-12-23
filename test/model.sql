@@ -29,9 +29,9 @@ CREATE TABLE _default_value (id TEXT PRIMARY KEY,
 COMMIT;
 BEGIN TRANSACTION;
 
-INSERT INTO "types" (id, t_int, t_float, t_text, t_blob, t_bool) VALUES('en', 'integer', 'float', 'text', 'binary', 'boolean');
+INSERT INTO "_types" (id, t_int, t_float, t_text, t_blob, t_bool) VALUES('en', 'integer', 'float', 'text', 'binary', 'boolean');
 
-INSERT INTO "default_value" (id, d_int, d_float, d_text, d_bool) VALUES('en', 'integer', 'float', 'text', 'boolean');
+INSERT INTO "_default_value" (id, d_int, d_float, d_text, d_bool) VALUES('en', 'integer', 'float', 'text', 'boolean');
 
 COMMIT;
 BEGIN TRANSACTION;
