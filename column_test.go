@@ -41,4 +41,3 @@ func checkError(t *testing.T, value interface{}) {
 	}
 	anyColumnErr = false
 }
-

@@ -31,4 +31,3 @@ func fatal(s string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, "SQLModel: %s\n", fmt.Sprintf(s, a...))
 	os.Exit(2)
 }
-

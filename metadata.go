@@ -282,4 +282,3 @@ func (self *metadata) format(out io.Writer) {
 _error:
 	fatal("Failed to format Go code: %s", err)
 }
-

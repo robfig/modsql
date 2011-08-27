@@ -31,7 +31,7 @@ it at your project's name.
 
 ## Installation
 
-	$ goinstall github.com/kless/SQLModel/sqlmodel
+	$ goinstall github.com/kless/sqlmodel
 
 To use the Go scripts there is to install [Goscript][6].
 

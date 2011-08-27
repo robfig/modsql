@@ -47,4 +47,3 @@ func (t sqlType) String() string {
 func (t sqlType) Go() string {
 	return sqlType_goType[t]
 }
-

@@ -72,4 +72,3 @@ func (self *column) check() bool {
 
 	return true
 }
-

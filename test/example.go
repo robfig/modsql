@@ -37,4 +37,3 @@ func main() {
 	metadata.CreateAll().Write(STDOUT)
 	//metadata.Write(FILEOUT)
 }
-

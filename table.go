@@ -78,4 +78,3 @@ func (self *table) InsertHelp(a ...string) {
 	self.help = append(self.help, vec)
 	self.meta.useInsertHelp = true
 }
-
