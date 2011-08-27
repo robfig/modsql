@@ -55,7 +55,7 @@ that script are *model.sql* and *model.go*.
 ***Copyright 2010  The "SQLModel" Authors***  
 See file AUTHORS and CONTRIBUTORS (if any).
 
-Licensed under **Simplified BSD License**.  
+Licensed under **BSD-2 Clause license**.  
 See file LICENSE.
 
 
