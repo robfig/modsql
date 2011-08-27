@@ -54,7 +54,7 @@ func (self *column) check() bool {
 		if self.type_ != Boolean {
 			return false
 		}
-	case float:
+	case float32:
 		if self.type_ != Float {
 			return false
 		}

@@ -165,20 +165,17 @@ func (self *metadata) WriteTo(sqlFile, goFile string) {
 
 	err := ioutil.WriteFile(sqlFile, self.queries, 0644)
 	if err != nil {
-		goto _error
+		fatal("Failed to write file: %s", err)
 	}
 
-	file, err := os.Open(goFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(goFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		goto _error
+		fatal("Failed to write file: %s", err)
 	}
 	defer file.Close()
 
 	self.format(file)
 	return
-
-_error:
-	fatal("Failed to write file: %s", err)
 }
 
 
@@ -246,8 +243,8 @@ func toString(v *vector.Vector) (a []string) {
 		switch v := val.(type) {
 		case int:
 			a = append(a, strconv.Itoa(val.(int)))
-		case float:
-			a = append(a, strconv.Ftoa(val.(float), 'g', -1))
+		case float32:
+			a = append(a, strconv.Ftoa32(val.(float32), 'g', -1))
 		case string:
 			a = append(a, fmt.Sprintf("'%s'", val.(string)))
 		case []uint8:
@@ -269,16 +266,13 @@ func (self *metadata) format(out io.Writer) {
 
 	ast, err := parser.ParseFile(fset, "", self.model, _PARSER_MODE)
 	if err != nil {
-		goto _error
+		fatal("Failed to format Go code: %s", err)
 	}
 
-	_, err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH, nil}).Fprint(out, fset, ast)
+	_, err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH}).Fprint(out, fset, ast)
 	if err != nil {
-		goto _error
+		fatal("Failed to format Go code: %s", err)
 	}
 
 	return
-
-_error:
-	fatal("Failed to format Go code: %s", err)
 }
