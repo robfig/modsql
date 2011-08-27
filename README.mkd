@@ -85,6 +85,6 @@ see the [commit history][3].
 
 
 [1]: http://github.com/kless
-[2]: http://github.com/kless/SQLModel/issues
-[3]: http://github.com/kless/SQLModel/commits/master
+[2]: http://github.com/kless/sqlmodel/issues
+[3]: http://github.com/kless/sqlmodel/commits/master
 

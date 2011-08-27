@@ -3,12 +3,12 @@
 [Main]
 version: 0.5
 summary: Package to define a database model and so to generate SQL and Go types
-download-url: git://github.com/kless/SQLModel.git
+download-url: git://github.com/kless/sqlmodel.git
 author: John Mac
 author-email: charles.beck@sent.com
 
 [Optional]
-home-page: https://github.com/kless/SQLModel
+home-page: https://github.com/kless/sqlmodel
 keywords: SQL, Go, model
 
 [CORE]
