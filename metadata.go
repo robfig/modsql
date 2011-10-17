@@ -139,11 +139,10 @@ func (self *metadata) CreateAll() *metadata {
 
 	// === Insert
 	if self.useInsertHelp {
-		self.insert(create, _INSERT_HELP)
+		self.insert(&create, _INSERT_HELP)
 	}
 	if self.useInsert {
-println("LAAAAA")
-		self.insert(create, _INSERT_DATA)
+		self.insert(&create, _INSERT_DATA)
 	}
 
 	self.queries = []byte(strings.Join(create, ""))
@@ -200,15 +199,14 @@ const (
 
 // Creates SQL statements to insert values; they are finally added to the main
 // vector.
-func (self *metadata) insert(main []string, value uint) {
+func (self *metadata) insert(main *[]string, value uint) {
 	if value != _INSERT_HELP && value != _INSERT_DATA {
 		fatal("argument \"value\" not valid for \"metadata.insert\": %d", value)
 	}
 
+	var data [][]interface{}
 	insert := make([]string, 0, 0)
 	insert = append(insert, "BEGIN TRANSACTION;\n")
-
-	var data [][]interface{}
 
 	for _, table := range self.tables {
 		tableName := table.name
@@ -236,8 +234,9 @@ func (self *metadata) insert(main []string, value uint) {
 			insert = append(insert, "\n")
 		}
 	}
+
 	insert = append(insert, "\nCOMMIT;\n")
-	main = append(main, insert...)
+	*main = append(*main, insert...)
 }
 
 // Converts a vector of interfaces to array of strings.
@@ -248,6 +247,8 @@ func toString(v []interface{}) (a []string) {
 			a = append(a, strconv.Itoa(val.(int)))
 		case float32:
 			a = append(a, strconv.Ftoa32(val.(float32), 'g', -1))
+		case float64:
+			a = append(a, strconv.Ftoa64(val.(float64), 'g', -1))
 		case string:
 			a = append(a, fmt.Sprintf("'%s'", val.(string)))
 		case []uint8:
