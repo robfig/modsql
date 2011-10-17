@@ -58,7 +58,7 @@ func (self *metadata) CreateAll() *metadata {
 	}
 
 	create = append(create, "BEGIN TRANSACTION;\n")
-	model = append(model, "// MACHINE GENERATED.\n\npackage _foo\n")
+	model = append(model, header+"\n\npackage _RENAME_\n")
 
 	for _, table := range self.tables {
 		createLang := make([]string, 0, 0)
