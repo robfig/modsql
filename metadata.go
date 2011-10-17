@@ -10,7 +10,6 @@
 package sqlmodel
 
 import (
-	"container/vector"
 	"fmt"
 	"go/parser"
 	"go/printer"
@@ -47,27 +46,31 @@ func (self *metadata) Mode(m uint) *metadata {
 	return self
 }
 
-// ===
-// ==
+// * * *
 
 // Issues both CREATE statements and Go definitions for all tables.
 func (self *metadata) CreateAll() *metadata {
-	create := new(vector.StringVector)
-	model := new(vector.StringVector)
+	create := make([]string, 0, 0)
+	model := make([]string, 0, 0)
 
-	create.Push("BEGIN TRANSACTION;\n")
-	model.Push("// MACHINE GENERATED.\n\npackage _\n")
+	pop := func(sl []string) []string {
+		_, sl = sl[len(sl)-1], sl[:len(sl)-1]
+		return sl
+	}
+
+	create = append(create, "BEGIN TRANSACTION;\n")
+	model = append(model, "// MACHINE GENERATED.\n\npackage _foo\n")
 
 	for _, table := range self.tables {
-		createLang := new(vector.StringVector)
+		createLang := make([]string, 0, 0)
 
 		if self.mode == Help {
-			createLang.Push(fmt.Sprintf("\nCREATE TABLE _%s (id TEXT PRIMARY KEY,\n",
-				table.name))
+			createLang = append(createLang,
+				fmt.Sprintf("\nCREATE TABLE _%s (id TEXT PRIMARY KEY,\n", table.name))
 		}
 
-		create.Push(fmt.Sprintf("\nCREATE TABLE %s (", table.name))
-		model.Push(fmt.Sprintf("\ntype %s struct {\n", table.name))
+		create = append(create, fmt.Sprintf("\nCREATE TABLE %s (", table.name))
+		model = append(model, fmt.Sprintf("\ntype %s struct {\n", table.name))
 
 		for i, col := range table.columns {
 			var field, extra string
@@ -75,14 +78,14 @@ func (self *metadata) CreateAll() *metadata {
 			// The first field could not be a primary key
 			if i == 0 {
 				if !col.isPrimaryKey {
-					create.Push("\n    ")
+					create = append(create, "\n    ")
 				}
 			} else {
 				field = "    "
 			}
 
-			model.Push(fmt.Sprintf("%s %s\n", col.name, col.type_.Go()))
-			create.Push(fmt.Sprintf("%s %s",
+			model = append(model, fmt.Sprintf("%s %s\n", col.name, col.type_.Go()))
+			create = append(create, fmt.Sprintf("%s %s",
 				field+col.name, strings.ToUpper(col.type_.String())))
 
 			if col.isPrimaryKey {
@@ -109,41 +112,42 @@ func (self *metadata) CreateAll() *metadata {
 				}
 			}
 
-			create.Push(extra)
+			create = append(create, extra)
 
 			// Add table for translation of fields comments
 			if self.mode == Help && col.name != "id" {
-				createLang.Push("    " + col.name + " TEXT")
-				createLang.Push(",\n")
+				createLang = append(createLang, "    " + col.name + " TEXT")
+				createLang = append(createLang, ",\n")
 			}
 
 			// The last column
 			if i+1 == len(table.columns) {
-				create.Push(");\n")
-				model.Push("}\n")
+				create = append(create, ");\n")
+				model = append(model, "}\n")
 
 				if self.mode == Help {
-					createLang.Pop()
-					createLang.Push(");\n")
-					create.AppendVector(createLang)
+					createLang = pop(createLang)
+					createLang= append(createLang, ");\n")
+					create = append(create, createLang...)
 				}
 			} else {
-				create.Push(",\n")
+				create = append(create, ",\n")
 			}
 		}
 	}
-	create.Push("\nCOMMIT;\n")
+	create = append(create, "\nCOMMIT;\n")
 
 	// === Insert
 	if self.useInsertHelp {
 		self.insert(create, _INSERT_HELP)
 	}
 	if self.useInsert {
+println("LAAAAA")
 		self.insert(create, _INSERT_DATA)
 	}
 
-	self.queries = []byte(strings.Join(*create, ""))
-	self.model = []byte(strings.Join(*model, ""))
+	self.queries = []byte(strings.Join(create, ""))
+	self.model = []byte(strings.Join(model, ""))
 	return self
 }
 
@@ -178,9 +182,8 @@ func (self *metadata) WriteTo(sqlFile, goFile string) {
 	return
 }
 
-
+//
 // === Utility
-// ===
 
 const (
 	_INSERT_HELP uint = iota
@@ -197,15 +200,15 @@ const (
 
 // Creates SQL statements to insert values; they are finally added to the main
 // vector.
-func (self *metadata) insert(main *vector.StringVector, value uint) {
+func (self *metadata) insert(main []string, value uint) {
 	if value != _INSERT_HELP && value != _INSERT_DATA {
 		fatal("argument \"value\" not valid for \"metadata.insert\": %d", value)
 	}
 
-	insert := new(vector.StringVector)
-	insert.Push("BEGIN TRANSACTION;\n")
+	insert := make([]string, 0, 0)
+	insert = append(insert, "BEGIN TRANSACTION;\n")
 
-	var data []*vector.Vector
+	var data [][]interface{}
 
 	for _, table := range self.tables {
 		tableName := table.name
@@ -225,21 +228,21 @@ func (self *metadata) insert(main *vector.StringVector, value uint) {
 			}
 
 			for _, v := range data {
-				insert.Push(fmt.Sprintf("\nINSERT INTO %q (%s) VALUES(%s);",
+				insert = append(insert, fmt.Sprintf("\nINSERT INTO %q (%s) VALUES(%s);",
 					tableName,
 					strings.Join(columns, ", "),
 					strings.Join(toString(v), ", ")))
 			}
-			insert.Push("\n")
+			insert = append(insert, "\n")
 		}
 	}
-	insert.Push("\nCOMMIT;\n")
-	main.AppendVector(insert)
+	insert = append(insert, "\nCOMMIT;\n")
+	main = append(main, insert...)
 }
 
 // Converts a vector of interfaces to array of strings.
-func toString(v *vector.Vector) (a []string) {
-	for _, val := range *v {
+func toString(v []interface{}) (a []string) {
+	for _, val := range v {
 		switch v := val.(type) {
 		case int:
 			a = append(a, strconv.Itoa(val.(int)))

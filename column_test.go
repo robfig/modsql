@@ -33,7 +33,7 @@ func TestColumn(t *testing.T) {
 
 }
 
-// ===
+// * * *
 
 func checkError(t *testing.T, value interface{}) {
 	if anyColumnErr == true {

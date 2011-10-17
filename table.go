@@ -10,15 +10,14 @@
 package sqlmodel
 
 import (
-	"container/vector"
 	"strings"
 )
 
 type table struct {
 	name    string
 	columns []column
-	help    []*vector.Vector
-	data    []*vector.Vector
+	help    [][]interface{}
+	data    [][]interface{}
 	meta    *metadata
 }
 
@@ -49,9 +48,9 @@ func (self *table) Insert(a ...interface{}) {
 			self.name, len(a), len(self.columns))
 	}
 
-	vec := new(vector.Vector)
+	vec := make([]interface{}, 0, 0)
 	for _, v := range a {
-		vec.Push(v)
+		vec = append(vec, v)
 	}
 
 	self.data = append(self.data, vec)
@@ -70,9 +69,9 @@ func (self *table) InsertHelp(a ...string) {
 			self.name, len(a), len(self.columns))
 	}
 
-	vec := new(vector.Vector)
+	vec := make([]interface{}, 0, 0)
 	for _, v := range a {
-		vec.Push(v)
+		vec = append(vec, v)
 	}
 
 	self.help = append(self.help, vec)

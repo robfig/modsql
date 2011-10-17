@@ -10,7 +10,7 @@
 package sqlmodel
 
 
-type sqlType int
+type sqlType uint8
 
 const (
 	_ sqlType = iota
@@ -32,7 +32,7 @@ var (
 
 	sqlType_goType = map[sqlType]string{
 		Integer: "int",
-		Float:   "float",
+		Float:   "float32",
 		Text:    "string",
 		Blob:    "[]byte",
 		Boolean: "bool",
