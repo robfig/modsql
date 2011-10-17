@@ -1,4 +1,4 @@
-// Copyright 2010  The "SQLModel" Authors
+// Copyright 2010  The "GotoSQL" Authors
 //
 // Use of this source code is governed by the BSD-2 Clause license
 // that can be found in the LICENSE file.
@@ -7,7 +7,7 @@
 // OR CONDITIONS OF ANY KIND, either express or implied. See the License
 // for more details.
 
-package sqlmodel
+package tosql
 
 // For columns with a wrong type
 var (
@@ -15,14 +15,12 @@ var (
 	columnsErr   []string
 )
 
-
 type column struct {
 	name         string
 	type_        sqlType
 	isPrimaryKey bool
 	defaultValue interface{}
 }
-
 
 func Column(name string, type_ sqlType) *column {
 	col := new(column)

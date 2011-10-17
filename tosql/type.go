@@ -1,4 +1,4 @@
-// Copyright 2010  The "SQLModel" Authors
+// Copyright 2010  The "GotoSQL" Authors
 //
 // Use of this source code is governed by the BSD-2 Clause license
 // that can be found in the LICENSE file.
@@ -7,8 +7,7 @@
 // OR CONDITIONS OF ANY KIND, either express or implied. See the License
 // for more details.
 
-package sqlmodel
-
+package tosql
 
 type sqlType uint8
 
@@ -38,7 +37,6 @@ var (
 		Boolean: "bool",
 	}
 )
-
 
 func (t sqlType) String() string {
 	return sqlType_str[t]

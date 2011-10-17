@@ -1,6 +1,6 @@
 ###### Notice
 
-*This is the official list of ***SQLModel*** authors for copyright
+*This is the official list of ***GotoSQL*** authors for copyright
 purposes.*
 
 *This file is distinct from the CONTRIBUTORS file. See the latter for an

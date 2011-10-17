@@ -1,4 +1,4 @@
-// Copyright 2010  The "SQLModel" Authors
+// Copyright 2010  The "GotoSQL" Authors
 //
 // Use of this source code is governed by the BSD-2 Clause license
 // that can be found in the LICENSE file.
@@ -7,7 +7,7 @@
 // OR CONDITIONS OF ANY KIND, either express or implied. See the License
 // for more details.
 
-package sqlmodel
+package tosql
 
 import (
 	"fmt"
@@ -23,7 +23,6 @@ import (
 
 // The mode parameter to the Metadata function is a set of flags (or 0).
 const Help uint = iota // Create tables related to the help.
-
 
 // Defines a collection of table definitions.
 type metadata struct {
@@ -116,7 +115,7 @@ func (self *metadata) CreateAll() *metadata {
 
 			// Add table for translation of fields comments
 			if self.mode == Help && col.name != "id" {
-				createLang = append(createLang, "    " + col.name + " TEXT")
+				createLang = append(createLang, "    "+col.name+" TEXT")
 				createLang = append(createLang, ",\n")
 			}
 
@@ -127,7 +126,7 @@ func (self *metadata) CreateAll() *metadata {
 
 				if self.mode == Help {
 					createLang = pop(createLang)
-					createLang= append(createLang, ");\n")
+					createLang = append(createLang, ");\n")
 					create = append(create, createLang...)
 				}
 			} else {
@@ -195,7 +194,6 @@ const (
 	_PRINTER_MODE = printer.TabIndent | printer.UseSpaces
 	_TAB_WIDTH    = 8
 )
-
 
 // Creates SQL statements to insert values; they are finally added to the main
 // vector.

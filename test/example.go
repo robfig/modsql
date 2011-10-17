@@ -1,8 +1,6 @@
-#!/usr/bin/goscript
-
 package main
 
-import . "github.com/kless/SQLModel/sqlmodel"
+import . "github.com/kless/GotoSQL/tosql"
 
 func main() {
 	metadata := Metadata().Mode(Help)
