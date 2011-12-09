@@ -44,13 +44,11 @@ Read the Go script *example.gos* in directory *test*. The files generated from
 that script are *model.sql* and *model.go*.
 
 
-## Licensing
+## Copyright and licensing
 
-***Copyright 2010  The "GotoSQL" Authors***  
-See file AUTHORS and CONTRIBUTORS.
-
-Licensed under **BSD 2-Clause License**.  
-See file LICENSE.
+*Copyright 2010  The "GotoSQL" Authors*. See file AUTHORS and CONTRIBUTORS.  
+Unless otherwise noted, the source files are distributed under the
+*BSD 2-Clause License* found in the LICENSE file.
 
 
 * * *
