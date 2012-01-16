@@ -244,9 +244,9 @@ func toString(v []interface{}) (a []string) {
 		case int:
 			a = append(a, strconv.Itoa(val.(int)))
 		case float32:
-			a = append(a, strconv.Ftoa32(val.(float32), 'g', -1))
+			a = append(a, strconv.FormatFloat(float64(val.(float32)), 'g', -1, 32))
 		case float64:
-			a = append(a, strconv.Ftoa64(val.(float64), 'g', -1))
+			a = append(a, strconv.FormatFloat(val.(float64), 'g', -1, 64))
 		case string:
 			a = append(a, fmt.Sprintf("'%s'", val.(string)))
 		case []uint8:
