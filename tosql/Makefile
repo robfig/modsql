@@ -9,4 +9,3 @@ GOFILES=\
 	type.go\
 
 include $(GOROOT)/src/Make.pkg
-
