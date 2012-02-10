@@ -1,4 +1,4 @@
-// Copyright 2010  The "GotoSQL" Authors
+// Copyright 2010  The "GoSQL" Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tosql
+package gosql
 
 import (
 	"fmt"
@@ -45,15 +45,15 @@ func Metadata() *metadata {
 }
 
 // Sets mode.
-func (self *metadata) Mode(m uint) *metadata {
-	self.mode = m
-	return self
+func (m *metadata) Mode(mode uint) *metadata {
+	m.mode = mode
+	return m
 }
 
 // * * *
 
 // Issues both CREATE statements and Go definitions for all tables.
-func (self *metadata) CreateAll() *metadata {
+func (m *metadata) CreateAll() *metadata {
 	create := make([]string, 0, 0)
 	model := make([]string, 0, 0)
 
@@ -65,10 +65,10 @@ func (self *metadata) CreateAll() *metadata {
 	create = append(create, "BEGIN TRANSACTION;\n")
 	model = append(model, header+"\n\npackage _RENAME_\n")
 
-	for _, table := range self.tables {
+	for _, table := range m.tables {
 		createLang := make([]string, 0, 0)
 
-		if self.mode == Help {
+		if m.mode == Help {
 			createLang = append(createLang,
 				fmt.Sprintf("\nCREATE TABLE _%s (id TEXT PRIMARY KEY,\n", table.name))
 		}
@@ -119,7 +119,7 @@ func (self *metadata) CreateAll() *metadata {
 			create = append(create, extra)
 
 			// Add table for translation of fields comments
-			if self.mode == Help && col.name != "id" {
+			if m.mode == Help && col.name != "id" {
 				createLang = append(createLang, "    "+col.name+" TEXT")
 				createLang = append(createLang, ",\n")
 			}
@@ -129,7 +129,7 @@ func (self *metadata) CreateAll() *metadata {
 				create = append(create, ");\n")
 				model = append(model, "}\n")
 
-				if self.mode == Help {
+				if m.mode == Help {
 					createLang = pop(createLang)
 					createLang = append(createLang, ");\n")
 					create = append(create, createLang...)
@@ -142,35 +142,35 @@ func (self *metadata) CreateAll() *metadata {
 	create = append(create, "\nCOMMIT;\n")
 
 	// === Insert
-	if self.useInsertHelp {
-		self.insert(&create, _INSERT_HELP)
+	if m.useInsertHelp {
+		m.insert(&create, _INSERT_HELP)
 	}
-	if self.useInsert {
-		self.insert(&create, _INSERT_DATA)
+	if m.useInsert {
+		m.insert(&create, _INSERT_DATA)
 	}
 
-	self.queries = []byte(strings.Join(create, ""))
-	self.model = []byte(strings.Join(model, ""))
-	return self
+	m.queries = []byte(strings.Join(create, ""))
+	m.model = []byte(strings.Join(model, ""))
+	return m
 }
 
 // Writes SQL statements to a file or standard output.
-func (self *metadata) Write(out output) {
+func (m *metadata) Write(out output) {
 	if out == FILEOUT {
-		self.WriteTo(_SQL_OUTPUT, _MODEL_OUTPUT)
+		m.WriteTo(_SQL_OUTPUT, _MODEL_OUTPUT)
 	} else if out == STDOUT {
-		fmt.Printf("%s\n* * *\n\n", self.queries)
-		self.format(os.Stdout)
+		fmt.Printf("%s\n* * *\n\n", m.queries)
+		m.format(os.Stdout)
 	}
 }
 
 // Writes SQL statements to given files.
-func (self *metadata) WriteTo(sqlFile, goFile string) {
-	if len(self.queries) == 0 {
+func (m *metadata) WriteTo(sqlFile, goFile string) {
+	if len(m.queries) == 0 {
 		fatal("No tables created. Use CreateAll()")
 	}
 
-	err := ioutil.WriteFile(sqlFile, self.queries, 0644)
+	err := ioutil.WriteFile(sqlFile, m.queries, 0644)
 	if err != nil {
 		fatal("Failed to write file: %s", err)
 	}
@@ -181,7 +181,7 @@ func (self *metadata) WriteTo(sqlFile, goFile string) {
 	}
 	defer file.Close()
 
-	self.format(file)
+	m.format(file)
 	return
 }
 
@@ -202,7 +202,7 @@ const (
 
 // Creates SQL statements to insert values; they are finally added to the main
 // vector.
-func (self *metadata) insert(main *[]string, value uint) {
+func (m *metadata) insert(main *[]string, value uint) {
 	if value != _INSERT_HELP && value != _INSERT_DATA {
 		fatal("argument \"value\" not valid for \"metadata.insert\": %d", value)
 	}
@@ -211,7 +211,7 @@ func (self *metadata) insert(main *[]string, value uint) {
 	insert := make([]string, 0, 0)
 	insert = append(insert, "BEGIN TRANSACTION;\n")
 
-	for _, table := range self.tables {
+	for _, table := range m.tables {
 		tableName := table.name
 
 		if value == _INSERT_HELP {
@@ -245,7 +245,7 @@ func (self *metadata) insert(main *[]string, value uint) {
 // Converts a vector of interfaces to array of strings.
 func toString(v []interface{}) (a []string) {
 	for _, val := range v {
-		switch v := val.(type) {
+		switch val.(type) {
 		case int:
 			a = append(a, strconv.Itoa(val.(int)))
 		case float32:
@@ -268,15 +268,15 @@ func toString(v []interface{}) (a []string) {
 }
 
 // Formats the Go source code.
-func (self *metadata) format(out io.Writer) {
+func (m *metadata) format(out io.Writer) {
 	fset := token.NewFileSet()
 
-	ast, err := parser.ParseFile(fset, "", self.model, _PARSER_MODE)
+	ast, err := parser.ParseFile(fset, "", m.model, _PARSER_MODE)
 	if err != nil {
 		fatal("Failed to format Go code: %s", err)
 	}
 
-	_, err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH}).Fprint(out, fset, ast)
+	err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH}).Fprint(out, fset, ast)
 	if err != nil {
 		fatal("Failed to format Go code: %s", err)
 	}

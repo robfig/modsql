@@ -1,9 +1,12 @@
-GotoSQL
-=======
+GoSQL
+=====
 
 It allows to use a Go script to define a database model and so to generate its
 corresponding SQL language and Go types. It is not an ORM neither it isn't
 goint to be it since an ORM creates an extra layer to the database access.
+
+It generates the files *model.sql* and *model.go* at writing to the file system.
+But it also can show the generated output.
 
 The API is based in [SQLAlchemy's][4] and here they are all [SQLAlchmey's types]
 [5], althought I've only added these basic types:
@@ -30,23 +33,59 @@ it at your project's name.
 
 ## Installation
 
-	goinstall github.com/kless/GotoSQL/tosql
+	go get github.com/kless/GoSQL/gosql
 
+To run the tests:
 
-## Configuration
-
-Nothing.
+	cd ${GOPATH//:*}/src/github.com/kless/GoSQL/gosql && go test && cd -
 
 
 ## Operating instructions
 
-Read the Go script *example.gos* in directory *test*. The files generated from
-that script are *model.sql* and *model.go*.
+Here it is the example used in *gosql_test.go* except this one writes the files.
+You can see the generated output in that file.
+
+	package main
+
+	import . "github.com/kless/GoSQL/gosql"
+
+	func main() {
+		metadata := Metadata().Mode(Help)
+
+		types := Table("types", metadata,
+			Column("id", Integer).PrimaryKey(),
+			Column("t_int", Integer),
+			Column("t_float", Float),
+			Column("t_text", Text),
+			Column("t_blob", Blob),
+			Column("t_bool", Boolean),
+		)
+
+		def := Table("default_value", metadata,
+			Column("id", Integer).PrimaryKey(),
+			Column("d_int", Integer).Default(55),
+			Column("d_float", Float).Default(10.2),
+			Column("d_text", Text).Default("string"),
+			//Column("d_blob", Blob).Default([]byte("123")),
+			Column("d_bool", Boolean).Default(false),
+		)
+
+		// == Insert values
+		types.InsertHelp("en", "integer", "float", "text", "binary", "boolean")
+		types.Insert(1, 10, 1.1, "one", []byte("one"), true)
+		types.Insert(2, 20, 2.2, "two", []byte("two"), false)
+
+		def.InsertHelp("en", "integer", "float", "text", "boolean")
+		def.Insert(1, 10, 10.1, "foo", true)
+		// ==
+
+		metadata.CreateAll().Write(FILEOUT)
+	}
 
 
 ## Copyright and licensing
 
-*Copyright 2010  The "GotoSQL" Authors*. See file AUTHORS and CONTRIBUTORS.  
+*Copyright 2010  The "GoSQL" Authors*. See file AUTHORS and CONTRIBUTORS.  
 Unless otherwise noted, the source files are distributed under the
 *Apache License, version 2.0* found in the LICENSE file.
 

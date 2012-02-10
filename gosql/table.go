@@ -1,4 +1,4 @@
-// Copyright 2010  The "GotoSQL" Authors
+// Copyright 2010  The "GoSQL" Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tosql
+package gosql
 
 import (
 	"strings"
@@ -45,11 +45,11 @@ func Table(name string, meta *metadata, col ...*column) *table {
 }
 
 // Creates SQL statements to insert values.
-func (self *table) Insert(a ...interface{}) {
-	if len(a) != len(self.columns) {
+func (t *table) Insert(a ...interface{}) {
+	if len(a) != len(t.columns) {
 		fatal("incorrect number of arguments for Insert in table %q:"+
 			" have %d, want %d",
-			self.name, len(a), len(self.columns))
+			t.name, len(a), len(t.columns))
 	}
 
 	vec := make([]interface{}, 0, 0)
@@ -57,20 +57,20 @@ func (self *table) Insert(a ...interface{}) {
 		vec = append(vec, v)
 	}
 
-	self.data = append(self.data, vec)
-	self.meta.useInsert = true
+	t.data = append(t.data, vec)
+	t.meta.useInsert = true
 }
 
 // Creates SQL statements to insert values on its help table.
-func (self *table) InsertHelp(a ...string) {
-	if self.meta.mode != Help {
+func (t *table) InsertHelp(a ...string) {
+	if t.meta.mode != Help {
 		fatal("Metadata Help mode is unset")
 	}
 
-	if len(a) != len(self.columns) {
+	if len(a) != len(t.columns) {
 		fatal("incorrect number of arguments for Insert in table %q:"+
 			" have %d, want %d",
-			self.name, len(a), len(self.columns))
+			t.name, len(a), len(t.columns))
 	}
 
 	vec := make([]interface{}, 0, 0)
@@ -78,6 +78,6 @@ func (self *table) InsertHelp(a ...string) {
 		vec = append(vec, v)
 	}
 
-	self.help = append(self.help, vec)
-	self.meta.useInsertHelp = true
+	t.help = append(t.help, vec)
+	t.meta.useInsertHelp = true
 }
