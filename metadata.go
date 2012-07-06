@@ -22,16 +22,21 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
 
-// The mode parameter to the Metadata function is a set of flags (or 0).
-const Help uint = iota // Create tables related to the help.
+// mode defines the modes to use in metadata.Mode.
+type mode byte
+
+const (
+	Help mode = iota + 1 // Create tables related to the help.
+)
 
 // metadata defines a collection of table definitions.
 type metadata struct {
-	mode          uint
+	mode          mode
 	useInsert     bool
 	useInsertHelp bool
 	tables        []*table
@@ -39,21 +44,21 @@ type metadata struct {
 	model         []byte
 }
 
-// Metadata initializes the type metadata.
-func Metadata() *metadata {
+// NewMetadata returns a new metadata.
+func NewMetadata() *metadata {
 	return &metadata{}
 }
 
 // Mode sets the mode.
-func (m *metadata) Mode(mode uint) *metadata {
-	m.mode = mode
-	return m
+func (md *metadata) Mode(m mode) *metadata {
+	md.mode = m
+	return md
 }
 
 // * * *
 
 // CreateAll generates both CREATE statements and Go definitions for all tables.
-func (m *metadata) CreateAll() *metadata {
+func (md *metadata) CreateAll() *metadata {
 	create := make([]string, 0, 0)
 	model := make([]string, 0, 0)
 
@@ -62,13 +67,18 @@ func (m *metadata) CreateAll() *metadata {
 		return sl
 	}
 
-	create = append(create, "BEGIN TRANSACTION;\n")
-	model = append(model, header+"\n\npackage _RENAME_\n")
+	pkgName := "main"
+	if wd, err := os.Getwd(); err == nil {
+		pkgName = filepath.Base(wd)
+	}
 
-	for _, table := range m.tables {
+	create = append(create, "BEGIN TRANSACTION;\n")
+	model = append(model, fmt.Sprintf("%s\n\npackage %s\n", header, pkgName))
+
+	for _, table := range md.tables {
 		createLang := make([]string, 0, 0)
 
-		if m.mode == Help {
+		if md.mode == Help {
 			createLang = append(createLang,
 				fmt.Sprintf("\nCREATE TABLE _%s (id TEXT PRIMARY KEY,\n", table.name))
 		}
@@ -119,7 +129,7 @@ func (m *metadata) CreateAll() *metadata {
 			create = append(create, extra)
 
 			// Add table for translation of fields comments
-			if m.mode == Help && col.name != "id" {
+			if md.mode == Help && col.name != "id" {
 				createLang = append(createLang, "    "+col.name+" TEXT")
 				createLang = append(createLang, ",\n")
 			}
@@ -129,7 +139,7 @@ func (m *metadata) CreateAll() *metadata {
 				create = append(create, ");\n")
 				model = append(model, "}\n")
 
-				if m.mode == Help {
+				if md.mode == Help {
 					createLang = pop(createLang)
 					createLang = append(createLang, ");\n")
 					create = append(create, createLang...)
@@ -142,36 +152,36 @@ func (m *metadata) CreateAll() *metadata {
 	create = append(create, "\nCOMMIT;\n")
 
 	// === Insert
-	if m.useInsertHelp {
-		m.insert(&create, _INSERT_HELP)
+	if md.useInsertHelp {
+		md.insert(&create, _INSERT_HELP)
 	}
-	if m.useInsert {
-		m.insert(&create, _INSERT_DATA)
+	if md.useInsert {
+		md.insert(&create, _INSERT_DATA)
 	}
 
-	m.queries = []byte(strings.Join(create, ""))
-	m.model = []byte(strings.Join(model, ""))
-	return m
+	md.queries = []byte(strings.Join(create, ""))
+	md.model = []byte(strings.Join(model, ""))
+	return md
 }
 
 // Print prints both SQL statements and Go model.
-func (m *metadata) Print() {
-	fmt.Printf("%s\n* * *\n\n", m.queries)
-	m.format(os.Stdout)
+func (md *metadata) Print() {
+	fmt.Printf("%s\n* * *\n\n", md.queries)
+	md.format(os.Stdout)
 }
 
 // Write writes both SQL statements and Go model to files using names by default.
-func (m *metadata) Write() {
-	m.WriteTo(_SQL_FILE, _MODEL_FILE)
+func (md *metadata) Write() {
+	md.WriteTo(_SQL_FILE, _MODEL_FILE)
 }
 
 // WriteTo writes both SQL statements and Go model to given files.
-func (m *metadata) WriteTo(sqlFile, goFile string) {
-	if len(m.queries) == 0 {
+func (md *metadata) WriteTo(sqlFile, goFile string) {
+	if len(md.queries) == 0 {
 		fatalf("No tables created. Use CreateAll()")
 	}
 
-	err := ioutil.WriteFile(sqlFile, m.queries, 0644)
+	err := ioutil.WriteFile(sqlFile, md.queries, 0644)
 	if err != nil {
 		fatalf("Failed to write file: %s", err)
 	}
@@ -182,7 +192,7 @@ func (m *metadata) WriteTo(sqlFile, goFile string) {
 	}
 	defer file.Close()
 
-	m.format(file)
+	md.format(file)
 	return
 }
 
@@ -203,7 +213,7 @@ const (
 
 // insert generates SQL statements to insert values; they are finally added to
 // the slice main.
-func (m *metadata) insert(main *[]string, value uint) {
+func (md *metadata) insert(main *[]string, value uint) {
 	if value != _INSERT_HELP && value != _INSERT_DATA {
 		fatalf("argument \"value\" not valid for \"metadata.insert\": %d", value)
 	}
@@ -212,7 +222,7 @@ func (m *metadata) insert(main *[]string, value uint) {
 	insert := make([]string, 0, 0)
 	insert = append(insert, "BEGIN TRANSACTION;\n")
 
-	for _, table := range m.tables {
+	for _, table := range md.tables {
 		tableName := table.name
 
 		if value == _INSERT_HELP {
@@ -269,10 +279,10 @@ func toString(v []interface{}) (a []string) {
 }
 
 // format formats the Go source code.
-func (m *metadata) format(out io.Writer) {
+func (md *metadata) format(out io.Writer) {
 	fset := token.NewFileSet()
 
-	ast, err := parser.ParseFile(fset, "", m.model, _PARSER_MODE)
+	ast, err := parser.ParseFile(fset, "", md.model, _PARSER_MODE)
 	if err != nil {
 		fatalf("Failed to format Go code: %s", err)
 	}
