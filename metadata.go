@@ -31,7 +31,8 @@ import (
 type mode byte
 
 const (
-	Help mode = iota + 1 // Create tables related to the help.
+	// If Help is set, it is created tables related to help.
+	Help mode = iota + 1
 )
 
 // metadata defines a collection of table definitions.

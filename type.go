@@ -14,12 +14,12 @@
 
 package go2sql
 
+// sqlType represents the SQL type.
 type sqlType uint8
 
-// SQL types to set in each Column.
+// SQL types to set in Column.
 const (
-	_ sqlType = iota
-	Integer
+	Integer sqlType = iota + 1
 	Float
 	Text
 	Blob
