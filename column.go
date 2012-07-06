@@ -27,6 +27,7 @@ type column struct {
 	defaultValue interface{}
 }
 
+// Column defines a new column.
 func Column(name string, type_ sqlType) *column {
 	col := new(column)
 	col.name = name
@@ -34,8 +35,9 @@ func Column(name string, type_ sqlType) *column {
 	return col
 }
 
-func (c *column) Default(i interface{}) *column {
-	c.defaultValue = i
+// Default sets a value to set by default.
+func (c *column) Default(v interface{}) *column {
+	c.defaultValue = v
 
 	if ok := c.check(); !ok {
 		columnsErr = append(columnsErr, c.name)
@@ -45,6 +47,7 @@ func (c *column) Default(i interface{}) *column {
 	return c
 }
 
+// PrimaryKey indicates that the column is a primary key.
 func (c *column) PrimaryKey() *column {
 	c.isPrimaryKey = true
 	return c

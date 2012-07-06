@@ -26,6 +26,7 @@ type table struct {
 	meta    *metadata
 }
 
+// Table defines a new table.
 func Table(name string, meta *metadata, col ...*column) *table {
 	if anyColumnErr {
 		fatalf("Wrong type for default value in table %q: %s",
@@ -61,7 +62,7 @@ func (t *table) Insert(a ...interface{}) {
 	t.meta.useInsert = true
 }
 
-// InsertHelp generates SQL statements to insert values on its help table.
+// InsertHelp generates SQL statements to insert values on the help table.
 func (t *table) InsertHelp(a ...string) {
 	if t.meta.mode != Help {
 		fatalf("Metadata Help mode is unset")

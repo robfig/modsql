@@ -16,6 +16,7 @@ package go2sql
 
 type sqlType uint8
 
+// SQL types to set in each Column.
 const (
 	_ sqlType = iota
 	Integer
