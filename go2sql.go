@@ -22,13 +22,7 @@ But it also can show the generated output.
 
 The API is based in SQLAlchemy's (http://www.sqlalchemy.org/) and here it is all
 all SQLAlchmey's types (http://www.sqlalchemy.org/docs/core/types.html),
-althought I've only added these basic types:
-
-	Integer
-	Float
-	Text
-	Blob
-	Boolean
+althought I have only added some basic types.
 
 The function Metadata has method Mode to create tables related to localization.
 If it is set, then at generating SQL, it creates an extra table (starting wich
