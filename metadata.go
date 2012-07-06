@@ -16,6 +16,7 @@ package go2sql
 
 import (
 	"fmt"
+	"go/build"
 	"go/parser"
 	"go/printer"
 	"go/token"
@@ -68,13 +69,8 @@ func (md *metadata) CreateAll() *metadata {
 		return sl
 	}
 
-	pkgName := "main"
-	if wd, err := os.Getwd(); err == nil {
-		pkgName = filepath.Base(wd)
-	}
-
 	create = append(create, "BEGIN TRANSACTION;\n")
-	model = append(model, fmt.Sprintf("%s\n\npackage %s\n", header, pkgName))
+	model = append(model, fmt.Sprintf("%s\n\npackage %s\n", header, getPkgName()))
 
 	for _, table := range md.tables {
 		createLang := make([]string, 0, 0)
@@ -294,4 +290,32 @@ func (md *metadata) format(out io.Writer) {
 	}
 
 	return
+}
+
+// == Utility
+// ==
+
+// getPkgName returns the package name of the actual directory.
+func getPkgName() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "main"
+	}
+
+	if files, err := filepath.Glob("*.go"); err == nil && len(files) != 0 {
+		for _, srcDir := range strings.Split(build.Default.GOPATH, ":") {
+			importPath, err := filepath.Rel(srcDir, wd)
+			if err != nil {
+				continue
+			}
+
+			pkg, err := build.Import(importPath, srcDir, 0)
+			if err != nil {
+				continue
+			}
+			return pkg.Name
+		}
+	}
+
+	return filepath.Base(wd)
 }
