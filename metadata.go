@@ -28,16 +28,27 @@ import (
 	"strings"
 )
 
-// mode defines the modes to use in metadata.Mode.
+// mode represents the modes to use in metadata.Mode.
 type mode byte
 
 const (
 	// If Help is set, it is created tables related to help.
-	Help mode = iota + 1
+	Help mode = iota
+)
+
+// dbEngine represents the SQL engine.
+type sqlEngine byte
+
+// SQL engines.
+const (
+	SQLite sqlEngine = iota
+	MySQL
+	PostgreSQL
 )
 
 // metadata defines a collection of table definitions.
 type metadata struct {
+	engine        sqlEngine
 	mode          mode
 	useInsert     bool
 	useInsertHelp bool
@@ -47,8 +58,8 @@ type metadata struct {
 }
 
 // NewMetadata returns a new metadata.
-func NewMetadata() *metadata {
-	return &metadata{}
+func NewMetadata(engine sqlEngine) *metadata {
+	return &metadata{engine: engine}
 }
 
 // Mode sets the mode.
@@ -105,21 +116,13 @@ func (md *metadata) CreateAll() *metadata {
 			if col.defaultValue != nil {
 				extra += " DEFAULT "
 
-				switch col.defaultValue.(type) {
+				switch t := col.defaultValue.(type) {
 				case string:
-					extra += fmt.Sprintf("'%s'", col.defaultValue)
-
+					extra += fmt.Sprintf("'%s'", t)
 				case bool:
-					// SQLite has not boolean type
-					var conversion int
-
-					if col.defaultValue.(bool) {
-						conversion = 1
-					}
-					extra += fmt.Sprintf("%d", conversion)
-
+					extra += fmt.Sprintf("%s", md.getbool(t))
 				default:
-					extra += fmt.Sprintf("%v", col.defaultValue)
+					extra += fmt.Sprintf("%v", t)
 				}
 			}
 
@@ -240,7 +243,7 @@ func (md *metadata) insert(main *[]string, value uint) {
 				insert = append(insert, fmt.Sprintf("\nINSERT INTO %q (%s) VALUES(%s);",
 					tableName,
 					strings.Join(columns, ", "),
-					strings.Join(toString(v), ", ")))
+					strings.Join(md.toString(v), ", ")))
 			}
 			insert = append(insert, "\n")
 		}
@@ -251,7 +254,7 @@ func (md *metadata) insert(main *[]string, value uint) {
 }
 
 // toString converts to slice of strings.
-func toString(v []interface{}) (a []string) {
+func (md *metadata) toString(v []interface{}) (a []string) {
 	for _, val := range v {
 		switch val.(type) {
 		case int:
@@ -265,11 +268,7 @@ func toString(v []interface{}) (a []string) {
 		case []uint8:
 			a = append(a, fmt.Sprintf("'%s'", val.([]uint8)))
 		case bool:
-			b := 0
-			if val == true {
-				b = 1
-			}
-			a = append(a, strconv.Itoa(b))
+			a = append(a, md.getbool(val.(bool)))
 		}
 	}
 	return
@@ -294,6 +293,23 @@ func (md *metadata) format(out io.Writer) {
 
 // == Utility
 // ==
+
+// getbool returns the literal value for a boolean according to the SQL engine.
+func (md *metadata) getbool(b bool) string {
+	if md.engine == SQLite {
+		value := 0
+		if b == true {
+			value = 1
+		}
+		return strconv.Itoa(value)
+	}
+
+	value := "FALSE"
+	if b == true {
+		value = "TRUE"
+	}
+	return value
+}
 
 // getPkgName returns the package name of the actual directory.
 func getPkgName() string {

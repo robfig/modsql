@@ -42,7 +42,7 @@ file. To run it, use "go run file.go".
 	import . "github.com/kless/go2sql"
 
 	func main() {
-		metadata := NewMetadata().Mode(Help)
+		metadata := NewMetadata(PostgreSQL).Mode(Help)
 
 		types := Table("types", metadata,
 			Column("id", Integer).PrimaryKey(),

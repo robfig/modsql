@@ -15,7 +15,7 @@
 package go2sql
 
 func ExampleSQL() {
-	metadata := NewMetadata().Mode(Help)
+	metadata := NewMetadata(0).Mode(Help)
 
 	types := Table("types", metadata,
 		Column("id", Integer).PrimaryKey(),
