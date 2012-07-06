@@ -22,7 +22,7 @@ func ExampleSQL() {
 		Column("t_int", Integer),
 		Column("t_float", Float),
 		Column("t_text", Text),
-		Column("t_blob", Blob),
+		//Column("t_blob", Blob),
 		Column("t_bool", Boolean),
 	)
 
@@ -36,9 +36,9 @@ func ExampleSQL() {
 	)
 
 	// == Insert values
-	types.InsertHelp("en", "integer", "float", "text", "binary", "boolean")
-	types.Insert(1, 10, 1.1, "one", []byte("one"), true)
-	types.Insert(2, 20, 2.2, "two", []byte("two"), false)
+	types.InsertHelp("en", "integer", "float", "text", "boolean")
+	types.Insert(1, 10, 1.1, "one", true)
+	types.Insert(2, 20, 2.2, "two", false)
 
 	def.InsertHelp("en", "integer", "float", "text", "boolean")
 	def.Insert(1, 10, 10.1, "foo", true)
@@ -53,14 +53,12 @@ func ExampleSQL() {
 	//     t_int INTEGER,
 	//     t_float FLOAT,
 	//     t_text TEXT,
-	//     t_blob BLOB,
 	//     t_bool BOOLEAN);
 	//
 	// CREATE TABLE _types (id TEXT PRIMARY KEY,
 	//     t_int TEXT,
 	//     t_float TEXT,
 	//     t_text TEXT,
-	//     t_blob TEXT,
 	//     t_bool TEXT);
 	//
 	// CREATE TABLE default_value (id INTEGER PRIMARY KEY,
@@ -78,15 +76,15 @@ func ExampleSQL() {
 	// COMMIT;
 	// BEGIN TRANSACTION;
 	//
-	// INSERT INTO "_types" (id, t_int, t_float, t_text, t_blob, t_bool) VALUES('en', 'integer', 'float', 'text', 'binary', 'boolean');
+	// INSERT INTO "_types" (id, t_int, t_float, t_text, t_bool) VALUES('en', 'integer', 'float', 'text', 'boolean');
 	//
 	// INSERT INTO "_default_value" (id, d_int, d_float, d_text, d_bool) VALUES('en', 'integer', 'float', 'text', 'boolean');
 	//
 	// COMMIT;
 	// BEGIN TRANSACTION;
 	//
-	// INSERT INTO "types" (id, t_int, t_float, t_text, t_blob, t_bool) VALUES(1, 10, 1.1, 'one', 'one', 1);
-	// INSERT INTO "types" (id, t_int, t_float, t_text, t_blob, t_bool) VALUES(2, 20, 2.2, 'two', 'two', 0);
+	// INSERT INTO "types" (id, t_int, t_float, t_text, t_bool) VALUES(1, 10, 1.1, 'one', 1);
+	// INSERT INTO "types" (id, t_int, t_float, t_text, t_bool) VALUES(2, 20, 2.2, 'two', 0);
 	//
 	// INSERT INTO "default_value" (id, d_int, d_float, d_text, d_bool) VALUES(1, 10, 10.1, 'foo', 1);
 	//
@@ -104,7 +102,6 @@ func ExampleSQL() {
 	// 	t_int   int
 	// 	t_float float32
 	// 	t_text  string
-	// 	t_blob  []byte
 	// 	t_bool  bool
 	// }
 	//

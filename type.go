@@ -22,7 +22,7 @@ const (
 	Integer sqlType = iota + 1
 	Float
 	Text
-	Blob
+	//Blob
 	Boolean
 )
 
@@ -31,7 +31,7 @@ var (
 		Integer: "Integer",
 		Float:   "Float",
 		Text:    "Text",
-		Blob:    "Blob",
+		//Blob:    "Blob",
 		Boolean: "Boolean",
 	}
 
@@ -39,7 +39,7 @@ var (
 		Integer: "int",
 		Float:   "float32",
 		Text:    "string",
-		Blob:    "[]byte",
+		//Blob:    "[]byte",
 		Boolean: "bool",
 	}
 )
