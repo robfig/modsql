@@ -1,4 +1,4 @@
-// Copyright 2010  The "GoSQL" Authors
+// Copyright 2010  The "go2sql" Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gosql
+package go2sql
 
 import (
 	"strings"
@@ -28,7 +28,7 @@ type table struct {
 
 func Table(name string, meta *metadata, col ...*column) *table {
 	if anyColumnErr {
-		fatal("Wrong type for default value in table %q: %s",
+		fatalf("Wrong type for default value in table %q: %s",
 			name, strings.Join(columnsErr, ", "))
 	}
 
@@ -44,10 +44,10 @@ func Table(name string, meta *metadata, col ...*column) *table {
 	return _table
 }
 
-// Creates SQL statements to insert values.
+// Insert generates SQL statements to insert values.
 func (t *table) Insert(a ...interface{}) {
 	if len(a) != len(t.columns) {
-		fatal("incorrect number of arguments for Insert in table %q:"+
+		fatalf("incorrect number of arguments for Insert in table %q:"+
 			" have %d, want %d",
 			t.name, len(a), len(t.columns))
 	}
@@ -61,14 +61,14 @@ func (t *table) Insert(a ...interface{}) {
 	t.meta.useInsert = true
 }
 
-// Creates SQL statements to insert values on its help table.
+// InsertHelp generates SQL statements to insert values on its help table.
 func (t *table) InsertHelp(a ...string) {
 	if t.meta.mode != Help {
-		fatal("Metadata Help mode is unset")
+		fatalf("Metadata Help mode is unset")
 	}
 
 	if len(a) != len(t.columns) {
-		fatal("incorrect number of arguments for Insert in table %q:"+
+		fatalf("incorrect number of arguments for Insert in table %q:"+
 			" have %d, want %d",
 			t.name, len(a), len(t.columns))
 	}

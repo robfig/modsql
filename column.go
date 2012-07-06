@@ -1,4 +1,4 @@
-// Copyright 2010  The "GoSQL" Authors
+// Copyright 2010  The "go2sql" Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gosql
+package go2sql
 
 // For columns with a wrong type
 var (
@@ -50,7 +50,7 @@ func (c *column) PrimaryKey() *column {
 	return c
 }
 
-// Checks if the value by default has the correct type.
+// check checks whether the value by default has the correct type.
 func (c *column) check() bool {
 	switch c.defaultValue.(type) {
 	case bool:

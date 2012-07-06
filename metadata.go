@@ -1,4 +1,4 @@
-// Copyright 2010  The "GoSQL" Authors
+// Copyright 2010  The "go2sql" Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gosql
+package go2sql
 
 import (
 	"fmt"
@@ -29,7 +29,7 @@ import (
 // The mode parameter to the Metadata function is a set of flags (or 0).
 const Help uint = iota // Create tables related to the help.
 
-// Defines a collection of table definitions.
+// metadata defines a collection of table definitions.
 type metadata struct {
 	mode          uint
 	useInsert     bool
@@ -39,12 +39,12 @@ type metadata struct {
 	model         []byte
 }
 
-// Initializes the type metadata.
+// Metadata initializes the type metadata.
 func Metadata() *metadata {
 	return &metadata{}
 }
 
-// Sets mode.
+// Mode sets the mode.
 func (m *metadata) Mode(mode uint) *metadata {
 	m.mode = mode
 	return m
@@ -52,7 +52,7 @@ func (m *metadata) Mode(mode uint) *metadata {
 
 // * * *
 
-// Issues both CREATE statements and Go definitions for all tables.
+// CreateAll generates both CREATE statements and Go definitions for all tables.
 func (m *metadata) CreateAll() *metadata {
 	create := make([]string, 0, 0)
 	model := make([]string, 0, 0)
@@ -154,7 +154,7 @@ func (m *metadata) CreateAll() *metadata {
 	return m
 }
 
-// Writes SQL statements to a file or standard output.
+// Write writes SQL statements to a file or standard output.
 func (m *metadata) Write(out output) {
 	if out == FILEOUT {
 		m.WriteTo(_SQL_OUTPUT, _MODEL_OUTPUT)
@@ -164,20 +164,20 @@ func (m *metadata) Write(out output) {
 	}
 }
 
-// Writes SQL statements to given files.
+// WriteTo writes SQL statements to the given files.
 func (m *metadata) WriteTo(sqlFile, goFile string) {
 	if len(m.queries) == 0 {
-		fatal("No tables created. Use CreateAll()")
+		fatalf("No tables created. Use CreateAll()")
 	}
 
 	err := ioutil.WriteFile(sqlFile, m.queries, 0644)
 	if err != nil {
-		fatal("Failed to write file: %s", err)
+		fatalf("Failed to write file: %s", err)
 	}
 
 	file, err := os.OpenFile(goFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		fatal("Failed to write file: %s", err)
+		fatalf("Failed to write file: %s", err)
 	}
 	defer file.Close()
 
@@ -200,11 +200,11 @@ const (
 	_TAB_WIDTH    = 8
 )
 
-// Creates SQL statements to insert values; they are finally added to the main
-// vector.
+// insert generates SQL statements to insert values; they are finally added to
+// the slice main.
 func (m *metadata) insert(main *[]string, value uint) {
 	if value != _INSERT_HELP && value != _INSERT_DATA {
-		fatal("argument \"value\" not valid for \"metadata.insert\": %d", value)
+		fatalf("argument \"value\" not valid for \"metadata.insert\": %d", value)
 	}
 
 	var data [][]interface{}
@@ -242,7 +242,7 @@ func (m *metadata) insert(main *[]string, value uint) {
 	*main = append(*main, insert...)
 }
 
-// Converts a vector of interfaces to array of strings.
+// toString converts to slice of strings.
 func toString(v []interface{}) (a []string) {
 	for _, val := range v {
 		switch val.(type) {
@@ -267,18 +267,18 @@ func toString(v []interface{}) (a []string) {
 	return
 }
 
-// Formats the Go source code.
+// format formats the Go source code.
 func (m *metadata) format(out io.Writer) {
 	fset := token.NewFileSet()
 
 	ast, err := parser.ParseFile(fset, "", m.model, _PARSER_MODE)
 	if err != nil {
-		fatal("Failed to format Go code: %s", err)
+		fatalf("Failed to format Go code: %s", err)
 	}
 
 	err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH}).Fprint(out, fset, ast)
 	if err != nil {
-		fatal("Failed to format Go code: %s", err)
+		fatalf("Failed to format Go code: %s", err)
 	}
 
 	return
