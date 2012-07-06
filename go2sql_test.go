@@ -44,7 +44,7 @@ func ExampleSQL() {
 	def.Insert(1, 10, 10.1, "foo", true)
 	// ==
 
-	metadata.CreateAll().Write(STDOUT)
+	metadata.CreateAll().Print()
 
 	// Output:
 	// BEGIN TRANSACTION;

@@ -154,17 +154,18 @@ func (m *metadata) CreateAll() *metadata {
 	return m
 }
 
-// Write writes SQL statements to a file or standard output.
-func (m *metadata) Write(out output) {
-	if out == FILEOUT {
-		m.WriteTo(_SQL_OUTPUT, _MODEL_OUTPUT)
-	} else if out == STDOUT {
-		fmt.Printf("%s\n* * *\n\n", m.queries)
-		m.format(os.Stdout)
-	}
+// Print prints both SQL statements and Go model.
+func (m *metadata) Print() {
+	fmt.Printf("%s\n* * *\n\n", m.queries)
+	m.format(os.Stdout)
 }
 
-// WriteTo writes SQL statements to the given files.
+// Write writes both SQL statements and Go model to files using names by default.
+func (m *metadata) Write() {
+	m.WriteTo(_SQL_FILE, _MODEL_FILE)
+}
+
+// WriteTo writes both SQL statements and Go model to given files.
 func (m *metadata) WriteTo(sqlFile, goFile string) {
 	if len(m.queries) == 0 {
 		fatalf("No tables created. Use CreateAll()")
