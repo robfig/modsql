@@ -254,24 +254,26 @@ func (md *metadata) insert(main *[]string, value uint) {
 }
 
 // toString converts to slice of strings.
-func (md *metadata) toString(v []interface{}) (a []string) {
+func (md *metadata) toString(v []interface{}) []string {
+	res := make([]string, 0)
+
 	for _, val := range v {
-		switch val.(type) {
+		switch t := val.(type) {
 		case int:
-			a = append(a, strconv.Itoa(val.(int)))
+			res = append(res, strconv.Itoa(t))
 		case float32:
-			a = append(a, strconv.FormatFloat(float64(val.(float32)), 'g', -1, 32))
+			res = append(res, strconv.FormatFloat(float64(t), 'g', -1, 32))
 		case float64:
-			a = append(a, strconv.FormatFloat(val.(float64), 'g', -1, 64))
+			res = append(res, strconv.FormatFloat(t, 'g', -1, 64))
 		case string:
-			a = append(a, fmt.Sprintf("'%s'", val.(string)))
+			res = append(res, fmt.Sprintf("'%s'", t))
 		case []uint8:
-			a = append(a, fmt.Sprintf("'%s'", val.([]uint8)))
+			res = append(res, fmt.Sprintf("'%s'", t))
 		case bool:
-			a = append(a, md.getbool(val.(bool)))
+			res = append(res, md.getbool(t))
 		}
 	}
-	return
+	return res
 }
 
 // format formats the Go source code.
