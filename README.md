@@ -9,11 +9,10 @@ http://go.pkgdoc.org/github.com/kless/go2sql
 	go get github.com/kless/go2sql
 
 
-## Copyright and licensing
+## License
 
-*Copyright 2010  The "go2sql" Authors*. See file AUTHORS and CONTRIBUTORS.  
-Unless otherwise noted, the source files are distributed under the
-*Apache License, version 2.0* found in the LICENSE file.
+The source files are distributed under the [Mozilla Public License, version 2.0](http://mozilla.org/MPL/2.0/),
+unless otherwise noted.
 
 
 * * *
