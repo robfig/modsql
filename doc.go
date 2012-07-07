@@ -1,10 +1,10 @@
 /*
-Package go2sql allows use a Go to define a database model and generate its
-corresponding SQL language and Go types. It is not an ORM neither it is not
-goint to be it since an ORM creates an extra layer to the database access.
+Package go2sql allows use a Go model to define the database model and generate
+its corresponding SQL language and Go types. It is not an ORM neither it is not
+going to be it since an ORM creates an extra layer to the database access.
 
 It generates the files "model.sql" and "model.go" at writing to the file system.
-But it also can show the generated output.
+But it also can shows the generated output.
 
 The API is based in SQLAlchemy's (http://www.sqlalchemy.org/), althought it has
 been only added some basic types.
@@ -19,8 +19,8 @@ with relations between tables since I don't need it by now.
 
 Operating instructions
 
-Here it is the example used in "go2sql_test.go" except that this one writes to
-file. To run it, use "go run file.go".
+This example is used in file "go2sql_test.go" except that it writes to file.
+To run it, use "go run file.go".
 
 	package main
 
