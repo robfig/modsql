@@ -62,9 +62,9 @@ func (md *metadata) Mode(m mode) *metadata {
 
 // * * *
 
-// CreateAll generates both CREATE statements and Go definitions for all tables.
+// CreateAll generates both SQL statements and Go definitions for all tables.
 func (md *metadata) CreateAll() *metadata {
-	create := make([]string, 0, 0)
+	sql := make([]string, 0, 0)
 	model := make([]string, 0, 0)
 
 	pop := func(sl []string) []string {
@@ -72,18 +72,18 @@ func (md *metadata) CreateAll() *metadata {
 		return sl
 	}
 
-	create = append(create, "BEGIN TRANSACTION;\n")
-	model = append(model, fmt.Sprintf("%s\n\npackage %s\n", header, getPkgName()))
+	sql = append(sql, fmt.Sprintf("%s\nBEGIN TRANSACTION;\n", header))
+	model = append(model, fmt.Sprintf("%s\npackage %s\n", header, getPkgName()))
 
 	for _, table := range md.tables {
-		createLang := make([]string, 0, 0)
+		sqlLang := make([]string, 0, 0)
 
 		if md.mode == Help {
-			createLang = append(createLang,
+			sqlLang = append(sqlLang,
 				fmt.Sprintf("\nCREATE TABLE _%s (id TEXT PRIMARY KEY,\n", table.name))
 		}
 
-		create = append(create, fmt.Sprintf("\nCREATE TABLE %s (", table.name))
+		sql = append(sql, fmt.Sprintf("\nCREATE TABLE %s (", table.name))
 		model = append(model, fmt.Sprintf("\ntype %s struct {\n", table.name))
 
 		for i, col := range table.columns {
@@ -92,14 +92,14 @@ func (md *metadata) CreateAll() *metadata {
 			// The first field could not be a primary key
 			if i == 0 {
 				if !col.isPrimaryKey {
-					create = append(create, "\n    ")
+					sql = append(sql, "\n    ")
 				}
 			} else {
 				field = "    "
 			}
 
 			model = append(model, fmt.Sprintf("%s %s\n", col.name, col.type_.Go()))
-			create = append(create, fmt.Sprintf("%s %s",
+			sql = append(sql, fmt.Sprintf("%s %s",
 				field+col.name, strings.ToUpper(col.type_.String())))
 
 			if col.isPrimaryKey {
@@ -118,40 +118,40 @@ func (md *metadata) CreateAll() *metadata {
 				}
 			}
 
-			create = append(create, extra)
+			sql = append(sql, extra)
 
 			// Add table for translation of fields comments
 			if md.mode == Help && col.name != "id" {
-				createLang = append(createLang, "    "+col.name+" TEXT")
-				createLang = append(createLang, ",\n")
+				sqlLang = append(sqlLang, "    "+col.name+" TEXT")
+				sqlLang = append(sqlLang, ",\n")
 			}
 
 			// The last column
 			if i+1 == len(table.columns) {
-				create = append(create, ");\n")
+				sql = append(sql, ");\n")
 				model = append(model, "}\n")
 
 				if md.mode == Help {
-					createLang = pop(createLang)
-					createLang = append(createLang, ");\n")
-					create = append(create, createLang...)
+					sqlLang = pop(sqlLang)
+					sqlLang = append(sqlLang, ");\n")
+					sql = append(sql, sqlLang...)
 				}
 			} else {
-				create = append(create, ",\n")
+				sql = append(sql, ",\n")
 			}
 		}
 	}
-	create = append(create, "\nCOMMIT;\n")
+	sql = append(sql, "\nCOMMIT;\n")
 
 	// === Insert
 	if md.useInsertHelp {
-		md.insert(&create, _INSERT_HELP)
+		md.insert(&sql, _INSERT_HELP)
 	}
 	if md.useInsert {
-		md.insert(&create, _INSERT_DATA)
+		md.insert(&sql, _INSERT_DATA)
 	}
 
-	md.queries = []byte(strings.Join(create, ""))
+	md.queries = []byte(strings.Join(sql, ""))
 	md.model = []byte(strings.Join(model, ""))
 	return md
 }
