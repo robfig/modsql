@@ -9,9 +9,9 @@ But it also can show the generated output.
 The API is based in SQLAlchemy's (http://www.sqlalchemy.org/), althought it has
 been only added some basic types.
 
-The function Metadata has method Mode to create tables related to localization.
-If it is set, then at generating SQL, it creates an extra table (starting wich
-"_") for each model.
+The function NewBuffer has the method Mode to create tables related to
+localization. If it is set, then at generating SQL it is created an extra table
+(starting wich "_") for each model.
 
 NOTE: it is tested with SQLite3, and it is not ready to working with relations
 between tables since I don't need it by now.
