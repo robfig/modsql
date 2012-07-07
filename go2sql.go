@@ -75,8 +75,12 @@ file. To run it, use "go run file.go".
 package go2sql
 
 import (
+	"bufio"
+	"database/sql"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 )
 
 const (
@@ -89,4 +93,45 @@ const (
 func fatalf(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format+"\n", args...)
 	os.Exit(1)
+}
+
+// Load loads a database from an archive created by go2sql.
+// If the file name is empty then it is used the name by default.
+func Load(db *sql.DB, filename string) error {
+	if filename == "" {
+		filename = _SQL_FILE
+	}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	buf := bufio.NewReader(file)
+	firstLine := ""
+
+	for {
+		line, err := buf.ReadString('\n')
+		if err == io.EOF {
+			break
+		}
+
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		firstLine += line
+
+		if !strings.HasSuffix(line, ";") {
+			continue
+		}
+		if _, err = db.Exec(firstLine); err != nil {
+			return fmt.Errorf("SQL line: %s\n%s", firstLine, err)
+		}
+		firstLine = ""
+	}
+
+	return nil
 }
