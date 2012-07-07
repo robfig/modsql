@@ -13,8 +13,8 @@ The function NewBuffer has the method Mode to create tables related to
 localization. If it is set, then at generating SQL it is created an extra table
 (starting wich "_") for each model.
 
-NOTE: it is tested with SQLite3, and it is not ready to working with relations
-between tables since I don't need it by now.
+NOTE: it is tested with SQLite3 and PostgreSQL. And it is not ready to working
+with relations between tables since I don't need it by now.
 
 
 Operating instructions
