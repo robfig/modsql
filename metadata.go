@@ -71,6 +71,14 @@ func (md *metadata) CreateAll() *metadata {
 		return sl
 	}
 
+	// Quote special names
+	quote := func(name string) string {
+		if name == "user" {
+			return `"` + name + `"`
+		}
+		return name
+	}
+
 	// Package name
 	pkgName := "main"
 	pkg, err := build.ImportDir(".", 0)
@@ -86,27 +94,19 @@ func (md *metadata) CreateAll() *metadata {
 
 		if md.mode == Help {
 			sqlLang = append(sqlLang,
-				fmt.Sprintf("\nCREATE TABLE _%s (id TEXT PRIMARY KEY,\n", table.name))
+				fmt.Sprintf("\nCREATE TABLE _%s (\n\tid TEXT PRIMARY KEY,\n", table.name))
 		}
 
-		sql = append(sql, fmt.Sprintf("\nCREATE TABLE %s (", table.name))
+		sql = append(sql, fmt.Sprintf("\nCREATE TABLE %s (", quote(table.name)))
 		model = append(model, fmt.Sprintf("\ntype %s struct {\n", table.name))
 
 		for i, col := range table.columns {
-			var field, extra string
-
-			// The first field could not be a primary key
-			if i == 0 {
-				if !col.isPrimaryKey {
-					sql = append(sql, "\n    ")
-				}
-			} else {
-				field = "    "
-			}
+			extra := ""
+			field := "\n\t"
 
 			model = append(model, fmt.Sprintf("%s %s\n", col.name, col.type_.Go()))
 			sql = append(sql, fmt.Sprintf("%s %s",
-				field+col.name, strings.ToUpper(col.type_.String())))
+				field+quote(col.name), strings.ToUpper(col.type_.String())))
 
 			if col.isPrimaryKey {
 				extra += " PRIMARY KEY"
@@ -128,22 +128,22 @@ func (md *metadata) CreateAll() *metadata {
 
 			// Add table for translation of fields comments
 			if md.mode == Help && col.name != "id" {
-				sqlLang = append(sqlLang, "    "+col.name+" TEXT")
+				sqlLang = append(sqlLang, "\t"+quote(col.name)+" TEXT")
 				sqlLang = append(sqlLang, ",\n")
 			}
 
 			// The last column
 			if i+1 == len(table.columns) {
-				sql = append(sql, ");\n")
+				sql = append(sql, "\n);\n")
 				model = append(model, "}\n")
 
 				if md.mode == Help {
 					sqlLang = pop(sqlLang)
-					sqlLang = append(sqlLang, ");\n")
+					sqlLang = append(sqlLang, "\n);\n")
 					sql = append(sql, sqlLang...)
 				}
 			} else {
-				sql = append(sql, ",\n")
+				sql = append(sql, ",")
 			}
 		}
 	}

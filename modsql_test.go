@@ -44,29 +44,37 @@ func ExampleSQL() {
 	//
 	// BEGIN TRANSACTION;
 	//
-	// CREATE TABLE types (id INTEGER PRIMARY KEY,
-	//     t_int INTEGER,
-	//     t_float FLOAT,
-	//     t_text TEXT,
-	//     t_bool BOOLEAN);
+	// CREATE TABLE types (
+	// 	id INTEGER PRIMARY KEY,
+	// 	t_int INTEGER,
+	// 	t_float FLOAT,
+	// 	t_text TEXT,
+	// 	t_bool BOOLEAN
+	// );
 	//
-	// CREATE TABLE _types (id TEXT PRIMARY KEY,
-	//     t_int TEXT,
-	//     t_float TEXT,
-	//     t_text TEXT,
-	//     t_bool TEXT);
+	// CREATE TABLE _types (
+	// 	id TEXT PRIMARY KEY,
+	// 	t_int TEXT,
+	// 	t_float TEXT,
+	// 	t_text TEXT,
+	// 	t_bool TEXT
+	// );
 	//
-	// CREATE TABLE default_value (id INTEGER PRIMARY KEY,
-	//     d_int INTEGER DEFAULT 55,
-	//     d_float FLOAT DEFAULT 10.2,
-	//     d_text TEXT DEFAULT 'string',
-	//     d_bool BOOLEAN DEFAULT 0);
+	// CREATE TABLE default_value (
+	// 	id INTEGER PRIMARY KEY,
+	// 	d_int INTEGER DEFAULT 55,
+	// 	d_float FLOAT DEFAULT 10.2,
+	// 	d_text TEXT DEFAULT 'string',
+	// 	d_bool BOOLEAN DEFAULT 0
+	// );
 	//
-	// CREATE TABLE _default_value (id TEXT PRIMARY KEY,
-	//     d_int TEXT,
-	//     d_float TEXT,
-	//     d_text TEXT,
-	//     d_bool TEXT);
+	// CREATE TABLE _default_value (
+	// 	id TEXT PRIMARY KEY,
+	// 	d_int TEXT,
+	// 	d_float TEXT,
+	// 	d_text TEXT,
+	// 	d_bool TEXT
+	// );
 	//
 	// COMMIT;
 	// BEGIN TRANSACTION;
