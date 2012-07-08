@@ -15,7 +15,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -72,8 +71,15 @@ func (md *metadata) CreateAll() *metadata {
 		return sl
 	}
 
+	// Package name
+	pkgName := "main"
+	pkg, err := build.ImportDir(".", 0)
+	if err == nil {
+		pkgName = pkg.Name
+	}
+
 	sql = append(sql, fmt.Sprintf("%s\nBEGIN TRANSACTION;\n", header))
-	model = append(model, fmt.Sprintf("%s\npackage %s\n", header, getPkgName()))
+	model = append(model, fmt.Sprintf("%s\npackage %s\n", header, pkgName))
 
 	for _, table := range md.tables {
 		sqlLang := make([]string, 0, 0)
@@ -202,6 +208,40 @@ const (
 	_TAB_WIDTH    = 8
 )
 
+// format formats the Go source code.
+func (md *metadata) format(out io.Writer) {
+	fset := token.NewFileSet()
+
+	ast, err := parser.ParseFile(fset, "", md.model, _PARSER_MODE)
+	if err != nil {
+		fatalf("Failed to format Go code: %s", err)
+	}
+
+	err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH}).Fprint(out, fset, ast)
+	if err != nil {
+		fatalf("Failed to format Go code: %s", err)
+	}
+
+	return
+}
+
+// getbool returns the literal value for a boolean according to the SQL engine.
+func (md *metadata) getbool(b bool) string {
+	if md.engine == SQLite {
+		value := 0
+		if b == true {
+			value = 1
+		}
+		return strconv.Itoa(value)
+	}
+
+	value := "FALSE"
+	if b == true {
+		value = "TRUE"
+	}
+	return value
+}
+
 // insert generates SQL statements to insert values; they are finally added to
 // the slice main.
 func (md *metadata) insert(main *[]string, value uint) {
@@ -265,66 +305,4 @@ func (md *metadata) toString(v []interface{}) []string {
 		}
 	}
 	return res
-}
-
-// format formats the Go source code.
-func (md *metadata) format(out io.Writer) {
-	fset := token.NewFileSet()
-
-	ast, err := parser.ParseFile(fset, "", md.model, _PARSER_MODE)
-	if err != nil {
-		fatalf("Failed to format Go code: %s", err)
-	}
-
-	err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH}).Fprint(out, fset, ast)
-	if err != nil {
-		fatalf("Failed to format Go code: %s", err)
-	}
-
-	return
-}
-
-// == Utility
-//
-
-// getbool returns the literal value for a boolean according to the SQL engine.
-func (md *metadata) getbool(b bool) string {
-	if md.engine == SQLite {
-		value := 0
-		if b == true {
-			value = 1
-		}
-		return strconv.Itoa(value)
-	}
-
-	value := "FALSE"
-	if b == true {
-		value = "TRUE"
-	}
-	return value
-}
-
-// getPkgName returns the package name of the actual directory.
-func getPkgName() string {
-	wd, err := os.Getwd()
-	if err != nil {
-		return "main"
-	}
-
-	if files, err := filepath.Glob("*.go"); err == nil && len(files) != 0 {
-		for _, srcDir := range strings.Split(build.Default.GOPATH, ":") {
-			importPath, err := filepath.Rel(srcDir, wd)
-			if err != nil {
-				continue
-			}
-
-			pkg, err := build.Import(importPath, srcDir, 0)
-			if err != nil {
-				continue
-			}
-			return pkg.Name
-		}
-	}
-
-	return filepath.Base(wd)
 }
