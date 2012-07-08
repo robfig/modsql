@@ -1,5 +1,5 @@
 /*
-Package go2sql allows use a Go model to define the database model and generate
+Package modsql allows use a Go model to define the database model and generate
 its corresponding SQL language and Go types. It is not an ORM neither it is not
 going to be it since an ORM creates an extra layer to the database access.
 
@@ -19,12 +19,12 @@ with relations between tables since I don't need it by now.
 
 Operating instructions
 
-This example is used in file "go2sql_test.go" except that it writes to file.
+This example is used in file "modsql_test.go" except that it writes to file.
 To run it, use "go run file.go".
 
 	package main
 
-	import . "github.com/kless/go2sql"
+	import . "github.com/kless/modsql"
 
 	func main() {
 		metadata := NewMetadata(PostgreSQL).Mode(Help)
@@ -57,4 +57,4 @@ To run it, use "go run file.go".
 		metadata.CreateAll().Write()
 	}
 */
-package go2sql
+package modsql

@@ -1,10 +1,10 @@
-// Copyright 2010  The "go2sql" Authors
+// Copyright 2010  The "ModSQL" Authors
 //
 // This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // http://mozilla.org/MPL/2.0/.
 
-package go2sql
+package modsql
 
 // For columns with a wrong type
 var (
@@ -27,7 +27,7 @@ func Column(name string, type_ sqlType) *column {
 	return col
 }
 
-// Default sets a value to set by default.
+// Default sets a value by default.
 func (c *column) Default(v interface{}) *column {
 	c.defaultValue = v
 
