@@ -45,35 +45,35 @@ func ExampleSQL() {
 	// BEGIN TRANSACTION;
 	//
 	// CREATE TABLE types (
-	// 	id INTEGER PRIMARY KEY,
-	// 	t_int INTEGER,
+	// 	id      INTEGER PRIMARY KEY,
+	// 	t_int   INTEGER,
 	// 	t_float FLOAT,
-	// 	t_text TEXT,
-	// 	t_bool BOOLEAN
+	// 	t_text  TEXT,
+	// 	t_bool  BOOLEAN
 	// );
 	//
 	// CREATE TABLE _types (
-	// 	id TEXT PRIMARY KEY,
-	// 	t_int TEXT,
+	// 	id      TEXT PRIMARY KEY,
+	// 	t_int   TEXT,
 	// 	t_float TEXT,
-	// 	t_text TEXT,
-	// 	t_bool TEXT
+	// 	t_text  TEXT,
+	// 	t_bool  TEXT
 	// );
 	//
 	// CREATE TABLE default_value (
-	// 	id INTEGER PRIMARY KEY,
-	// 	d_int INTEGER DEFAULT 55,
+	// 	id      INTEGER PRIMARY KEY,
+	// 	d_int   INTEGER DEFAULT 55,
 	// 	d_float FLOAT DEFAULT 10.2,
-	// 	d_text TEXT DEFAULT 'string',
-	// 	d_bool BOOLEAN DEFAULT 0
+	// 	d_text  TEXT DEFAULT 'string',
+	// 	d_bool  BOOLEAN DEFAULT 0
 	// );
 	//
 	// CREATE TABLE _default_value (
-	// 	id TEXT PRIMARY KEY,
-	// 	d_int TEXT,
+	// 	id      TEXT PRIMARY KEY,
+	// 	d_int   TEXT,
 	// 	d_float TEXT,
-	// 	d_text TEXT,
-	// 	d_bool TEXT
+	// 	d_text  TEXT,
+	// 	d_bool  TEXT
 	// );
 	//
 	// COMMIT;

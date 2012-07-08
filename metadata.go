@@ -44,8 +44,8 @@ type metadata struct {
 	useInsert     bool
 	useInsertHelp bool
 	tables        []*table
-	queries       []byte
-	model         []byte
+	sqlCode       []byte
+	goCode        []byte
 }
 
 // NewMetadata returns a new metadata.
@@ -63,20 +63,28 @@ func (md *metadata) Mode(m mode) *metadata {
 
 // CreateAll generates both SQL statements and Go definitions for all tables.
 func (md *metadata) CreateAll() *metadata {
-	sql := make([]string, 0, 0)
-	model := make([]string, 0, 0)
+	sqlCode := make([]string, 0, 0)
+	goCode := make([]string, 0, 0)
 
 	pop := func(sl []string) []string {
 		_, sl = sl[len(sl)-1], sl[:len(sl)-1]
 		return sl
 	}
 
-	// Quote special names
+	// Quote special names.
 	quote := func(name string) string {
 		if name == "user" {
 			return `"` + name + `"`
 		}
 		return name
+	}
+
+	// Align SQL types adding spaces.
+	sqlAlign := func(maxLen, nameLen int) string {
+		if maxLen == nameLen {
+			return ""
+		}
+		return strings.Repeat(" ", maxLen-nameLen)
 	}
 
 	// Package name
@@ -86,27 +94,43 @@ func (md *metadata) CreateAll() *metadata {
 		pkgName = pkg.Name
 	}
 
-	sql = append(sql, fmt.Sprintf("%s\nBEGIN TRANSACTION;\n", header))
-	model = append(model, fmt.Sprintf("%s\npackage %s\n", header, pkgName))
+	goCode = append(goCode, fmt.Sprintf("%s\npackage %s\n", header, pkgName))
+	sqlCode = append(sqlCode, fmt.Sprintf("%s\nBEGIN TRANSACTION;\n", header))
 
 	for _, table := range md.tables {
-		sqlLang := make([]string, 0, 0)
+		sqlLangCode := make([]string, 0, 0)
+
+		// == Get the length of largest field
+		fieldMaxLen := 2 // minimum length (id)
+
+		for _, c := range table.columns {
+			if len(c.name) > fieldMaxLen {
+				fieldMaxLen = len(c.name)
+			}
+		}
+		// ==
 
 		if md.mode == Help {
-			sqlLang = append(sqlLang,
-				fmt.Sprintf("\nCREATE TABLE _%s (\n\tid TEXT PRIMARY KEY,\n", table.name))
+			sqlLangCode = append(sqlLangCode,
+				fmt.Sprintf("\nCREATE TABLE _%s (\n\tid %sTEXT PRIMARY KEY,\n",
+					table.name, sqlAlign(fieldMaxLen, 2)))
 		}
 
-		sql = append(sql, fmt.Sprintf("\nCREATE TABLE %s (", quote(table.name)))
-		model = append(model, fmt.Sprintf("\ntype %s struct {\n", table.name))
+		goCode = append(goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
+		sqlCode = append(sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", quote(table.name)))
 
 		for i, col := range table.columns {
 			extra := ""
 			field := "\n\t"
+			nameQuoted := quote(col.name)
 
-			model = append(model, fmt.Sprintf("%s %s\n", col.name, col.type_.Go()))
-			sql = append(sql, fmt.Sprintf("%s %s",
-				field+quote(col.name), strings.ToUpper(col.type_.String())))
+			goCode = append(goCode, fmt.Sprintf("%s %s\n", col.name, col.type_.Go()))
+
+			sqlCode = append(sqlCode, fmt.Sprintf("%s %s%s",
+				field+nameQuoted,
+				sqlAlign(fieldMaxLen, len(nameQuoted)),
+				strings.ToUpper(col.type_.String()),
+			))
 
 			if col.isPrimaryKey {
 				extra += " PRIMARY KEY"
@@ -124,47 +148,49 @@ func (md *metadata) CreateAll() *metadata {
 				}
 			}
 
-			sql = append(sql, extra)
+			sqlCode = append(sqlCode, extra)
 
 			// Add table for translation of fields comments
 			if md.mode == Help && col.name != "id" {
-				sqlLang = append(sqlLang, "\t"+quote(col.name)+" TEXT")
-				sqlLang = append(sqlLang, ",\n")
+				sqlLangCode = append(sqlLangCode, fmt.Sprintf("\t%s %sTEXT",
+					nameQuoted, sqlAlign(fieldMaxLen, len(nameQuoted))),
+				)
+				sqlLangCode = append(sqlLangCode, ",\n")
 			}
 
 			// The last column
 			if i+1 == len(table.columns) {
-				sql = append(sql, "\n);\n")
-				model = append(model, "}\n")
+				sqlCode = append(sqlCode, "\n);\n")
+				goCode = append(goCode, "}\n")
 
 				if md.mode == Help {
-					sqlLang = pop(sqlLang)
-					sqlLang = append(sqlLang, "\n);\n")
-					sql = append(sql, sqlLang...)
+					sqlLangCode = pop(sqlLangCode)
+					sqlLangCode = append(sqlLangCode, "\n);\n")
+					sqlCode = append(sqlCode, sqlLangCode...)
 				}
 			} else {
-				sql = append(sql, ",")
+				sqlCode = append(sqlCode, ",")
 			}
 		}
 	}
-	sql = append(sql, "\nCOMMIT;\n")
+	sqlCode = append(sqlCode, "\nCOMMIT;\n")
 
 	// == Insert
 	if md.useInsertHelp {
-		md.insert(&sql, _INSERT_HELP)
+		md.insert(&sqlCode, _INSERT_HELP)
 	}
 	if md.useInsert {
-		md.insert(&sql, _INSERT_DATA)
+		md.insert(&sqlCode, _INSERT_DATA)
 	}
 
-	md.queries = []byte(strings.Join(sql, ""))
-	md.model = []byte(strings.Join(model, ""))
+	md.sqlCode = []byte(strings.Join(sqlCode, ""))
+	md.goCode = []byte(strings.Join(goCode, ""))
 	return md
 }
 
 // Print prints both SQL statements and Go model.
 func (md *metadata) Print() {
-	fmt.Printf("%s\n* * *\n\n", md.queries)
+	fmt.Printf("%s\n* * *\n\n", md.sqlCode)
 	md.format(os.Stdout)
 }
 
@@ -175,11 +201,11 @@ func (md *metadata) Write() {
 
 // WriteTo writes both SQL statements and Go model to given files.
 func (md *metadata) WriteTo(sqlFile, goFile string) {
-	if len(md.queries) == 0 {
+	if len(md.sqlCode) == 0 {
 		fatalf("No tables created. Use CreateAll()")
 	}
 
-	err := ioutil.WriteFile(sqlFile, md.queries, 0644)
+	err := ioutil.WriteFile(sqlFile, md.sqlCode, 0644)
 	if err != nil {
 		fatalf("Failed to write file: %s", err)
 	}
@@ -212,7 +238,7 @@ const (
 func (md *metadata) format(out io.Writer) {
 	fset := token.NewFileSet()
 
-	ast, err := parser.ParseFile(fset, "", md.model, _PARSER_MODE)
+	ast, err := parser.ParseFile(fset, "", md.goCode, _PARSER_MODE)
 	if err != nil {
 		fatalf("Failed to format Go code: %s", err)
 	}
