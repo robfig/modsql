@@ -24,7 +24,7 @@ type mode byte
 
 const (
 	// If Help is set, it is created tables related to help.
-	Help mode = iota
+	Help mode = iota + 1
 )
 
 // dbEngine represents the SQL engine.
