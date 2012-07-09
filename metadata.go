@@ -202,17 +202,17 @@ func (md *metadata) Write() {
 // WriteTo writes both SQL statements and Go model to given files.
 func (md *metadata) WriteTo(sqlFile, goFile string) {
 	if len(md.sqlCode) == 0 {
-		fatalf("No tables created. Use CreateAll()")
+		_log.Fatalf("no tables created; use CreateAll()")
 	}
 
 	err := ioutil.WriteFile(sqlFile, md.sqlCode, 0644)
 	if err != nil {
-		fatalf("Failed to write file: %s", err)
+		_log.Fatalf("write file: %s", err)
 	}
 
 	file, err := os.OpenFile(goFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		fatalf("Failed to write file: %s", err)
+		_log.Fatalf("open file: %s", err)
 	}
 	defer file.Close()
 
@@ -240,15 +240,17 @@ func (md *metadata) format(out io.Writer) {
 
 	ast, err := parser.ParseFile(fset, "", md.goCode, _PARSER_MODE)
 	if err != nil {
-		fatalf("Failed to format Go code: %s", err)
+		goto _error
 	}
 
 	err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH}).Fprint(out, fset, ast)
 	if err != nil {
-		fatalf("Failed to format Go code: %s", err)
+		goto _error
 	}
 
 	return
+_error:
+	_log.Fatalf("format Go code: %s", err)
 }
 
 // getbool returns the literal value for a boolean according to the SQL engine.
@@ -272,7 +274,7 @@ func (md *metadata) getbool(b bool) string {
 // the slice main.
 func (md *metadata) insert(main *[]string, value uint) {
 	if value != _INSERT_HELP && value != _INSERT_DATA {
-		fatalf("argument \"value\" not valid for \"metadata.insert\": %d", value)
+		_log.Fatalf("argument \"value\" not valid for \"metadata.insert\": %d", value)
 	}
 
 	var data [][]interface{}

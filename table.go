@@ -21,7 +21,7 @@ type table struct {
 // Table defines a new table.
 func Table(name string, meta *metadata, col ...*column) *table {
 	if anyColumnErr {
-		fatalf("Wrong type for default value in table %q: %s",
+		_log.Fatalf("wrong type for default value in table %q: %s",
 			name, strings.Join(columnsErr, ", "))
 	}
 
@@ -40,7 +40,7 @@ func Table(name string, meta *metadata, col ...*column) *table {
 // Insert generates SQL statements to insert values.
 func (t *table) Insert(a ...interface{}) {
 	if len(a) != len(t.columns) {
-		fatalf("incorrect number of arguments for Insert in table %q:"+
+		_log.Fatalf("incorrect number of arguments for Insert in table %q:"+
 			" have %d, want %d",
 			t.name, len(a), len(t.columns))
 	}
@@ -57,11 +57,11 @@ func (t *table) Insert(a ...interface{}) {
 // InsertHelp generates SQL statements to insert values on the help table.
 func (t *table) InsertHelp(a ...string) {
 	if t.meta.mode != Help {
-		fatalf("Metadata Help mode is unset")
+		_log.Fatalf("mode 'help' is unset")
 	}
 
 	if len(a) != len(t.columns) {
-		fatalf("incorrect number of arguments for Insert in table %q:"+
+		_log.Fatalf("incorrect number of arguments for Insert in table %q:"+
 			" have %d, want %d",
 			t.name, len(a), len(t.columns))
 	}
