@@ -2,7 +2,7 @@ ModSQL
 ======
 Define a database model to generate its SQL statements and Go types.
 
-[Documentation online](http://go.pkgdoc.org/github.com/kless/modsql
+[Documentation online](http://go.pkgdoc.org/github.com/kless/modsql)
 
 ## Installation
 
