@@ -32,9 +32,9 @@ type sqlEngine byte
 
 // SQL engines.
 const (
-	SQLite sqlEngine = iota
-	MySQL
+	MySQL sqlEngine = iota + 1
 	PostgreSQL
+	SQLite
 )
 
 // metadata defines a collection of table definitions.
@@ -124,12 +124,12 @@ func (md *metadata) CreateAll() *metadata {
 			field := "\n\t"
 			nameQuoted := quote(col.name)
 
-			goCode = append(goCode, fmt.Sprintf("%s %s\n", col.name, col.type_.Go()))
+			goCode = append(goCode, fmt.Sprintf("%s %s\n", col.name, col.type_.GoString()))
 
 			sqlCode = append(sqlCode, fmt.Sprintf("%s %s%s",
 				field+nameQuoted,
 				sqlAlign(fieldMaxLen, len(nameQuoted)),
-				strings.ToUpper(col.type_.String()),
+				strings.ToUpper(col.type_.SQLString(md.engine)),
 			))
 
 			if col.isPrimaryKey {

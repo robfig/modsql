@@ -6,6 +6,11 @@
 
 package modsql
 
+import (
+	"fmt"
+	"time"
+)
+
 // For columns with a wrong type
 var (
 	anyColumnErr bool
@@ -47,25 +52,63 @@ func (c *column) PrimaryKey() *column {
 
 // check checks whether the value by default has the correct type.
 func (c *column) check() bool {
-	switch c.defaultValue.(type) {
+	switch t := c.defaultValue.(type) {
 	case bool:
-		if c.type_ != Boolean {
+		if c.type_ != Bool {
 			return false
 		}
-	case float32, float64:
-		if c.type_ != Float {
+
+	case int8:
+		if c.type_ != Int8 {
 			return false
 		}
-	case int:
-		if c.type_ != Integer {
+	case int16: // rune is an alias
+		if c.type_ != Int16 && c.type_ != Rune {
 			return false
 		}
+	case int32:
+		if c.type_ != Int32 {
+			return false
+		}
+	case int64:
+		if c.type_ != Int64 {
+			return false
+		}
+
+	case float32:
+		if c.type_ != Float32 {
+			return false
+		}
+	case float64:
+		if c.type_ != Float64 {
+			return false
+		}
+
 	case string:
-		if c.type_ != Text {
+		if c.type_ != String {
 			return false
 		}
+	case byte:
+		if c.type_ != Byte {
+			return false
+		}
+
+	case []byte:
+		if c.type_ != Binary {
+			return false
+		}
+
+	case *time.Duration:
+		if c.type_ != Duration {
+			return false
+		}
+	case time.Time:
+		if c.type_ != DateTime {
+			return false
+		}
+
 	default:
-		return false
+		panic(fmt.Sprintf("type %v not supported", t))
 	}
 
 	return true

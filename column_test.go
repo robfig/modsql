@@ -10,19 +10,19 @@ import "testing"
 
 func TestColumn(t *testing.T) {
 	val1 := false
-	Column("married", Boolean).Default(val1)
+	Column("married", Bool).Default(val1)
 	checkError(t, val1)
 
-	val2 := 12.2
-	Column("height", Float).Default(val2)
+	val2 := float32(12.2)
+	Column("height", Float32).Default(val2)
 	checkError(t, val2)
 
-	val3 := 16
-	Column("age", Integer).Default(val3)
+	val3 := int32(16)
+	Column("age", Int32).Default(val3)
 	checkError(t, val3)
 
 	val4 := "Pak"
-	Column("name", Text).Default(val4)
+	Column("name", String).Default(val4)
 	checkError(t, val4)
 }
 
