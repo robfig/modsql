@@ -6,7 +6,18 @@
 
 package modsql
 
-import "strconv"
+import (
+	"runtime"
+	"strconv"
+)
+
+var isArch64 bool // architecture of 64-bits
+
+func init() {
+	if runtime.GOARCH == "amd64" {
+		isArch64 = true
+	}
+}
 
 // sqlEngine represents the SQL engine.
 type sqlEngine byte
@@ -27,7 +38,7 @@ type sqlType byte
 const (
 	Bool sqlType = iota + 1
 
-	//Int
+	Int
 	Int8
 	Int16
 	Int32
@@ -52,6 +63,8 @@ func (t sqlType) goString() string {
 	case Bool:
 		return "bool"
 
+	case Int:
+		return "int"
 	case Int8:
 		return "int8"
 	case Int16:
@@ -96,6 +109,11 @@ func (t sqlType) sqlString(engine sqlEngine) string {
 		case Bool:
 			return "BOOL"
 
+		case Int:
+			if isArch64 {
+				return "BIGINT" // case Int64
+			}
+			return "INT" // case Int32
 		case Int8:
 			return "TINYINT"
 		case Int16:
@@ -132,6 +150,11 @@ func (t sqlType) sqlString(engine sqlEngine) string {
 		case Bool:
 			return "boolean"
 
+		case Int:
+			if isArch64 {
+				return "bigint" // case Int64
+			}
+			return "integer" // case Int32
 		case Int8, Int16:
 			return "smallint"
 		case Int32:
@@ -166,7 +189,7 @@ func (t sqlType) sqlString(engine sqlEngine) string {
 		case Bool:
 			return "BOOL"
 
-		case Int8, Int16, Int32, Int64:
+		case Int, Int8, Int16, Int32, Int64:
 			return "INTEGER"
 
 		case Float32, Float64:
