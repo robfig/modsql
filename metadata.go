@@ -142,7 +142,7 @@ func (md *metadata) CreateAll() *metadata {
 				case string:
 					extra += fmt.Sprintf("'%s'", t)
 				case bool:
-					extra += fmt.Sprintf("%s", md.getbool(t))
+					extra += md.formatBool(t)
 				default:
 					extra += fmt.Sprintf("%v", t)
 				}
@@ -253,23 +253,6 @@ _error:
 	_log.Fatalf("format Go code: %s", err)
 }
 
-// getbool returns the literal value for a boolean according to the SQL engine.
-func (md *metadata) getbool(b bool) string {
-	if md.engine == SQLite {
-		value := 0
-		if b == true {
-			value = 1
-		}
-		return strconv.Itoa(value)
-	}
-
-	value := "FALSE"
-	if b == true {
-		value = "TRUE"
-	}
-	return value
-}
-
 // insert generates SQL statements to insert values; they are finally added to
 // the slice main.
 func (md *metadata) insert(main *[]string, value uint) {
@@ -302,7 +285,7 @@ func (md *metadata) insert(main *[]string, value uint) {
 				insert = append(insert, fmt.Sprintf("\nINSERT INTO %q (%s) VALUES(%s);",
 					tableName,
 					strings.Join(columns, ", "),
-					strings.Join(md.toString(v), ", ")))
+					strings.Join(md.formatValues(v), ", ")))
 			}
 			insert = append(insert, "\n")
 		}
@@ -312,8 +295,8 @@ func (md *metadata) insert(main *[]string, value uint) {
 	*main = append(*main, insert...)
 }
 
-// toString converts to slice of strings.
-func (md *metadata) toString(v []interface{}) []string {
+// formatValues converts the values to slice of strings.
+func (md *metadata) formatValues(v []interface{}) []string {
 	res := make([]string, 0)
 
 	for _, val := range v {
@@ -329,7 +312,7 @@ func (md *metadata) toString(v []interface{}) []string {
 		case []uint8:
 			res = append(res, fmt.Sprintf("'%s'", t))
 		case bool:
-			res = append(res, md.getbool(t))
+			res = append(res, md.formatBool(t))
 		}
 	}
 	return res

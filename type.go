@@ -6,10 +6,12 @@
 
 package modsql
 
+import "strconv"
+
 // sqlType represents the SQL type.
 type sqlType byte
 
-// SQL types to set in Column.
+// SQL types, to be set in Column.
 const (
 	Bool sqlType = iota + 1
 
@@ -172,4 +174,23 @@ func (t sqlType) sqlString(engine sqlEngine) string {
 	}
 
 	panic("unreachable")
+}
+
+// * * *
+
+// formatBool returns the literal value for a boolean according to the SQL engine.
+func (md *metadata) formatBool(b bool) string {
+	if md.engine == SQLite {
+		value := 0
+		if b == true {
+			value = 1
+		}
+		return strconv.Itoa(value)
+	}
+
+	value := "FALSE"
+	if b == true {
+		value = "TRUE"
+	}
+	return value
 }
