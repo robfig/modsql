@@ -28,12 +28,12 @@ const (
 
 	Binary
 
-	Duration
+	Duration // time.Time
 	DateTime // time.Date()
 )
 
-// GoString returns the type corresponding to Go.
-func (t sqlType) GoString() string {
+// goString returns the type corresponding to Go.
+func (t sqlType) goString() string {
 	switch t {
 	case Bool:
 		return "bool"
@@ -71,130 +71,104 @@ func (t sqlType) GoString() string {
 	panic("unreachable")
 }
 
-// SQLString returns the type corresponding to the engine used.
-func (t sqlType) SQLString(engine sqlEngine) string {
+// sqlString returns the type corresponding to the engine used.
+func (t sqlType) sqlString(engine sqlEngine) string {
 	switch engine {
+
+	// http://dev.mysql.com/doc/refman/5.6/en/data-types.html
+	// http://nicj.net/mysql-text-vs-varchar-performance/
 	case MySQL:
-		return t.mysql()
+		switch t {
+		case Bool:
+			return "BOOL"
+
+		case Int8:
+			return "TINYINT"
+		case Int16:
+			return "SMALLINT"
+		case Int32:
+			return "INT"
+		case Int64:
+			return "BIGINT"
+
+		case Float32:
+			return "FLOAT"
+		case Float64:
+			return "DOUBLE"
+
+		case String:
+			return "TEXT"
+		case Byte:
+			return "CHAR(1)"
+		case Rune:
+			return "CHAR(4)"
+
+		case Binary:
+			return "BLOB"
+
+		case Duration:
+			return "TIME"
+		case DateTime:
+			return "TIMESTAMP"
+		}
+
+	// http://www.postgresql.org/docs/9.2/static/datatype-numeric.html
 	case PostgreSQL:
-		return t.postgre()
+		switch t {
+		case Bool:
+			return "boolean"
+
+		case Int8, Int16:
+			return "smallint"
+		case Int32:
+			return "integer"
+		case Int64:
+			return "bigint"
+
+		case Float32:
+			return "real"
+		case Float64:
+			return "double precision"
+
+		case String:
+			return "text"
+		case Byte:
+			return "character"
+		case Rune:
+			return "character varying(4)"
+
+		case Binary:
+			return "bytea"
+
+		case Duration:
+			return "time without time zone"
+		case DateTime:
+			return "timestamp with time zone"
+		}
+
+	// http://www.sqlite.org/datatype3.html
 	case SQLite:
-		return t.sqlite()
-	}
-	panic("unreachable")
-}
+		switch t {
+		case Bool:
+			return "BOOL"
 
-// http://dev.mysql.com/doc/refman/5.6/en/data-types.html
-// http://nicj.net/mysql-text-vs-varchar-performance/
-//
-// MySQL
+		case Int8, Int16, Int32, Int64:
+			return "INTEGER"
 
-// mysql returns the data type corresponding to MySQL.
-func (t sqlType) mysql() string {
-	switch t {
-	case Bool:
-		return "BOOL" // TRUE, FALSE
+		case Float32, Float64:
+			return "REAL"
 
-	case Int8:
-		return "TINYINT"
-	case Int16:
-		return "SMALLINT"
-	case Int32:
-		return "INT"
-	case Int64:
-		return "BIGINT"
+		case String, Byte, Rune:
+			return "TEXT"
 
-	case Float32:
-		return "FLOAT"
-	case Float64:
-		return "DOUBLE"
+		case Binary:
+			return "BLOB"
 
-	case String:
-		return "TEXT"
-	case Byte:
-		return "CHAR(1)"
-	case Rune:
-		return "CHAR(4)"
-
-	case Binary:
-		return "BLOB"
-
-	case Duration:
-		return "TIME"
-	case DateTime:
-		return "TIMESTAMP"
-	}
-
-	panic("unreachable")
-}
-
-// http://www.postgresql.org/docs/9.2/static/datatype-numeric.html
-//
-// PostgreSQL
-
-// postgre returns the data type corresponding to PostgreSQL.
-func (t sqlType) postgre() string {
-	switch t {
-	case Bool:
-		return "boolean" // TRUE, FALSE
-
-	case Int8, Int16:
-		return "smallint"
-	case Int32:
-		return "integer"
-	case Int64:
-		return "bigint"
-
-	case Float32:
-		return "real"
-	case Float64:
-		return "double precision"
-
-	case String:
-		return "text"
-	case Byte:
-		return "character"
-	case Rune:
-		return "character varying(4)"
-
-	case Binary:
-		return "bytea"
-
-	case Duration:
-		return "time without time zone"
-	case DateTime:
-		return "timestamp with time zone"
-	}
-
-	panic("unreachable")
-}
-
-// http://www.sqlite.org/datatype3.html
-//
-// SQLite
-
-// sqlite returns the data type corresponding to SQLite.
-func (t sqlType) sqlite() string {
-	switch t {
-	case Bool:
-		return "BOOL" // 0, 1
-
-	case Int8, Int16, Int32, Int64:
-		return "INTEGER"
-
-	case Float32, Float64:
-		return "REAL"
-
-	case String, Byte, Rune:
-		return "TEXT"
-
-	case Binary:
-		return "BLOB"
-
-	case Duration:
-		return "INTEGER" // time()
-	case DateTime:
-		return "TEXT" // datetime()
+		case Duration:
+			return "INTEGER" // time()
+		case DateTime:
+			return "TEXT" // datetime()
+		}
 	}
 
 	panic("unreachable")

@@ -124,12 +124,12 @@ func (md *metadata) CreateAll() *metadata {
 			field := "\n\t"
 			nameQuoted := quote(col.name)
 
-			goCode = append(goCode, fmt.Sprintf("%s %s\n", col.name, col.type_.GoString()))
+			goCode = append(goCode, fmt.Sprintf("%s %s\n", col.name, col.type_.goString()))
 
 			sqlCode = append(sqlCode, fmt.Sprintf("%s %s%s",
 				field+nameQuoted,
 				sqlAlign(fieldMaxLen, len(nameQuoted)),
-				strings.ToUpper(col.type_.SQLString(md.engine)),
+				col.type_.sqlString(md.engine),
 			))
 
 			if col.isPrimaryKey {
