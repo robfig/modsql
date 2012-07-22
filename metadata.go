@@ -27,16 +27,6 @@ const (
 	Help mode = iota + 1
 )
 
-// dbEngine represents the SQL engine.
-type sqlEngine byte
-
-// SQL engines.
-const (
-	MySQL sqlEngine = iota + 1
-	PostgreSQL
-	SQLite
-)
-
 // metadata defines a collection of table definitions.
 type metadata struct {
 	engine        sqlEngine

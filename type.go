@@ -8,6 +8,18 @@ package modsql
 
 import "strconv"
 
+// sqlEngine represents the SQL engine.
+type sqlEngine byte
+
+// SQL engines.
+const (
+	MySQL sqlEngine = iota + 1
+	PostgreSQL
+	SQLite
+)
+
+// * * *
+
 // sqlType represents the SQL type.
 type sqlType byte
 
