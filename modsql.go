@@ -34,7 +34,7 @@ func Load(db *sql.DB, filename string) error {
 		filename = _SQL_FILE
 	}
 
-	tmpl, err := template.New("sql").ParseFiles(filename)
+	tmpl, err := template.New("").ParseFiles(filename)
 	if err != nil {
 		return err
 	}

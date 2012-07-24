@@ -13,7 +13,7 @@ The API is based in SQLAlchemy's (http://www.sqlalchemy.org/).
 It generates the files "model.sql" and "model.go" at writing to the file system;
 it also can shows the generated output.
 
-If it is used the type Int, then the file SQL will have variables delimited by
+If it is used the type Int, then the SQL files will have variables delimited by
 "{{" and "}}", which will be parsed by the function Load according to the
 architecture where it is being run.
 
