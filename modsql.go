@@ -7,13 +7,15 @@
 package modsql
 
 import (
-	"bufio"
+	"bytes"
 	"database/sql"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"runtime"
 	"strings"
+	"text/template"
 )
 
 const (
@@ -32,13 +34,31 @@ func Load(db *sql.DB, filename string) error {
 		filename = _SQL_FILE
 	}
 
-	file, err := os.Open(filename)
+	tmpl, err := template.New("sql").ParseFiles(filename)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 
-	buf := bufio.NewReader(file)
+	// Value for the SQL engine's integer according to the architecture.
+	intSQLString := struct {
+		MySQLInt   string
+		PostgreInt string
+	}{
+		// architecture of 64-bits
+		"BIGINT",
+		"bigint",
+	}
+
+	if runtime.GOARCH != "amd64" {
+		intSQLString.MySQLInt = "INT"
+		intSQLString.PostgreInt = "integer"
+	}
+
+	buf := new(bytes.Buffer)
+	if err = tmpl.Execute(buf, intSQLString); err != nil {
+		return err
+	}
+
 	firstLine := ""
 
 	for {

@@ -6,18 +6,7 @@
 
 package modsql
 
-import (
-	"runtime"
-	"strconv"
-)
-
-var isArch64 bool // architecture of 64-bits
-
-func init() {
-	if runtime.GOARCH == "amd64" {
-		isArch64 = true
-	}
-}
+import "strconv"
 
 // sqlEngine represents the SQL engine.
 type sqlEngine byte
@@ -28,8 +17,6 @@ const (
 	PostgreSQL
 	SQLite
 )
-
-// * * *
 
 // sqlType represents the SQL type.
 type sqlType byte
@@ -110,10 +97,7 @@ func (t sqlType) sqlString(engine sqlEngine) string {
 			return "BOOL"
 
 		case Int:
-			if isArch64 {
-				return "BIGINT" // case Int64
-			}
-			return "INT" // case Int32
+			return "{{.MySQLInt}}" // parsed from function Load
 		case Int8:
 			return "TINYINT"
 		case Int16:
@@ -151,10 +135,7 @@ func (t sqlType) sqlString(engine sqlEngine) string {
 			return "boolean"
 
 		case Int:
-			if isArch64 {
-				return "bigint" // case Int64
-			}
-			return "integer" // case Int32
+			return "{{.PostgreInt}}" // parsed from function Load
 		case Int8, Int16:
 			return "smallint"
 		case Int32:
