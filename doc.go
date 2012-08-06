@@ -35,7 +35,7 @@ To run it, use "go run file.go".
 	import . "github.com/kless/modsql"
 
 	func main() {
-		metadata := NewMetadata(PostgreSQL).Mode(Help)
+		metadata := Metadata(PostgreSQL, Help)
 
 		types := Table("types", metadata,
 			Column("id", Int64).PrimaryKey(),
@@ -64,7 +64,7 @@ To run it, use "go run file.go".
 		def.Insert(1, 10, 10.1, "foo", true)
 		// ==
 
-		metadata.CreateAll().Write()
+		metadata.Create().Write()
 	}
 */
 package modsql

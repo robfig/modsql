@@ -6,17 +6,41 @@
 
 package modsql
 
-import "strconv"
-
-// sqlEngine represents the SQL engine.
-type sqlEngine byte
-
-// SQL engines.
-const (
-	MySQL sqlEngine = iota + 1
-	PostgreSQL
-	SQLite
+import (
+	"fmt"
+	"strconv"
 )
+
+// A sqlEngine represents the SQL engine.
+type sqlEngine string
+
+const (
+	MySQL      sqlEngine = "mysql"
+	PostgreSQL           = "postgresql"
+	SQLite               = "sqlite"
+)
+
+func (e sqlEngine) check() error {
+	switch e {
+	case MySQL, PostgreSQL, SQLite:
+		return nil
+	}
+	return fmt.Errorf("wrong engine: %s", e)
+}
+
+func (e sqlEngine) shortString() string {
+	switch e {
+	case MySQL:
+		return "my"
+	case PostgreSQL:
+		return "pg"
+	case SQLite:
+		return "lite"
+	}
+	panic("unreachable")
+}
+
+// * * *
 
 // sqlType represents the SQL type.
 type sqlType byte

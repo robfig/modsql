@@ -14,6 +14,7 @@ import (
 	"go/token"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -38,24 +39,19 @@ type metadata struct {
 	goCode        []byte
 }
 
-// NewMetadata returns a new metadata.
-func NewMetadata(engine sqlEngine) *metadata {
-	return &metadata{engine: engine}
-}
-
-// Mode sets the mode.
-func (md *metadata) Mode(m mode) *metadata {
-	md.mode = m
-	return md
+// Metadata returns a new metadata.
+func Metadata(eng sqlEngine, m mode) *metadata {
+	if err := eng.check(); err != nil {
+		log.SetFlags(0)
+		log.Fatal(err)
+	}
+	return &metadata{engine: eng, mode: m}
 }
 
 // * * *
 
-// CreateAll generates both SQL statements and Go definitions for all tables.
-func (md *metadata) CreateAll() *metadata {
-	sqlCode := make([]string, 0, 0)
-	goCode := make([]string, 0, 0)
-
+// Create generates both SQL statements and Go definitions for all tables.
+func (md *metadata) Create() *metadata {
 	pop := func(sl []string) []string {
 		_, sl = sl[len(sl)-1], sl[:len(sl)-1]
 		return sl
@@ -84,11 +80,15 @@ func (md *metadata) CreateAll() *metadata {
 		pkgName = pkg.Name
 	}
 
-	goCode = append(goCode, fmt.Sprintf("%s\npackage %s\n", header, pkgName))
-	sqlCode = append(sqlCode, fmt.Sprintf("%s\nBEGIN TRANSACTION;\n", header))
+	goCode := make([]string, 0)
+	sqlCode := make([]string, 0)
+
+	goCode = append(goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER, pkgName))
+	sqlCode = append(sqlCode,
+		fmt.Sprintf("%s%s\n%s\nBEGIN TRANSACTION;\n", _CONSTRAINT, md.engine, _HEADER))
 
 	for _, table := range md.tables {
-		sqlLangCode := make([]string, 0, 0)
+		sqlLangCode := make([]string, 0)
 
 		// == Get the length of largest field
 		fieldMaxLen := 2 // minimum length (id)
@@ -178,36 +178,43 @@ func (md *metadata) CreateAll() *metadata {
 	return md
 }
 
-// Print prints both SQL statements and Go model.
-func (md *metadata) Print() {
-	fmt.Printf("%s\n* * *\n\n", md.sqlCode)
+// PrintGo prints the Go model.
+func (md *metadata) PrintGo() *metadata {
 	md.format(os.Stdout)
+	return md
+}
+
+// PrintSQL prints the SQL statements.
+func (md *metadata) PrintSQL() *metadata {
+	fmt.Printf("%s", md.sqlCode)
+	return md
 }
 
 // Write writes both SQL statements and Go model to files using names by default.
 func (md *metadata) Write() {
-	md.WriteTo(_SQL_FILE, _MODEL_FILE)
+	md.WriteTo(_FILE_NAME)
 }
 
 // WriteTo writes both SQL statements and Go model to given files.
-func (md *metadata) WriteTo(sqlFile, goFile string) {
+func (md *metadata) WriteTo(name string) {
 	if len(md.sqlCode) == 0 {
-		_log.Fatalf("no tables created; use CreateAll()")
+		_log.Fatalf("no tables created; use Create()")
 	}
 
-	err := ioutil.WriteFile(sqlFile, md.sqlCode, 0644)
+	err := ioutil.WriteFile(
+		fmt.Sprintf("data-%s_%s.sql", name, md.engine.shortString()), md.sqlCode, 0644)
 	if err != nil {
 		_log.Fatalf("write file: %s", err)
 	}
 
-	file, err := os.OpenFile(goFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(
+		fmt.Sprintf("data-%s.go", name), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		_log.Fatalf("open file: %s", err)
 	}
 	defer file.Close()
 
 	md.format(file)
-	return
 }
 
 // * * *
