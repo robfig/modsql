@@ -9,11 +9,11 @@ package main
 import . "github.com/kless/modsql"
 
 func main() {
-	metadata := Metadata("sqlite", Help)
+	metadata := Metadata("postgresql", Help)
 
 	types := Table("types", metadata,
 		Column("id", Int64).PrimaryKey(),
-		Column("t_int", Int32),
+		Column("t_int", Int),
 		Column("t_float", Float64),
 		Column("t_string", String),
 		//Column("t_binary", Binary),

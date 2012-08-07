@@ -7,6 +7,7 @@
 package modsql
 
 import (
+	"log"
 	"strings"
 )
 
@@ -21,7 +22,7 @@ type table struct {
 // Table defines a new table.
 func Table(name string, meta *metadata, col ...*column) *table {
 	if anyColumnErr {
-		_log.Fatalf("wrong type for default value in table %q: %s",
+		log.Fatalf("wrong type for default value in table %q: %s",
 			name, strings.Join(columnsErr, ", "))
 	}
 
@@ -40,7 +41,7 @@ func Table(name string, meta *metadata, col ...*column) *table {
 // Insert generates SQL statements to insert values.
 func (t *table) Insert(a ...interface{}) {
 	if len(a) != len(t.columns) {
-		_log.Fatalf("incorrect number of arguments for Insert in table %q:"+
+		log.Fatalf("incorrect number of arguments for Insert in table %q:"+
 			" have %d, want %d",
 			t.name, len(a), len(t.columns))
 	}
@@ -57,11 +58,11 @@ func (t *table) Insert(a ...interface{}) {
 // InsertHelp generates SQL statements to insert values on the help table.
 func (t *table) InsertHelp(a ...string) {
 	if t.meta.mode != Help {
-		_log.Fatalf("mode 'help' is unset")
+		log.Fatalf("mode 'help' is unset")
 	}
 
 	if len(a) != len(t.columns) {
-		_log.Fatalf("incorrect number of arguments for Insert in table %q:"+
+		log.Fatalf("incorrect number of arguments for Insert in table %q:"+
 			" have %d, want %d",
 			t.name, len(a), len(t.columns))
 	}

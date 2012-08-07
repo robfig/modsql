@@ -42,7 +42,6 @@ type metadata struct {
 // Metadata returns a new metadata.
 func Metadata(eng sqlEngine, m mode) *metadata {
 	if err := eng.check(); err != nil {
-		log.SetFlags(0)
 		log.Fatal(err)
 	}
 	return &metadata{engine: eng, mode: m}
@@ -197,20 +196,23 @@ func (md *metadata) Write() {
 
 // WriteTo writes both SQL statements and Go model to given files.
 func (md *metadata) WriteTo(name string) {
+//	name, err := os.Getwd()
+//	log.Fatal(err)
+
 	if len(md.sqlCode) == 0 {
-		_log.Fatalf("no tables created; use Create()")
+		log.Fatalf("no tables created; use Create()")
 	}
 
 	err := ioutil.WriteFile(
 		fmt.Sprintf("data-%s_%s.sql", name, md.engine.shortString()), md.sqlCode, 0644)
 	if err != nil {
-		_log.Fatalf("write file: %s", err)
+		log.Fatalf("write file: %s", err)
 	}
 
 	file, err := os.OpenFile(
 		fmt.Sprintf("data-%s.go", name), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		_log.Fatalf("open file: %s", err)
+		log.Fatalf("open file: %s", err)
 	}
 	defer file.Close()
 
@@ -247,14 +249,14 @@ func (md *metadata) format(out io.Writer) {
 
 	return
 _error:
-	_log.Fatalf("format Go code: %s", err)
+	log.Fatalf("format Go code: %s", err)
 }
 
 // insert generates SQL statements to insert values; they are finally added to
 // the slice main.
 func (md *metadata) insert(main *[]string, value uint) {
 	if value != _INSERT_HELP && value != _INSERT_DATA {
-		_log.Fatalf("argument \"value\" not valid for \"metadata.insert\": %d", value)
+		log.Fatalf("argument \"value\" not valid for \"metadata.insert\": %d", value)
 	}
 
 	var data [][]interface{}
