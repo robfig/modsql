@@ -84,7 +84,7 @@ func (md *metadata) Create() *metadata {
 
 	goCode = append(goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER, pkgName))
 	sqlCode = append(sqlCode,
-		fmt.Sprintf("%s%s\n%s\nBEGIN TRANSACTION;\n", _CONSTRAINT, md.engine, _HEADER))
+		fmt.Sprintf("%s%s\n%s\nBEGIN;\n", _CONSTRAINT, md.engine, _HEADER))
 
 	for _, table := range md.tables {
 		sqlLangCode := make([]string, 0)
@@ -256,7 +256,7 @@ func (md *metadata) insert(main *[]string, value uint) {
 
 	var data [][]interface{}
 	insert := make([]string, 0, 0)
-	insert = append(insert, "BEGIN TRANSACTION;\n")
+	insert = append(insert, "BEGIN;\n")
 
 	for _, table := range md.tables {
 		tableName := table.name

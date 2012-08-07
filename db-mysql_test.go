@@ -19,9 +19,9 @@ import (
 //
 //   mysql -p
 //   mysql> create database modsql_test;
-//   mysql> GRANT ALL PRIVILEGES ON modsql_test.* to neo@localhost;
+//   mysql> GRANT ALL PRIVILEGES ON modsql_test.* to USER@localhost;
 //
-// Note: substitute "neo" by your user name.
+// Note: substitute "USER" by your user name.
 func TestMySQL(t *testing.T) {
 	const (
 		dbname = "modsql_test"

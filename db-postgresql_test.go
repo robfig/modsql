@@ -17,10 +17,10 @@ import (
 
 // The database was created with:
 //
-//   sudo -u postgres createuser neo --no-superuser --no-createrole --no-createdb
-//   sudo -u postgres createdb modsql_test --owner neo
+//   sudo -u postgres createuser USER --no-superuser --no-createrole --no-createdb
+//   sudo -u postgres createdb modsql_test --owner USER
 //
-// Note: substitute "neo" by your user name.
+// Note: substitute "USER" by your user name.
 func TestPostgreSQL(t *testing.T) {
 	const (
 		dbname = "modsql_test"
