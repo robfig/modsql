@@ -15,17 +15,18 @@ import (
 	_ "github.com/bmizerany/pq"
 )
 
-// The database was created with:
+// To create the database:
 //
 //   sudo -u postgres createuser USER --no-superuser --no-createrole --no-createdb
 //   sudo -u postgres createdb modsql_test --owner USER
 //
 // Note: substitute "USER" by your user name.
+//
+// To remove it:
+//
+//   sudo -u postgres dropdb modsql_test
 func TestPostgreSQL(t *testing.T) {
-	const (
-		dbname = "modsql_test"
-		host   = "/var/run/postgresql"
-	)
+	host = "/var/run/postgresql"
 
 	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s host=%s sslmode=disable",
 		username, dbname, host))

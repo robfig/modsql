@@ -9,7 +9,7 @@ package main
 import . "github.com/kless/modsql"
 
 func main() {
-	metadata := Metadata("mysql", Help)
+	metadata := Metadata("postgresql", Help)
 
 	types := Table("types", metadata,
 		Column("id", Int64).PrimaryKey(),
@@ -24,7 +24,7 @@ func main() {
 		Column("id", Int64).PrimaryKey(),
 		Column("d_int", Int8).Default(int8(55)),
 		Column("d_float", Float32).Default(float32(10.2)),
-		Column("d_string", String).Default("string"),
+		Column("d_string", String),
 		//Column("d_binary", Binary).Default([]byte("123")),
 		Column("d_bool", Bool).Default(false),
 	)

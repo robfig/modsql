@@ -16,10 +16,10 @@ import (
 )
 
 func TestSQLite(t *testing.T) {
-	const dbName = "modsql_test.db"
-	defer os.Remove(dbName)
+	filename := dbname + ".db"
+	defer os.Remove(filename)
 
-	db, err := sql.Open("sqlite3", dbName)
+	db, err := sql.Open("sqlite3", filename)
 	if err != nil {
 		t.Fatal(err)
 	}

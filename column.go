@@ -8,6 +8,7 @@ package modsql
 
 import (
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -34,6 +35,12 @@ func Column(name string, type_ sqlType) *column {
 
 // Default sets a value by default.
 func (c *column) Default(v interface{}) *column {
+	// MySQL: BLOB and TEXT columns cannot be assigned a default value.
+	switch c.type_ {
+	case String, Binary:
+		log.Fatalf("type of column in %q can not have a default value", c.name)
+	}
+
 	c.defaultValue = v
 
 	if ok := c.check(); !ok {

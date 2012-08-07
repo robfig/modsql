@@ -20,10 +20,6 @@ func TestColumn(t *testing.T) {
 	val3 := int32(16)
 	Column("age", Int32).Default(val3)
 	checkError(t, val3)
-
-	val4 := "Pak"
-	Column("name", String).Default(val4)
-	checkError(t, val4)
 }
 
 // * * *

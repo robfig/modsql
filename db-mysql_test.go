@@ -15,18 +15,19 @@ import (
 	_ "code.google.com/p/go-mysql-driver/mysql"
 )
 
-// The database was created with:
+// To create the database:
 //
 //   mysql -p
 //   mysql> create database modsql_test;
 //   mysql> GRANT ALL PRIVILEGES ON modsql_test.* to USER@localhost;
 //
 // Note: substitute "USER" by your user name.
+//
+// To remove it:
+//
+//   mysql> drop database modsql_test;
 func TestMySQL(t *testing.T) {
-	const (
-		dbname = "modsql_test"
-		host   = "/var/run/mysqld/mysqld.sock"
-	)
+	host = "/var/run/mysqld/mysqld.sock"
 
 	db, err := sql.Open("mysql", fmt.Sprintf("%s@unix(%s)/%s?charset=utf8",
 		username, host, dbname))

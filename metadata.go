@@ -101,7 +101,7 @@ func (md *metadata) Create() *metadata {
 
 		if md.mode == Help {
 			sqlLangCode = append(sqlLangCode,
-				fmt.Sprintf("\nCREATE TABLE _%s (\n\tid %sTEXT PRIMARY KEY,\n",
+				fmt.Sprintf("\nCREATE TABLE _%s (\n\tid %sVARCHAR(32) PRIMARY KEY,\n",
 					table.name, sqlAlign(fieldMaxLen, 2)))
 		}
 
@@ -115,10 +115,20 @@ func (md *metadata) Create() *metadata {
 
 			goCode = append(goCode, fmt.Sprintf("%s %s\n", col.name, col.type_.goString()))
 
+			// == MySQL: Limit the key length in TEXT or BLOB columns used like primary keys.
+			sqlString := col.type_.sqlString(md.engine)
+			if col.isPrimaryKey {
+				switch col.type_ {
+				case String, Binary:
+					sqlString = "VARCHAR(32)"
+				}
+			}
+			// ==
+
 			sqlCode = append(sqlCode, fmt.Sprintf("%s %s%s",
 				field+nameQuoted,
 				sqlAlign(fieldMaxLen, len(nameQuoted)),
-				col.type_.sqlString(md.engine),
+				sqlString,
 			))
 
 			if col.isPrimaryKey {
@@ -276,7 +286,7 @@ func (md *metadata) insert(main *[]string, value uint) {
 			}
 
 			for _, v := range data {
-				insert = append(insert, fmt.Sprintf("\nINSERT INTO %q (%s) VALUES(%s);",
+				insert = append(insert, fmt.Sprintf("\nINSERT INTO %s (%s) VALUES(%s);",
 					tableName,
 					strings.Join(columns, ", "),
 					strings.Join(md.formatValues(v), ", ")))

@@ -15,7 +15,12 @@ import (
 	"path/filepath"
 )
 
-var username string // for access to databases
+// For access to databases
+var (
+	host     string
+	username string
+	dbname   = "modsql_test"
+)
 
 func init() {
 	err := os.Chdir("testdata")
