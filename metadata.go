@@ -191,26 +191,21 @@ func (md *metadata) PrintSQL() *metadata {
 
 // Write writes both SQL statements and Go model to files using names by default.
 func (md *metadata) Write() {
-	md.WriteTo(_FILE_NAME)
+	md.WriteTo(getFilenames(md.engine))
 }
 
 // WriteTo writes both SQL statements and Go model to given files.
-func (md *metadata) WriteTo(name string) {
-//	name, err := os.Getwd()
-//	log.Fatal(err)
-
+func (md *metadata) WriteTo(goFilename, sqlFilename string) {
 	if len(md.sqlCode) == 0 {
 		log.Fatalf("no tables created; use Create()")
 	}
 
-	err := ioutil.WriteFile(
-		fmt.Sprintf("data-%s_%s.sql", name, md.engine.shortString()), md.sqlCode, 0644)
+	err := ioutil.WriteFile(sqlFilename, md.sqlCode, 0644)
 	if err != nil {
 		log.Fatalf("write file: %s", err)
 	}
 
-	file, err := os.OpenFile(
-		fmt.Sprintf("data-%s.go", name), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(goFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatalf("open file: %s", err)
 	}

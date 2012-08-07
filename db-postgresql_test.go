@@ -28,7 +28,8 @@ func TestPostgreSQL(t *testing.T) {
 	}
 	defer db.Close()
 
-	if err = Load(db, "data-modsql_pg.sql"); err != nil {
+	_, sqlFilename := getFilenames(PostgreSQL)
+	if err = Load(db, sqlFilename); err != nil {
 		t.Fatal(err)
 	}
 }

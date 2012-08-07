@@ -32,7 +32,7 @@ func init() {
 	if files, err := filepath.Glob("*.sql"); err != nil {
 		log.Fatal(err)
 	} else if len(files) == 0 {
-		if err = exec.Command("go", "run", "types.go").Run(); err != nil {
+		if err = exec.Command("go", "run", "type.go").Run(); err != nil {
 			log.Fatal(err)
 		}
 	}
