@@ -15,14 +15,20 @@ import (
 	_ "github.com/bmizerany/pq"
 )
 
+// The database was created with:
+//
+//   sudo -u postgres createuser neo --no-superuser --no-createrole --no-createdb
+//   sudo -u postgres createdb modsql_test --owner neo
+//
+// Note: substitute "neo" by your user name.
 func TestPostgreSQL(t *testing.T) {
 	const (
-		dbName = "modsql_test"
+		dbname = "modsql_test"
 		host   = "/var/run/postgresql"
 	)
 
 	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s host=%s sslmode=disable",
-		username, dbName, host))
+		username, dbname, host))
 	if err != nil {
 		t.Fatal(err)
 	}

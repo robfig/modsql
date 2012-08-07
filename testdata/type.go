@@ -9,7 +9,7 @@ package main
 import . "github.com/kless/modsql"
 
 func main() {
-	metadata := Metadata("postgresql", Help)
+	metadata := Metadata("mysql", Help)
 
 	types := Table("types", metadata,
 		Column("id", Int64).PrimaryKey(),

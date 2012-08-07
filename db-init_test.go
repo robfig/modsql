@@ -15,7 +15,7 @@ import (
 	"path/filepath"
 )
 
-var username string
+var username string // for access to databases
 
 func init() {
 	err := os.Chdir("testdata")

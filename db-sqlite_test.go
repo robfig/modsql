@@ -8,9 +8,25 @@
 package modsql
 
 import (
+	"database/sql"
+	"os"
 	"testing"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func TestSQLite(t *testing.T) {
-	
+	const dbName = "modsql_test.db"
+	defer os.Remove(dbName)
+
+	db, err := sql.Open("sqlite3", dbName)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	_, sqlFilename := getFilenames(SQLite)
+	if err = Load(db, sqlFilename); err != nil {
+		t.Fatal(err)
+	}
 }
