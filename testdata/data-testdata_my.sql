@@ -11,6 +11,7 @@ CREATE TABLE types (
 	t_float32 FLOAT,
 	t_float64 DOUBLE,
 	t_string  TEXT,
+	t_byte    CHAR(1),
 	t_rune    CHAR(4),
 	t_bool    BOOL
 );
@@ -25,6 +26,7 @@ CREATE TABLE _types (
 	t_float32 TEXT,
 	t_float64 TEXT,
 	t_string  TEXT,
+	t_byte    TEXT,
 	t_rune    TEXT,
 	t_bool    TEXT
 );
@@ -35,7 +37,8 @@ CREATE TABLE default_value (
 	d_int8    TINYINT DEFAULT 55,
 	d_float32 FLOAT DEFAULT 10.2,
 	d_string  TEXT,
-	d_rune    CHAR(4) DEFAULT 'a'
+	d_byte    CHAR(1) DEFAULT 'b',
+	d_rune    CHAR(4) DEFAULT 'r'
 );
 
 CREATE TABLE _default_value (
@@ -45,11 +48,12 @@ CREATE TABLE _default_value (
 	d_int8    TEXT,
 	d_float32 TEXT,
 	d_string  TEXT,
+	d_byte    TEXT,
 	d_rune    TEXT
 );
 
-INSERT INTO _types (lang, t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_rune, t_bool) VALUES('en', 'int', 'integer 8', 'integer 16', 'integer 32', 'integer 64', 'float 32', 'float 64', 'string', 'rune', 'boolean');
-INSERT INTO _default_value (lang, id, d_bool, d_int8, d_float32, d_string, d_rune) VALUES('en', 'id', 'boolean', 'integer 8', 'float 32', 'string', 'rune');
-INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_rune, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', 'Z', TRUE);
-INSERT INTO default_value (id, d_bool, d_int8, d_float32, d_string, d_rune) VALUES(1, FALSE, 10, 10.1, 'foo', 'z');
+INSERT INTO _types (lang, t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_byte, t_rune, t_bool) VALUES('en', 'int', 'integer 8', 'integer 16', 'integer 32', 'integer 64', 'float 32', 'float 64', 'string', 'byte', 'rune', 'boolean');
+INSERT INTO _default_value (lang, id, d_bool, d_int8, d_float32, d_string, d_byte, d_rune) VALUES('en', 'id', 'boolean', 'integer 8', 'float 32', 'string', 'byte', 'rune');
+INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_byte, t_rune, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', 'A', 'Z', TRUE);
+INSERT INTO default_value (id, d_bool, d_int8, d_float32, d_string, d_byte, d_rune) VALUES(1, FALSE, 10, 10.1, 'foo', 'a', 'z');
 COMMIT;

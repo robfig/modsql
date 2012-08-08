@@ -145,10 +145,12 @@ func (md *metadata) Create() *metadata {
 				extra += " DEFAULT "
 
 				switch t := col.defaultValue.(type) {
-				case string:
-					extra += fmt.Sprintf("'%s'", t)
 				case bool:
 					extra += boolAction(t)
+				case string:
+					extra += fmt.Sprintf("'%s'", t)
+				case byte:
+					extra += fmt.Sprintf("'%s'", string(t))
 				case rune:
 					extra += fmt.Sprintf("'%s'", string(t))
 				default:

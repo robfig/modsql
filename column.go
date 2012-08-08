@@ -42,12 +42,10 @@ func (c *column) Default(v interface{}) *column {
 	}
 
 	c.defaultValue = v
-
 	if ok := c.check(); !ok {
 		columnsErr = append(columnsErr, c.name)
 		anyColumnErr = true
 	}
-
 	return c
 }
 
@@ -95,7 +93,7 @@ func (c *column) check() bool {
 		if c.type_ != String {
 			return false
 		}
-	case byte:
+	case uint8: // for the alias byte
 		if c.type_ != Byte {
 			return false
 		}

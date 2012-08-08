@@ -20,13 +20,17 @@ func TestColumn(t *testing.T) {
 	val3 := int32(16)
 	Column("age", Int32).Default(val3)
 	checkError(t, val3)
+
+	val4 := byte('a')
+	Column("char", Byte).Default(val4)
+	checkError(t, val4)
 }
 
 // * * *
 
 func checkError(t *testing.T, value interface{}) {
 	if anyColumnErr == true {
-		t.Error("It must have an error for:", value)
+		t.Error("got error for: ", value)
 	}
 	anyColumnErr = false
 }
