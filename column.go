@@ -43,7 +43,9 @@ func (c *column) Default(v interface{}) *column {
 
 	c.defaultValue = v
 	if ok := c.check(); !ok {
-		columnsErr = append(columnsErr, c.name)
+		columnsErr = append(columnsErr, fmt.Sprintf("\n column %q with type %T",
+			c.name, c.defaultValue),
+		)
 		anyColumnErr = true
 	}
 	return c

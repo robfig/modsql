@@ -28,8 +28,6 @@ func main() {
 
 	def := Table("default_value", metadata,
 		Column("id", Int).PrimaryKey(),
-		Column("d_bool", Bool).Default(false),
-
 		Column("d_int8", Int8).Default(int8(55)),
 		Column("d_float32", Float32).Default(float32(10.2)),
 
@@ -37,6 +35,8 @@ func main() {
 		Column("d_byte", Byte).Default(byte('b')),
 		Column("d_rune", Rune).Default('r'),
 		//Column("d_binary", Binary).Default([]byte("123")),
+
+		Column("d_bool", Bool).Default(false),
 	)
 
 	// == Insert values
@@ -49,10 +49,10 @@ func main() {
 	types.Insert(1, 8, 16, 32, 64, 1.32, 1.64, "one", "A", "Z", true)
 
 	def.InsertHelp("en", "id",
-		"boolean", "integer 8", "float 32",
-		"string", "byte", "rune",
+		"integer 8", "float 32",
+		"string", "byte", "rune", "boolean",
 	)
-	def.Insert(1, false, 10, 10.10, "foo", "a", "z")
+	def.Insert(1, 10, 10.10, "foo", "a", "z", false)
 	// ==
 
 	metadata.Create().Write()

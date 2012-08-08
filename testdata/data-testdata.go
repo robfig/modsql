@@ -18,10 +18,10 @@ type types struct {
 
 type default_value struct {
 	id        int
-	d_bool    bool
 	d_int8    int8
 	d_float32 float32
 	d_string  string
 	d_byte    byte
 	d_rune    rune
+	d_bool    bool
 }
