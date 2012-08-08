@@ -147,8 +147,8 @@ func (md *metadata) Create() *metadata {
 				switch t := col.defaultValue.(type) {
 				case bool:
 					extra += boolAction(t)
-				case string:
-					extra += fmt.Sprintf("'%s'", t)
+				//case string:
+					//extra += fmt.Sprintf("'%s'", t)
 				case byte:
 					extra += fmt.Sprintf("'%s'", string(t))
 				case rune:
@@ -339,9 +339,7 @@ func (md *metadata) formatValues(v []interface{}) []string {
 			res = append(res, strconv.FormatFloat(float64(t), 'g', -1, 32))
 		case float64:
 			res = append(res, strconv.FormatFloat(t, 'g', -1, 64))
-		case string:
-			res = append(res, fmt.Sprintf("'%s'", t))
-		case []uint8:
+		case string, []byte:
 			res = append(res, fmt.Sprintf("'%s'", t))
 		case bool:
 			res = append(res, boolAction(t))

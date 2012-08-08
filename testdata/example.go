@@ -21,7 +21,7 @@ func main() {
 		Column("t_string", String),
 		Column("t_byte", Byte),
 		Column("t_rune", Rune),
-		//Column("t_binary", Binary),
+		Column("t_binary", Binary),
 
 		Column("t_bool", Bool),
 	)
@@ -34,7 +34,7 @@ func main() {
 		Column("d_string", String),
 		Column("d_byte", Byte).Default(byte('b')),
 		Column("d_rune", Rune).Default('r'),
-		//Column("d_binary", Binary).Default([]byte("123")),
+		Column("d_binary", Binary),
 
 		Column("d_bool", Bool).Default(false),
 	)
@@ -43,16 +43,17 @@ func main() {
 	types.InsertHelp("en",
 		"int", "integer 8", "integer 16", "integer 32", "integer 64",
 		"float 32", "float 64",
-		"string", "byte", "rune",
+		"string", "byte", "rune", "binary",
 		"boolean",
 	)
-	types.Insert(1, 8, 16, 32, 64, 1.32, 1.64, "one", "A", "Z", true)
+	types.Insert(1, 8, 16, 32, 64, 1.32, 1.64, "one", "A", "Z", []byte("12"), true)
 
 	def.InsertHelp("en", "id",
 		"integer 8", "float 32",
-		"string", "byte", "rune", "boolean",
+		"string", "byte", "rune", "binary",
+		"boolean",
 	)
-	def.Insert(1, 10, 10.10, "foo", "a", "z", false)
+	def.Insert(1, 10, 10.10, "foo", "a", "z", []byte{'1','2'}, false)
 	// ==
 
 	metadata.Create().Write()

@@ -13,6 +13,7 @@ type types struct {
 	t_string  string
 	t_byte    byte
 	t_rune    rune
+	t_binary  []byte
 	t_bool    bool
 }
 
@@ -23,5 +24,6 @@ type default_value struct {
 	d_string  string
 	d_byte    byte
 	d_rune    rune
+	d_binary  []byte
 	d_bool    bool
 }
