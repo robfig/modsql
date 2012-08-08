@@ -158,7 +158,7 @@ func (t sqlType) tmplAction() string {
 
 // * * *
 
-// An sqlAction represents data to pass to the SQL template.
+// A sqlAction represents data to pass to the SQL template.
 type sqlAction struct {
 	Engine string
 

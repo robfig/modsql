@@ -54,6 +54,8 @@ func Metadata(m mode, eng ...sqlEngine) *metadata {
 
 // * * *
 
+const langPK = "lang"
+
 // Create generates both SQL statements and Go definitions for all tables.
 func (md *metadata) Create() *metadata {
 	pop := func(sl []string) []string {
@@ -89,7 +91,7 @@ func (md *metadata) Create() *metadata {
 
 	goCode = append(goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER, pkgName))
 	sqlCode = append(sqlCode,
-		fmt.Sprintf("%s\n%s\nBEGIN;\n", _CONSTRAINT, _HEADER))
+		fmt.Sprintf("%s\n%s\nBEGIN;", _CONSTRAINT, _HEADER))
 
 	for _, table := range md.tables {
 		sqlLangCode := make([]string, 0)
@@ -106,8 +108,8 @@ func (md *metadata) Create() *metadata {
 
 		if md.mode == Help {
 			sqlLangCode = append(sqlLangCode,
-				fmt.Sprintf("\nCREATE TABLE _%s (\n\tid %sVARCHAR(32) PRIMARY KEY,\n",
-					table.name, sqlAlign(fieldMaxLen, 2)))
+				fmt.Sprintf("\nCREATE TABLE _%s (\n\t%s %sVARCHAR(32) PRIMARY KEY,\n",
+					table.name, langPK, sqlAlign(fieldMaxLen, len(langPK))))
 		}
 
 		goCode = append(goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
@@ -147,6 +149,8 @@ func (md *metadata) Create() *metadata {
 					extra += fmt.Sprintf("'%s'", t)
 				case bool:
 					extra += boolAction(t)
+				case rune:
+					extra += fmt.Sprintf("'%s'", string(t))
 				default:
 					extra += fmt.Sprintf("%v", t)
 				}
@@ -155,7 +159,7 @@ func (md *metadata) Create() *metadata {
 			sqlCode = append(sqlCode, extra)
 
 			// Add table for translation of fields comments
-			if md.mode == Help && col.name != "id" {
+			if md.mode == Help && col.name != langPK {
 				sqlLangCode = append(sqlLangCode, fmt.Sprintf("\t%s %sTEXT",
 					nameQuoted, sqlAlign(fieldMaxLen, len(nameQuoted))),
 				)
@@ -177,7 +181,6 @@ func (md *metadata) Create() *metadata {
 			}
 		}
 	}
-	sqlCode = append(sqlCode, "\nCOMMIT;\n")
 
 	// == Insert
 	if md.useInsertHelp {
@@ -285,8 +288,7 @@ func (md *metadata) insert(main *[]string, value uint) {
 	}
 
 	var data [][]interface{}
-	insert := make([]string, 0, 0)
-	insert = append(insert, "BEGIN;\n")
+	insert := make([]string, 0)
 
 	for _, table := range md.tables {
 		tableName := table.name
@@ -301,7 +303,10 @@ func (md *metadata) insert(main *[]string, value uint) {
 		if len(data) != 0 {
 			var columns []string
 
-			for _, col := range table.columns {
+			for i, col := range table.columns {
+				if i == 0 && value == _INSERT_HELP {
+					columns = append(columns, langPK)
+				}
 				columns = append(columns, col.name)
 			}
 
@@ -311,11 +316,12 @@ func (md *metadata) insert(main *[]string, value uint) {
 					strings.Join(columns, ", "),
 					strings.Join(md.formatValues(v), ", ")))
 			}
-			insert = append(insert, "\n")
 		}
 	}
 
-	insert = append(insert, "\nCOMMIT;\n")
+	if value == _INSERT_DATA {
+		insert = append(insert, "\nCOMMIT;\n")
+	}
 	*main = append(*main, insert...)
 }
 

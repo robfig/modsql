@@ -69,12 +69,12 @@ func (c *column) check() bool {
 		if c.type_ != Int8 {
 			return false
 		}
-	case int16: // rune is an alias
-		if c.type_ != Int16 && c.type_ != Rune {
+	case int16:
+		if c.type_ != Int16 {
 			return false
 		}
-	case int32:
-		if c.type_ != Int32 {
+	case int32: // rune is an alias
+		if c.type_ != Int32 && c.type_ != Rune {
 			return false
 		}
 	case int64:

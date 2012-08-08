@@ -20,7 +20,7 @@ architecture where it is being run.
 
 The function Metadata has the mode Help to create tables related to localization.
 If it is set, then at generating SQL it is created an extra table (starting wich
-"_") for each model.
+"_") for each model where is inserted the column "lang" like primary key.
 
 NOTE: it is not ready to working with relations between tables since I don't
 need it by now.

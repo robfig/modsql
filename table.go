@@ -46,7 +46,7 @@ func (t *table) Insert(a ...interface{}) {
 			t.name, len(a), len(t.columns))
 	}
 
-	vec := make([]interface{}, 0, 0)
+	vec := make([]interface{}, 0)
 	for _, v := range a {
 		vec = append(vec, v)
 	}
@@ -61,13 +61,13 @@ func (t *table) InsertHelp(a ...string) {
 		log.Fatalf("mode 'help' is unset")
 	}
 
-	if len(a) != len(t.columns) {
-		log.Fatalf("incorrect number of arguments for Insert in table %q:"+
+	if len(a) != len(t.columns)+1 {
+		log.Fatalf("incorrect number of arguments for Insert in help table %q:"+
 			" have %d, want %d",
 			t.name, len(a), len(t.columns))
 	}
 
-	vec := make([]interface{}, 0, 0)
+	vec := make([]interface{}, 0)
 	for _, v := range a {
 		vec = append(vec, v)
 	}
