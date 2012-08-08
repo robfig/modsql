@@ -1,8 +1,5 @@
-// Copyright 2012 Jonas mg
-//
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+// Any copyright is dedicated to the Public Domain.
+// http://creativecommons.org/publicdomain/zero/1.0/
 
 // +build sqlite
 package modsql
@@ -25,8 +22,7 @@ func TestSQLite(t *testing.T) {
 	}
 	defer db.Close()
 
-	_, sqlFilename := getFilenames(SQLite)
-	if err = Load(db, sqlFilename); err != nil {
+	if err = Load(db, getSQLfile(SQLite)); err != nil {
 		t.Fatal(err)
 	}
 }

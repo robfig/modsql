@@ -7,6 +7,7 @@
 package modsql
 
 import (
+	"bytes"
 	"fmt"
 	"go/build"
 	"go/parser"
@@ -18,6 +19,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"text/template"
 )
 
 // mode represents the modes to use in metadata.Mode.
@@ -30,21 +32,24 @@ const (
 
 // metadata defines a collection of table definitions.
 type metadata struct {
-	engine        sqlEngine
 	mode          mode
 	useInsert     bool
 	useInsertHelp bool
+	engines       []sqlEngine
 	tables        []*table
 	sqlCode       []byte
 	goCode        []byte
 }
 
 // Metadata returns a new metadata.
-func Metadata(eng sqlEngine, m mode) *metadata {
-	if err := eng.check(); err != nil {
-		log.Fatal(err)
+func Metadata(m mode, eng ...sqlEngine) *metadata {
+	for _, v := range eng {
+		if err := v.check(); err != nil {
+			log.Fatal(err)
+		}
 	}
-	return &metadata{engine: eng, mode: m}
+
+	return &metadata{mode: m, engines: eng}
 }
 
 // * * *
@@ -84,7 +89,7 @@ func (md *metadata) Create() *metadata {
 
 	goCode = append(goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER, pkgName))
 	sqlCode = append(sqlCode,
-		fmt.Sprintf("%s%s\n%s\nBEGIN;\n", _CONSTRAINT, md.engine, _HEADER))
+		fmt.Sprintf("%s\n%s\nBEGIN;\n", _CONSTRAINT, _HEADER))
 
 	for _, table := range md.tables {
 		sqlLangCode := make([]string, 0)
@@ -116,7 +121,7 @@ func (md *metadata) Create() *metadata {
 			goCode = append(goCode, fmt.Sprintf("%s %s\n", col.name, col.type_.goString()))
 
 			// == MySQL: Limit the key length in TEXT or BLOB columns used like primary keys.
-			sqlString := col.type_.sqlString(md.engine)
+			sqlString := col.type_.tmplAction()
 			if col.isPrimaryKey {
 				switch col.type_ {
 				case String, Binary:
@@ -141,7 +146,7 @@ func (md *metadata) Create() *metadata {
 				case string:
 					extra += fmt.Sprintf("'%s'", t)
 				case bool:
-					extra += md.formatBool(t)
+					extra += boolAction(t)
 				default:
 					extra += fmt.Sprintf("%v", t)
 				}
@@ -195,29 +200,44 @@ func (md *metadata) PrintGo() *metadata {
 
 // PrintSQL prints the SQL statements.
 func (md *metadata) PrintSQL() *metadata {
-	fmt.Printf("%s", md.sqlCode)
+	tmpl, err := template.New("").Parse(string(md.sqlCode))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, eng := range md.engines {
+		if err = tmpl.Execute(os.Stdout, getSQLAction(eng)); err != nil {
+			log.Fatal(err)
+		}
+	}
 	return md
 }
 
-// Write writes both SQL statements and Go model to files using names by default.
+// Write writes both SQL statements and Go model.
 func (md *metadata) Write() {
-	md.WriteTo(getFilenames(md.engine))
-}
-
-// WriteTo writes both SQL statements and Go model to given files.
-func (md *metadata) WriteTo(goFilename, sqlFilename string) {
 	if len(md.sqlCode) == 0 {
-		log.Fatalf("no tables created; use Create()")
+		log.Fatalf("no data created; use Create()")
 	}
 
-	err := ioutil.WriteFile(sqlFilename, md.sqlCode, 0644)
+	tmpl, err := template.New("").Parse(string(md.sqlCode))
 	if err != nil {
-		log.Fatalf("write file: %s", err)
+		log.Fatal(err)
 	}
 
-	file, err := os.OpenFile(goFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	for _, eng := range md.engines {
+		buf := new(bytes.Buffer)
+		if err = tmpl.Execute(buf, getSQLAction(eng)); err != nil {
+			log.Fatal(err)
+		}
+
+		if err = ioutil.WriteFile(getSQLfile(eng), buf.Bytes(), 0644); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	file, err := os.OpenFile(filenameBase+".go", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		log.Fatalf("open file: %s", err)
+		log.Fatal(err)
 	}
 	defer file.Close()
 
@@ -316,7 +336,7 @@ func (md *metadata) formatValues(v []interface{}) []string {
 		case []uint8:
 			res = append(res, fmt.Sprintf("'%s'", t))
 		case bool:
-			res = append(res, md.formatBool(t))
+			res = append(res, boolAction(t))
 		}
 	}
 	return res

@@ -1,8 +1,5 @@
-// Copyright 2012 Jonas mg
-//
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+// Any copyright is dedicated to the Public Domain.
+// http://creativecommons.org/publicdomain/zero/1.0/
 
 // +build mysql postgresql sqlite
 package modsql
@@ -12,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
-	"path/filepath"
 )
 
 // For access to databases
@@ -27,6 +23,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	filenameBase = getFileBase() // update by changing of directory
 
 	u, err := user.Current()
 	if err != nil {
@@ -34,11 +31,7 @@ func init() {
 	}
 	username = u.Username
 
-	if files, err := filepath.Glob("*.sql"); err != nil {
+	if err = exec.Command("go", "run", "example.go").Run(); err != nil {
 		log.Fatal(err)
-	} else if len(files) == 0 {
-		if err = exec.Command("go", "run", "type.go").Run(); err != nil {
-			log.Fatal(err)
-		}
 	}
 }

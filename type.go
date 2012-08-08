@@ -6,10 +6,7 @@
 
 package modsql
 
-import (
-	"fmt"
-	"strconv"
-)
+import "fmt"
 
 // A sqlEngine represents the SQL engine.
 type sqlEngine string
@@ -109,108 +106,51 @@ func (t sqlType) goString() string {
 	panic("unreachable")
 }
 
-// sqlString returns the type corresponding to the engine used.
-func (t sqlType) sqlString(engine sqlEngine) string {
-	switch engine {
+// boolAction returns the template action for a boolean.
+func boolAction(b bool) string {
+	if b == true {
+		return "{{.True}}"
+	}
+	return "{{.False}}"
+}
 
-	// http://dev.mysql.com/doc/refman/5.6/en/data-types.html
-	// http://nicj.net/mysql-text-vs-varchar-performance/
-	case MySQL:
-		switch t {
-		case Bool:
-			return "BOOL"
+// tmplAction returns a template action which will allow to generate the SQL type
+// for every SQL engine.
+func (t sqlType) tmplAction() string {
+	switch t {
+	case Bool:
+		return "{{.Bool}}"
 
-		case Int:
-			return "{{.MySQLInt}}" // parsed from function Load
-		case Int8:
-			return "TINYINT"
-		case Int16:
-			return "SMALLINT"
-		case Int32:
-			return "INT"
-		case Int64:
-			return "BIGINT"
+	case Int:
+		return "{{.Int}}"
+	case Int8:
+		return "{{.Int8}}"
+	case Int16:
+		return "{{.Int16}}"
+	case Int32:
+		return "{{.Int32}}"
+	case Int64:
+		return "{{.Int64}}"
 
-		case Float32:
-			return "FLOAT"
-		case Float64:
-			return "DOUBLE"
+	case Float32:
+		return "{{.Float32}}"
+	case Float64:
+		return "{{.Float64}}"
 
-		case String:
-			return "TEXT"
-		case Byte:
-			return "CHAR(1)"
-		case Rune:
-			return "CHAR(4)"
+	case String:
+		return "{{.String}}"
+	case Byte:
+		return "{{.Byte}}"
+	case Rune:
+		return "{{.Rune}}"
 
-		case Binary:
-			return "BLOB"
+	case Binary:
+		return "{{.Binary}}"
 
-		case Duration:
-			return "TIME"
-		case DateTime:
-			return "TIMESTAMP"
-		}
-
-	// http://www.postgresql.org/docs/9.2/static/datatype-numeric.html
-	case PostgreSQL:
-		switch t {
-		case Bool:
-			return "boolean"
-
-		case Int:
-			return "{{.PostgreInt}}" // parsed from function Load
-		case Int8, Int16:
-			return "smallint"
-		case Int32:
-			return "integer"
-		case Int64:
-			return "bigint"
-
-		case Float32:
-			return "real"
-		case Float64:
-			return "double precision"
-
-		case String:
-			return "text"
-		case Byte:
-			return "character"
-		case Rune:
-			return "character varying(4)"
-
-		case Binary:
-			return "bytea"
-
-		case Duration:
-			return "time without time zone"
-		case DateTime:
-			return "timestamp with time zone"
-		}
-
-	// http://www.sqlite.org/datatype3.html
-	case SQLite:
-		switch t {
-		case Bool:
-			return "BOOL"
-
-		case Int, Int8, Int16, Int32, Int64:
-			return "INTEGER"
-
-		case Float32, Float64:
-			return "REAL"
-
-		case String, Byte, Rune:
-			return "TEXT"
-
-		case Binary:
-			return "BLOB"
-
-		case Duration:
-			return "INTEGER" // time()
-		case DateTime:
-			return "TEXT" // datetime()
-		}
+	case Duration:
+		return "{{.Duration}}"
+	case DateTime:
+		return "{{.DateTime}}"
 	}
 
 	panic("unreachable")
@@ -218,19 +158,121 @@ func (t sqlType) sqlString(engine sqlEngine) string {
 
 // * * *
 
-// formatBool returns the literal value for a boolean according to the SQL engine.
-func (md *metadata) formatBool(b bool) string {
-	if md.engine == SQLite {
-		value := 0
-		if b == true {
-			value = 1
+// An sqlAction represents data to pass to the SQL template.
+type sqlAction struct {
+	Engine string
+
+	Bool  string
+	True  string
+	False string
+
+	Int   string
+	Int8  string
+	Int16 string
+	Int32 string
+	Int64 string
+
+	Float32 string
+	Float64 string
+
+	String string
+	Byte   string
+	Rune   string
+
+	Binary string
+
+	Duration string
+	DateTime string
+}
+
+// getSQLAction returns data corresponding to the engine used.
+func getSQLAction(eng sqlEngine) *sqlAction {
+	a := new(sqlAction)
+
+	switch eng {
+
+	// http://dev.mysql.com/doc/refman/5.6/en/data-types.html
+	// http://nicj.net/mysql-text-vs-varchar-performance/
+	case MySQL:
+		a = &sqlAction{
+			Bool: "BOOL",
+
+			Int:   "{{.MySQLInt}}", // to be parsed in function Load
+			Int8:  "TINYINT",
+			Int16: "SMALLINT",
+			Int32: "INT",
+			Int64: "BIGINT",
+
+			Float32: "FLOAT",
+			Float64: "DOUBLE",
+
+			String: "TEXT",
+			Byte:   "CHAR(1)",
+			Rune:   "CHAR(4)",
+
+			Binary: "BLOB",
+
+			Duration: "TIME",
+			DateTime: "TIMESTAMP",
 		}
-		return strconv.Itoa(value)
+
+	// http://www.postgresql.org/docs/9.2/static/datatype-numeric.html
+	case PostgreSQL:
+		a = &sqlAction{
+			Bool: "boolean",
+
+			Int:   "{{.PostgreInt}}", // to be parsed in function Load
+			Int8:  "smallint",
+			Int16: "smallint",
+			Int32: "integer",
+			Int64: "bigint",
+
+			Float32: "real",
+			Float64: "double precision",
+
+			String: "text",
+			Byte:   "character",
+			Rune:   "character varying(4)",
+
+			Binary: "bytea",
+
+			Duration: "time without time zone",
+			DateTime: "timestamp with time zone",
+		}
+
+	// http://www.sqlite.org/datatype3.html
+	case SQLite:
+		a = &sqlAction{
+			Bool: "BOOL",
+
+			Int:   "INTEGER",
+			Int8:  "INTEGER",
+			Int16: "INTEGER",
+			Int32: "INTEGER",
+			Int64: "INTEGER",
+
+			Float32: "REAL",
+			Float64: "REAL",
+
+			String: "TEXT",
+			Byte:   "TEXT",
+			Rune:   "TEXT",
+
+			Binary: "BLOB",
+
+			Duration: "INTEGER", // time()
+			DateTime: "TEXT",    // datetime()
+		}
 	}
 
-	value := "FALSE"
-	if b == true {
-		value = "TRUE"
+	if eng == SQLite {
+		a.False = "0"
+		a.True = "1"
+	} else {
+		a.False = "FALSE"
+		a.True = "TRUE"
 	}
-	return value
+	a.Engine = string(eng)
+
+	return a
 }
