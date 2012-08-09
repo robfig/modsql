@@ -22,50 +22,15 @@ The function Metadata has the mode Help to create tables related to localization
 If it is set, then at generating SQL it is created an extra table (starting wich
 "_") for each model where is inserted the column "lang" like primary key.
 
-NOTE: it is not ready to working with relations between tables since I don't
-need it by now.
+Like example, see in directory testdata; the file "example.go" is the model,
+"data-testdata.go" is the generated code, and "data-testdata_*.sql" are the
+SQL files generated for every engine which were indicated in the model (function
+Metadata).
 
+For testing into a SQL engine, there is to run:
 
-Operating instructions
+   go test -v -tags postgresql|mysql|sqlite
 
-This example is used in file "modsql_test.go" except that it writes to file.
-To run it, use "go run file.go".
-
-	package main
-
-	import . "github.com/kless/modsql"
-
-	func main() {
-		metadata := Metadata(PostgreSQL, Help)
-
-		types := Table("types", metadata,
-			Column("id", Int64).PrimaryKey(),
-			Column("t_int", Int32),
-			Column("t_float", Float64),
-			Column("t_string", String),
-			//Column("t_binary", Binary),
-			Column("t_bool", Bool),
-		)
-
-		def := Table("default_value", metadata,
-			Column("id", Int64).PrimaryKey(),
-			Column("d_int", Int8).Default(int8(55)),
-			Column("d_float", Float32).Default(float32(10.2)),
-			Column("d_string", String).Default("string"),
-			//Column("d_binary", Binary).Default([]byte("123")),
-			Column("d_bool", Bool).Default(false),
-		)
-
-		// == Insert values
-		types.InsertHelp("en", "integer", "float", "text", "boolean")
-		types.Insert(1, 10, 1.1, "one", true)
-		types.Insert(2, 20, 2.2, "two", false)
-
-		def.InsertHelp("en", "integer", "float", "text", "boolean")
-		def.Insert(1, 10, 10.1, "foo", true)
-		// ==
-
-		metadata.Create().Write()
-	}
+See files "db-*_test.go" to know how databases were configured.
 */
 package modsql

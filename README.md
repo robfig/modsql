@@ -8,6 +8,12 @@ Defines a database model to generate its SQL statements and Go types.
 
 	go get github.com/kless/modsql
 
+## Status
+
+OK. Tested in PostgreSQL, MySQL and SQLite SQL engines.
+
+TODO: add relations
+
 ## License
 
 The source files are distributed under the [Mozilla Public License, version 2.0](http://mozilla.org/MPL/2.0/),

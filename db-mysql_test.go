@@ -26,8 +26,7 @@ import (
 func TestMySQL(t *testing.T) {
 	host = "/var/run/mysqld/mysqld.sock"
 
-	db, err := sql.Open("mysql", fmt.Sprintf("%s@unix(%s)/%s?charset=utf8",
-		username, host, dbname))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s@unix(%s)/%s", username, host, dbname))
 	if err != nil {
 		t.Fatal(err)
 	}
