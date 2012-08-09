@@ -9,7 +9,7 @@ package modsql
 import (
 	"fmt"
 	"log"
-	"time"
+	//"time"
 )
 
 // For columns with a wrong type
@@ -91,12 +91,13 @@ func (c *column) check() bool {
 			return false
 		}
 
-	case string:
-		if c.type_ != String {
-			return false
-		}
 	case uint8: // for the alias byte
 		if c.type_ != Byte {
+			return false
+		}
+
+	/*case string:
+		if c.type_ != String {
 			return false
 		}
 
@@ -105,14 +106,14 @@ func (c *column) check() bool {
 			return false
 		}
 
-	case *time.Duration:
+	case time.Duration:
 		if c.type_ != Duration {
 			return false
 		}
 	case time.Time:
 		if c.type_ != DateTime {
 			return false
-		}
+		}*/
 
 	default:
 		panic(fmt.Sprintf("type %v not supported", t))

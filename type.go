@@ -61,8 +61,8 @@ const (
 
 	Binary
 
-	Duration // time.Time
-	DateTime // time.Date()
+	Duration // time.Duration
+	DateTime // time.Time
 )
 
 // goString returns the type corresponding to Go.
@@ -98,7 +98,7 @@ func (t sqlType) goString() string {
 		return "[]byte"
 
 	case Duration:
-		return "*time.Duration"
+		return "time.Duration"
 	case DateTime:
 		return "time.Time"
 	}
@@ -237,7 +237,7 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 			Binary: "bytea",
 
 			Duration: "time without time zone",
-			DateTime: "timestamp with time zone",
+			DateTime: "timestamp without time zone",
 		}
 
 	// http://www.sqlite.org/datatype3.html

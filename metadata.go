@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 )
 
 // mode represents the modes to use in metadata.Mode.
@@ -327,12 +328,16 @@ func (md *metadata) insert(main *[]string, value uint) {
 	*main = append(*main, insert...)
 }
 
+var replTime = strings.NewReplacer("h", ":", "m", ":", "s", "")
+
 // formatValues converts the values to slice of strings.
 func (md *metadata) formatValues(v []interface{}) []string {
 	res := make([]string, 0)
 
 	for _, val := range v {
 		switch t := val.(type) {
+		case bool:
+			res = append(res, boolAction(t))
 		case int:
 			res = append(res, strconv.Itoa(t))
 		case float32:
@@ -341,8 +346,10 @@ func (md *metadata) formatValues(v []interface{}) []string {
 			res = append(res, strconv.FormatFloat(t, 'g', -1, 64))
 		case string, []byte:
 			res = append(res, fmt.Sprintf("'%s'", t))
-		case bool:
-			res = append(res, boolAction(t))
+		case time.Duration:
+			res = append(res, fmt.Sprintf("'%s'", replTime.Replace(t.String())))
+		case time.Time:
+			res = append(res, fmt.Sprintf("'%s'", t.Format("2006-01-02 15:04:05")))
 		}
 	}
 	return res

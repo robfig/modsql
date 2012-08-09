@@ -11,9 +11,9 @@ CREATE TABLE types (
 	t_float32 REAL,
 	t_float64 REAL,
 	t_string  TEXT,
+	t_binary  BLOB,
 	t_byte    TEXT,
 	t_rune    TEXT,
-	t_binary  BLOB,
 	t_bool    BOOL
 );
 
@@ -27,9 +27,9 @@ CREATE TABLE _types (
 	t_float32 TEXT,
 	t_float64 TEXT,
 	t_string  TEXT,
+	t_binary  TEXT,
 	t_byte    TEXT,
 	t_rune    TEXT,
-	t_binary  TEXT,
 	t_bool    TEXT
 );
 
@@ -38,9 +38,9 @@ CREATE TABLE default_value (
 	d_int8    INTEGER DEFAULT 55,
 	d_float32 REAL DEFAULT 10.2,
 	d_string  TEXT,
+	d_binary  BLOB,
 	d_byte    TEXT DEFAULT 'b',
 	d_rune    TEXT DEFAULT 'r',
-	d_binary  BLOB,
 	d_bool    BOOL DEFAULT 0
 );
 
@@ -50,14 +50,27 @@ CREATE TABLE _default_value (
 	d_int8    TEXT,
 	d_float32 TEXT,
 	d_string  TEXT,
+	d_binary  TEXT,
 	d_byte    TEXT,
 	d_rune    TEXT,
-	d_binary  TEXT,
 	d_bool    TEXT
 );
 
-INSERT INTO _types (lang, t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_byte, t_rune, t_binary, t_bool) VALUES('en', 'int', 'integer 8', 'integer 16', 'integer 32', 'integer 64', 'float 32', 'float 64', 'string', 'byte', 'rune', 'binary', 'boolean');
-INSERT INTO _default_value (lang, id, d_int8, d_float32, d_string, d_byte, d_rune, d_binary, d_bool) VALUES('en', 'id', 'integer 8', 'float 32', 'string', 'byte', 'rune', 'binary', 'boolean');
-INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_byte, t_rune, t_binary, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', 'A', 'Z', '12', 1);
-INSERT INTO default_value (id, d_int8, d_float32, d_string, d_byte, d_rune, d_binary, d_bool) VALUES(1, 10, 10.1, 'foo', 'a', 'z', '12', 0);
+CREATE TABLE times (
+	t_duration INTEGER,
+	t_datetime TEXT
+);
+
+CREATE TABLE _times (
+	lang       VARCHAR(32) PRIMARY KEY,
+	t_duration TEXT,
+	t_datetime TEXT
+);
+
+INSERT INTO _types (lang, t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES('en', 'int', 'integer 8', 'integer 16', 'integer 32', 'integer 64', 'float 32', 'float 64', 'string', 'binary', 'byte', 'rune', 'boolean');
+INSERT INTO _default_value (lang, id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES('en', 'id', 'integer 8', 'float 32', 'string', 'binary', 'byte', 'rune', 'boolean');
+INSERT INTO _times (lang, t_duration, t_datetime) VALUES('en', 'duration', 'datetime');
+INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 'A', 'Z', 1);
+INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES(1, 10, 10.1, 'foo', '12', 'a', 'z', 0);
+INSERT INTO times (t_duration, t_datetime) VALUES('5:3:12', '2012-08-09 09:52:39');
 COMMIT;
