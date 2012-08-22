@@ -72,5 +72,5 @@ INSERT INTO _default_value (lang, id, d_int8, d_float32, d_string, d_binary, d_b
 INSERT INTO _times (lang, t_duration, t_datetime) VALUES('en', 'duration', 'datetime');
 INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 'A', 'Z', 1);
 INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES(1, 10, 10.1, 'foo', '12', 'a', 'z', 0);
-INSERT INTO times (t_duration, t_datetime) VALUES('5:3:12', '2012-08-09 09:52:39');
+INSERT INTO times (t_duration, t_datetime) VALUES('5:3:12', '2012-08-09 10:25:47');
 COMMIT;

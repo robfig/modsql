@@ -114,7 +114,7 @@ func boolAction(b bool) string {
 	return "{{.False}}"
 }
 
-// tmplAction returns a template action which will allow to generate the SQL type
+// tmplAction returns a template action which will enable to generate the SQL type
 // for every SQL engine.
 func (t sqlType) tmplAction() string {
 	switch t {
