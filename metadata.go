@@ -23,6 +23,8 @@ import (
 	"time"
 )
 
+const _FILENAME = "zmodsql"
+
 // mode represents the modes to use in metadata.Mode.
 type mode byte
 
@@ -236,12 +238,12 @@ func (md *metadata) Write() {
 			log.Fatal(err)
 		}
 
-		if err = ioutil.WriteFile(getSQLfile(eng), buf.Bytes(), 0644); err != nil {
+		if err = ioutil.WriteFile(md.sqlFile(eng), buf.Bytes(), 0644); err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	file, err := os.OpenFile(filenameBase+".go", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(_FILENAME+".go", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -281,6 +283,33 @@ func (md *metadata) format(out io.Writer) {
 	return
 _error:
 	log.Fatalf("format Go code: %s", err)
+}
+
+var replTime = strings.NewReplacer("h", ":", "m", ":", "s", "")
+
+// formatValues converts the values to slice of strings.
+func (md *metadata) formatValues(v []interface{}) []string {
+	res := make([]string, 0)
+
+	for _, val := range v {
+		switch t := val.(type) {
+		case bool:
+			res = append(res, boolAction(t))
+		case int:
+			res = append(res, strconv.Itoa(t))
+		case float32:
+			res = append(res, strconv.FormatFloat(float64(t), 'g', -1, 32))
+		case float64:
+			res = append(res, strconv.FormatFloat(t, 'g', -1, 64))
+		case string, []byte:
+			res = append(res, fmt.Sprintf("'%s'", t))
+		case time.Duration:
+			res = append(res, fmt.Sprintf("'%s'", replTime.Replace(t.String())))
+		case time.Time:
+			res = append(res, fmt.Sprintf("'%s'", t.Format("2006-01-02 15:04:05")))
+		}
+	}
+	return res
 }
 
 // insert generates SQL statements to insert values; they are finally added to
@@ -328,29 +357,7 @@ func (md *metadata) insert(main *[]string, value uint) {
 	*main = append(*main, insert...)
 }
 
-var replTime = strings.NewReplacer("h", ":", "m", ":", "s", "")
-
-// formatValues converts the values to slice of strings.
-func (md *metadata) formatValues(v []interface{}) []string {
-	res := make([]string, 0)
-
-	for _, val := range v {
-		switch t := val.(type) {
-		case bool:
-			res = append(res, boolAction(t))
-		case int:
-			res = append(res, strconv.Itoa(t))
-		case float32:
-			res = append(res, strconv.FormatFloat(float64(t), 'g', -1, 32))
-		case float64:
-			res = append(res, strconv.FormatFloat(t, 'g', -1, 64))
-		case string, []byte:
-			res = append(res, fmt.Sprintf("'%s'", t))
-		case time.Duration:
-			res = append(res, fmt.Sprintf("'%s'", replTime.Replace(t.String())))
-		case time.Time:
-			res = append(res, fmt.Sprintf("'%s'", t.Format("2006-01-02 15:04:05")))
-		}
-	}
-	return res
+// sqlFile returns the filename for the SQL statements.
+func (md *metadata) sqlFile(eng sqlEngine) string {
+	return fmt.Sprintf("%s_%s.sql", _FILENAME, eng.shortString())
 }

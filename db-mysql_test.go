@@ -1,5 +1,8 @@
-// Any copyright is dedicated to the Public Domain.
-// http://creativecommons.org/publicdomain/zero/1.0/
+// Copyright 2012 Jonas mg
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // +build mysql
 
@@ -33,7 +36,7 @@ func TestMySQL(t *testing.T) {
 	}
 	defer db.Close()
 
-	if err = Load(db, getSQLfile(MySQL)); err != nil {
+	if err = Load(db, "zmodsql_my.sql"); err != nil {
 		t.Fatal(err)
 	}
 }
