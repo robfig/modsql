@@ -29,6 +29,7 @@ type default_value struct {
 }
 
 type times struct {
+	typeId     int
 	t_duration time.Duration
 	t_datetime time.Time
 }

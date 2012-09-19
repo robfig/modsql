@@ -18,14 +18,9 @@ If it is used the type Int, then the SQL files will have variables delimited by
 "{{" and "}}", which will be parsed by the function Load according to the
 architecture where it is being run.
 
-The function Metadata has the mode Help to create tables related to localization.
-If it is set, then at generating SQL it is created an extra table (starting wich
-"_") for each model where is inserted the column "lang" like primary key.
-
 Like example, see in directory testdata; the file "example.go" is the model,
-"data-testdata.go" is the generated code, and "data-testdata_*.sql" are the
-SQL files generated for every engine which were indicated in the model (function
-Metadata).
+"zmodsql.go" is the generated code, and "zmodsql_*.sql" are the SQL files
+generated for every engine which were indicated in the model (function Metadata).
 
 For testing into a SQL engine, there is to run:
 

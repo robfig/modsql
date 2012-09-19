@@ -1,5 +1,8 @@
-// Any copyright is dedicated to the Public Domain.
-// http://creativecommons.org/publicdomain/zero/1.0/
+// Copyright 2012 Jonas mg
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 package main
 
@@ -9,7 +12,7 @@ import (
 )
 
 func main() {
-	metadata := Metadata(Help, PostgreSQL, MySQL, SQLite)
+	metadata := Metadata(PostgreSQL, MySQL, SQLite)
 
 	types := Table("types", metadata,
 		Column("t_int", Int).PrimaryKey(),
@@ -43,17 +46,13 @@ func main() {
 	)
 
 	times := Table("times", metadata,
+		Column("typeId", Int).ForeignKey("types", "t_int"),
 		Column("t_duration", Duration),
 		Column("t_datetime", DateTime),
 	)
 
-	// == Insert values
-	types.InsertHelp("en",
-		"int", "integer 8", "integer 16", "integer 32", "integer 64",
-		"float 32", "float 64",
-		"string", "binary",
-		"byte", "rune", "boolean",
-	)
+	// Insert values
+
 	types.Insert(
 		1, 8, 16, 32, 64,
 		1.32, 1.64,
@@ -61,20 +60,15 @@ func main() {
 		"A", "Z", true,
 	)
 
-	def.InsertHelp("en",
-		"id", "integer 8", "float 32",
-		"string", "binary",
-		"byte", "rune", "boolean",
-	)
 	def.Insert(
 		1, 10, 10.10,
 		"foo", []byte{'1', '2'},
 		"a", "z", false,
 	)
 
-	times.InsertHelp("en", "duration", "datetime")
-	times.Insert(5*time.Hour+3*time.Minute+12*time.Second, time.Now())
-	// ==
+	times.Insert(1, 5*time.Hour+3*time.Minute+12*time.Second, time.Now())
+
+	// * * *
 
 	metadata.Create().Write()
 }

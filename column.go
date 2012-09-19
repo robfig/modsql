@@ -9,7 +9,7 @@ package modsql
 import (
 	"fmt"
 	"log"
-	//"time"
+	"time"
 )
 
 // For columns with a wrong type
@@ -19,9 +19,16 @@ var (
 )
 
 type column struct {
-	name         string
-	type_        sqlType
 	isPrimaryKey bool
+	isForeignKey bool
+
+	type_ sqlType
+	name  string
+
+	// foreign key
+	fkTable  string
+	fkColumn string
+
 	defaultValue interface{}
 }
 
@@ -42,7 +49,7 @@ func (c *column) Default(v interface{}) *column {
 	}
 
 	c.defaultValue = v
-	if ok := c.check(); !ok {
+	if ok := c.checkDefValue(); !ok {
 		columnsErr = append(columnsErr, fmt.Sprintf("\n column %q with type %T",
 			c.name, c.defaultValue),
 		)
@@ -53,12 +60,29 @@ func (c *column) Default(v interface{}) *column {
 
 // PrimaryKey indicates that the column is a primary key.
 func (c *column) PrimaryKey() *column {
+	if c.isForeignKey {
+		c.addErrorKey()
+	}
 	c.isPrimaryKey = true
 	return c
 }
 
-// check checks whether the value by default has the correct type.
-func (c *column) check() bool {
+// ForeignKey indicates that the column is foreign key.
+func (c *column) ForeignKey(table, column string) *column {
+	if c.isPrimaryKey {
+		c.addErrorKey()
+	}
+	c.isForeignKey = true
+
+	c.fkTable = table
+	c.fkColumn = column
+	return c
+}
+
+// * * *
+
+// checkDefValue checks whether the default value has the correct type.
+func (c *column) checkDefValue() bool {
 	switch t := c.defaultValue.(type) {
 	case bool:
 		if c.type_ != Bool {
@@ -96,7 +120,7 @@ func (c *column) check() bool {
 			return false
 		}
 
-	/*case string:
+	case string:
 		if c.type_ != String {
 			return false
 		}
@@ -113,11 +137,16 @@ func (c *column) check() bool {
 	case time.Time:
 		if c.type_ != DateTime {
 			return false
-		}*/
+		}
 
 	default:
 		panic(fmt.Sprintf("type %v not supported", t))
 	}
 
 	return true
+}
+
+func (c *column) addErrorKey() {
+	columnsErr = append(columnsErr,
+		fmt.Sprintf("\n column %q has several keys", c.name))
 }

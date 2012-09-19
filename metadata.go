@@ -25,47 +25,30 @@ import (
 
 const _FILENAME = "zmodsql"
 
-// mode represents the modes to use in metadata.Mode.
-type mode byte
-
-const (
-	// If Help is set, it is created tables related to help.
-	Help mode = iota + 1
-)
-
 // metadata defines a collection of table definitions.
 type metadata struct {
-	mode          mode
-	useInsert     bool
-	useInsertHelp bool
-	engines       []sqlEngine
-	tables        []*table
-	sqlCode       []byte
-	goCode        []byte
+	useInsert bool
+	engines   []sqlEngine
+	tables    []*table
+	sqlCode   []byte
+	goCode    []byte
 }
 
 // Metadata returns a new metadata.
-func Metadata(m mode, eng ...sqlEngine) *metadata {
+func Metadata(eng ...sqlEngine) *metadata {
 	for _, v := range eng {
 		if err := v.check(); err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	return &metadata{mode: m, engines: eng}
+	return &metadata{engines: eng}
 }
 
 // * * *
 
-const langPK = "lang"
-
 // Create generates both SQL statements and Go definitions for all tables.
 func (md *metadata) Create() *metadata {
-	pop := func(sl []string) []string {
-		_, sl = sl[len(sl)-1], sl[:len(sl)-1]
-		return sl
-	}
-
 	// Quote special names.
 	quote := func(name string) string {
 		if name == "user" {
@@ -97,8 +80,6 @@ func (md *metadata) Create() *metadata {
 		fmt.Sprintf("%s\n%s\nBEGIN;", _CONSTRAINT, _HEADER))
 
 	for _, table := range md.tables {
-		sqlLangCode := make([]string, 0)
-
 		// == Get the length of largest field
 		fieldMaxLen := 2 // minimum length (id)
 
@@ -109,14 +90,9 @@ func (md *metadata) Create() *metadata {
 		}
 		// ==
 
-		if md.mode == Help {
-			sqlLangCode = append(sqlLangCode,
-				fmt.Sprintf("\nCREATE TABLE _%s (\n\t%s %sVARCHAR(32) PRIMARY KEY,\n",
-					table.name, langPK, sqlAlign(fieldMaxLen, len(langPK))))
-		}
-
 		goCode = append(goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
 		sqlCode = append(sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", quote(table.name)))
+		sqlExtraCode := ""
 
 		for i, col := range table.columns {
 			extra := ""
@@ -144,6 +120,11 @@ func (md *metadata) Create() *metadata {
 			if col.isPrimaryKey {
 				extra += " PRIMARY KEY"
 			}
+			if col.isForeignKey {
+				sqlExtraCode = fmt.Sprintf(",\n\tFOREIGN KEY(%s) REFERENCES %s(%s)",
+					col.name, col.fkTable, col.fkColumn)
+			}
+
 			if col.defaultValue != nil {
 				extra += " DEFAULT "
 
@@ -163,24 +144,10 @@ func (md *metadata) Create() *metadata {
 
 			sqlCode = append(sqlCode, extra)
 
-			// Add table for translation of fields comments
-			if md.mode == Help && col.name != langPK {
-				sqlLangCode = append(sqlLangCode, fmt.Sprintf("\t%s %sTEXT",
-					nameQuoted, sqlAlign(fieldMaxLen, len(nameQuoted))),
-				)
-				sqlLangCode = append(sqlLangCode, ",\n")
-			}
-
 			// The last column
 			if i+1 == len(table.columns) {
-				sqlCode = append(sqlCode, "\n);\n")
+				sqlCode = append(sqlCode, sqlExtraCode+"\n);\n")
 				goCode = append(goCode, "}\n")
-
-				if md.mode == Help {
-					sqlLangCode = pop(sqlLangCode)
-					sqlLangCode = append(sqlLangCode, "\n);\n")
-					sqlCode = append(sqlCode, sqlLangCode...)
-				}
 			} else {
 				sqlCode = append(sqlCode, ",")
 			}
@@ -188,11 +155,8 @@ func (md *metadata) Create() *metadata {
 	}
 
 	// == Insert
-	if md.useInsertHelp {
-		md.insert(&sqlCode, _INSERT_HELP)
-	}
 	if md.useInsert {
-		md.insert(&sqlCode, _INSERT_DATA)
+		md.insert(&sqlCode)
 	}
 
 	md.sqlCode = []byte(strings.Join(sqlCode, ""))
@@ -254,11 +218,6 @@ func (md *metadata) Write() {
 
 // * * *
 
-const (
-	_INSERT_HELP uint = iota
-	_INSERT_DATA
-)
-
 // To format Go source code.
 const (
 	_PARSER_MODE  = parser.ParseComments
@@ -312,36 +271,23 @@ func (md *metadata) formatValues(v []interface{}) []string {
 	return res
 }
 
-// insert generates SQL statements to insert values; they are finally added to
+// insert generates SQL statements for insert values; they are finally added to
 // the slice main.
-func (md *metadata) insert(main *[]string, value uint) {
-	if value != _INSERT_HELP && value != _INSERT_DATA {
-		log.Fatalf("argument \"value\" not valid for \"metadata.insert\": %d", value)
-	}
-
+func (md *metadata) insert(main *[]string) {
 	var data [][]interface{}
 	insert := make([]string, 0)
 
 	for _, table := range md.tables {
 		tableName := table.name
 
-		if value == _INSERT_HELP {
-			data = table.help
-			tableName = "_" + tableName
-		} else if value == _INSERT_DATA {
-			data = table.data
-		}
+		data = table.data
 
 		if len(data) != 0 {
 			var columns []string
 
-			for i, col := range table.columns {
-				if i == 0 && value == _INSERT_HELP {
-					columns = append(columns, langPK)
-				}
+			for _, col := range table.columns {
 				columns = append(columns, col.name)
 			}
-
 			for _, v := range data {
 				insert = append(insert, fmt.Sprintf("\nINSERT INTO %s (%s) VALUES(%s);",
 					tableName,
@@ -350,10 +296,8 @@ func (md *metadata) insert(main *[]string, value uint) {
 			}
 		}
 	}
+	insert = append(insert, "\nCOMMIT;\n")
 
-	if value == _INSERT_DATA {
-		insert = append(insert, "\nCOMMIT;\n")
-	}
 	*main = append(*main, insert...)
 }
 

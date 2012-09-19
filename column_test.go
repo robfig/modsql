@@ -6,7 +6,10 @@
 
 package modsql
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestColumn(t *testing.T) {
 	val1 := false
@@ -24,13 +27,21 @@ func TestColumn(t *testing.T) {
 	val4 := byte('a')
 	Column("char", Byte).Default(val4)
 	checkError(t, val4)
+
+	val5 := 10 * time.Second
+	Column("duration", Duration).Default(val5)
+	checkError(t, val5)
+
+	val6 := time.Now()
+	Column("time", DateTime).Default(val6)
+	checkError(t, val6)
 }
 
 // * * *
 
 func checkError(t *testing.T, value interface{}) {
 	if anyColumnErr == true {
-		t.Error("got error for: ", value)
+		t.Error("got error in column with value:", value)
 	}
 	anyColumnErr = false
 }
