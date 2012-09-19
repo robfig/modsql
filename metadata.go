@@ -92,7 +92,7 @@ func (md *metadata) Create() *metadata {
 
 		goCode = append(goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
 		sqlCode = append(sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", quote(table.name)))
-		sqlExtraCode := ""
+		sqlExtraCode := make([]string, 0)
 
 		for i, col := range table.columns {
 			extra := ""
@@ -121,8 +121,9 @@ func (md *metadata) Create() *metadata {
 				extra += " PRIMARY KEY"
 			}
 			if col.isForeignKey {
-				sqlExtraCode = fmt.Sprintf(",\n\tFOREIGN KEY(%s) REFERENCES %s(%s)",
-					col.name, col.fkTable, col.fkColumn)
+				sqlExtraCode = append(sqlExtraCode,
+					fmt.Sprintf("\n\tFOREIGN KEY(%s) REFERENCES %s(%s)",
+						col.name, col.fkTable, col.fkColumn))
 			}
 
 			if col.defaultValue != nil {
@@ -146,7 +147,11 @@ func (md *metadata) Create() *metadata {
 
 			// The last column
 			if i+1 == len(table.columns) {
-				sqlCode = append(sqlCode, sqlExtraCode+"\n);\n")
+				if len(sqlExtraCode) != 0 {
+					sqlCode = append(sqlCode, ",\n"+strings.Join(sqlExtraCode, ","))
+				}
+
+				sqlCode = append(sqlCode, "\n);\n")
 				goCode = append(goCode, "}\n")
 			} else {
 				sqlCode = append(sqlCode, ",")
