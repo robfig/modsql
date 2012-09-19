@@ -18,6 +18,8 @@ CREATE TABLE types (
 
 	UNIQUE (t_float32, t_float64)
 );
+CREATE UNIQUE INDEX ix_types_t_float64 ON types (t_float64);
+CREATE INDEX ix_types_t_rune ON types (t_rune);
 
 CREATE TABLE default_value (
 	id        {{.PostgreInt}} PRIMARY KEY,
@@ -27,7 +29,8 @@ CREATE TABLE default_value (
 	d_binary  bytea,
 	d_byte    character DEFAULT 'b',
 	d_rune    character varying(4) DEFAULT 'r',
-	d_bool    boolean DEFAULT FALSE
+	d_bool    boolean DEFAULT FALSE,
+	d_findex  {{.PostgreInt}}
 );
 
 CREATE TABLE times (
@@ -37,8 +40,9 @@ CREATE TABLE times (
 
 	PRIMARY KEY (t_duration, t_datetime)
 );
+CREATE INDEX ix_times_t_datetime ON times (t_datetime);
 
 INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 'A', 'Z', TRUE);
-INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES(1, 10, 10.1, 'foo', '12', 'a', 'z', FALSE);
-INSERT INTO times (typeId, t_duration, t_datetime) VALUES(1, '5:3:12', '2012-09-19 12:25:24');
+INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool, d_findex) VALUES(1, 10, 10.1, 'foo', '12', 'a', 'z', FALSE, 1);
+INSERT INTO times (typeId, t_duration, t_datetime) VALUES(1, '5:3:12', '2012-09-19 21:26:59');
 COMMIT;

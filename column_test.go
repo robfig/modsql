@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TestColumn(t *testing.T) {
+func TestDefaultValue(t *testing.T) {
 	val1 := false
 	Column("married", Bool).Default(val1)
 	checkError(t, val1)
@@ -37,11 +37,19 @@ func TestColumn(t *testing.T) {
 	checkError(t, val6)
 }
 
+func TestConstraintWinthIndex(t *testing.T) {
+	Column("foo", Int).PrimaryKey().Index(true)
+	Column("bar", Bool).Index(false).Unique()
+
+	if len(columnsErr) != 2 {
+		t.Error("expected to get errors at set both constraint and index")
+	}
+}
+
 // * * *
 
 func checkError(t *testing.T, value interface{}) {
-	if anyColumnErr == true {
+	if len(columnsErr) != 0 {
 		t.Error("got error in column with value:", value)
 	}
-	anyColumnErr = false
 }

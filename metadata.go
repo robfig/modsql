@@ -92,7 +92,7 @@ func (md *metadata) Create() *metadata {
 
 		goCode = append(goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
 		sqlCode = append(sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", quote(table.name)))
-		sqlExtraCode := make([]string, 0)
+		index := make([]string, 0)
 
 		for i, col := range table.columns {
 			extra := ""
@@ -103,8 +103,32 @@ func (md *metadata) Create() *metadata {
 
 			// == MySQL: Limit the key length in TEXT or BLOB columns
 			sqlString := col.type_.tmplAction()
+			limit := false
 
-			if col.cons == cPrimaryKey || col.cons == cUnique {
+			for _, v := range table.pkCons {
+				if col.name == v {
+					limit = true
+					break
+				}
+			}
+			if !limit {
+				for _, v := range table.fkCons.src {
+					if col.name == v {
+						limit = true
+						break
+					}
+				}
+			}
+			if !limit {
+				for _, v := range table.uniqueCons {
+					if col.name == v {
+						limit = true
+						break
+					}
+				}
+			}
+
+			if limit || col.cons == consPrimaryKey || col.cons == consUnique {
 				switch col.type_ {
 				case String, Binary:
 					sqlString = "VARCHAR(32)"
@@ -118,16 +142,22 @@ func (md *metadata) Create() *metadata {
 				sqlString,
 			))
 
-			if col.cons == cPrimaryKey {
+			if col.cons == consPrimaryKey {
 				extra += " PRIMARY KEY"
-			} else if col.cons == cForeignKey {
+			} else if col.cons == consForeignKey {
 				extra += fmt.Sprintf(" REFERENCES %s(%s)", col.fkTable, col.fkColumn)
-				//sqlExtraCode = append(sqlExtraCode,
-				//fmt.Sprintf("\n\tFOREIGN KEY(%s) REFERENCES %s(%s)",
-				//col.name, col.fkTable, col.fkColumn))
-			} else if col.cons == cUnique {
+			} else if col.cons == consUnique {
 				extra += " UNIQUE"
-			} else if col.defaultValue != nil {
+
+			} else if col.idx == iIndex {
+				index = append(index, fmt.Sprintf("CREATE INDEX ix_%s_%s ON %s (%s);\n",
+					table.name, col.name, table.name, col.name))
+			} else if col.idx == iIndexUnique {
+				index = append(index, fmt.Sprintf("CREATE UNIQUE INDEX ix_%s_%s ON %s (%s);\n",
+					table.name, col.name, table.name, col.name))
+			}
+
+			if col.defaultValue != nil {
 				extra += " DEFAULT "
 
 				switch t := col.defaultValue.(type) {
@@ -147,31 +177,31 @@ func (md *metadata) Create() *metadata {
 
 			// The last column
 			if i+1 == len(table.columns) {
-				addedNL := false
+				var cons []string
 
-				if len(sqlExtraCode) != 0 {
-					sqlCode = append(sqlCode, ",\n"+strings.Join(sqlExtraCode, ","))
-					addedNL = true
-				}
 				if len(table.uniqueCons) != 0 {
-					if !addedNL {
-						sqlCode = append(sqlCode, ",\n")
-						addedNL = true
-					}
-					sqlCode = append(sqlCode, fmt.Sprintf("\n\tUNIQUE (%s)",
+					cons = append(cons, fmt.Sprintf("UNIQUE (%s)",
 						strings.Join(table.uniqueCons, ", ")))
 				}
 				if len(table.pkCons) != 0 {
-					if !addedNL {
-						sqlCode = append(sqlCode, ",\n")
-						addedNL = true
-					}
-					sqlCode = append(sqlCode, fmt.Sprintf("\n\tPRIMARY KEY (%s)",
+					cons = append(cons, fmt.Sprintf("PRIMARY KEY (%s)",
 						strings.Join(table.pkCons, ", ")))
 				}
+				if len(table.fkCons.src) != 0 {
+					cons = append(cons, fmt.Sprintf("FOREIGN KEY (%s) REFERENCES %s (%s)",
+						strings.Join(table.fkCons.src, ", "), table.fkCons.table,
+						strings.Join(table.fkCons.dst, ", ")))
+				}
 
+				if len(cons) != 0 {
+					sqlCode = append(sqlCode, ",\n\n\t"+strings.Join(cons, ",\n\t"))
+				}
 				sqlCode = append(sqlCode, "\n);\n")
 				goCode = append(goCode, "}\n")
+
+				if len(index) != 0 {
+					sqlCode = append(sqlCode, index...)
+				}
 			} else {
 				sqlCode = append(sqlCode, ",")
 			}

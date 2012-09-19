@@ -26,6 +26,7 @@ type default_value struct {
 	d_byte    byte
 	d_rune    rune
 	d_bool    bool
+	d_findex  int
 }
 
 type times struct {

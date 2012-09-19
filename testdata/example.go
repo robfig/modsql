@@ -22,13 +22,13 @@ func main() {
 		Column("t_int64", Int64),
 
 		Column("t_float32", Float32),
-		Column("t_float64", Float64),
+		Column("t_float64", Float64).Index(true),
 
 		Column("t_string", String).Unique(),
 		Column("t_binary", Binary),
 
 		Column("t_byte", Byte),
-		Column("t_rune", Rune),
+		Column("t_rune", Rune).Index(false),
 		Column("t_bool", Bool),
 	)
 	types.Unique("t_float32", "t_float64")
@@ -44,12 +44,18 @@ func main() {
 		Column("d_byte", Byte).Default(byte('b')),
 		Column("d_rune", Rune).Default('r'),
 		Column("d_bool", Bool).Default(false),
+
+		Column("d_findex", Int),
 	)
+	/*def.ForeignKey("types", map[string]string{
+		"d_string": "t_string",
+		"d_findex": "t_int",
+	})*/
 
 	times := Table("times", metadata,
 		Column("typeId", Int).ForeignKey("types", "t_int"),
 		Column("t_duration", Duration),
-		Column("t_datetime", DateTime),
+		Column("t_datetime", DateTime).Index(false),
 	)
 	times.PrimaryKey("t_duration", "t_datetime")
 
@@ -66,6 +72,7 @@ func main() {
 		1, 10, 10.10,
 		"foo", []byte{'1', '2'},
 		"a", "z", false,
+		1,
 	)
 
 	times.Insert(1, 5*time.Hour+3*time.Minute+12*time.Second, time.Now())
