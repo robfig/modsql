@@ -1,18 +1,13 @@
 ModSQL
 ======
-Defines a database model to generate its SQL statements and Go types.
+Defines a database model to generate its SQL statements and Go types.  
+It enables to generate SQL code for PostgreSQL, MySQL and SQLite engines.
 
 [Documentation online](http://go.pkgdoc.org/github.com/kless/modsql)
 
 ## Installation
 
 	go get github.com/kless/modsql
-
-## Status
-
-OK. Tested in PostgreSQL, MySQL and SQLite SQL engines.
-
-TODO: add relations
 
 ## License
 
