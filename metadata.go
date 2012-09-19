@@ -147,12 +147,27 @@ func (md *metadata) Create() *metadata {
 
 			// The last column
 			if i+1 == len(table.columns) {
+				addedNL := false
+
 				if len(sqlExtraCode) != 0 {
 					sqlCode = append(sqlCode, ",\n"+strings.Join(sqlExtraCode, ","))
+					addedNL = true
 				}
 				if len(table.uniqueCons) != 0 {
-					sqlCode = append(sqlCode, fmt.Sprintf(",\n\n\tUNIQUE (%s)",
+					if !addedNL {
+						sqlCode = append(sqlCode, ",\n")
+						addedNL = true
+					}
+					sqlCode = append(sqlCode, fmt.Sprintf("\n\tUNIQUE (%s)",
 						strings.Join(table.uniqueCons, ", ")))
+				}
+				if len(table.pkCons) != 0 {
+					if !addedNL {
+						sqlCode = append(sqlCode, ",\n")
+						addedNL = true
+					}
+					sqlCode = append(sqlCode, fmt.Sprintf("\n\tPRIMARY KEY (%s)",
+						strings.Join(table.pkCons, ", ")))
 				}
 
 				sqlCode = append(sqlCode, "\n);\n")

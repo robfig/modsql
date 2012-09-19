@@ -51,6 +51,7 @@ func main() {
 		Column("t_duration", Duration),
 		Column("t_datetime", DateTime),
 	)
+	times.PrimaryKey("t_duration", "t_datetime")
 
 	// Insert values
 

@@ -20,6 +20,7 @@ type table struct {
 
 	// Constraints to table level
 	uniqueCons []string
+	pkCons     []string
 }
 
 // Table defines a new table.
@@ -57,8 +58,21 @@ func (t *table) Insert(a ...interface{}) {
 	t.meta.useInsert = true
 }
 
+// PrimaryKey creates explicit/composite primary key constraint.
+func (t *table) PrimaryKey(columns ...string) {
+	t.checkColumns("PrimaryKey", columns)
+	t.pkCons = columns
+}
+
 // Unique creates explicit/composite unique constraint.
 func (t *table) Unique(columns ...string) {
+	t.checkColumns("Unique", columns)
+	t.uniqueCons = columns
+}
+
+// * * *
+
+func (t *table) checkColumns(funcName string, columns []string) {
 	for _, c := range columns {
 		found := false
 
@@ -69,9 +83,7 @@ func (t *table) Unique(columns ...string) {
 			}
 		}
 		if !found {
-			log.Fatalf("table %q: Unique(): column %q does not exist", t.name, c)
+			log.Fatalf("table %q: %s(): column %q does not exist", t.name, funcName, c)
 		}
 	}
-
-	t.uniqueCons = columns
 }
