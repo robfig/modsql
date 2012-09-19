@@ -101,9 +101,10 @@ func (md *metadata) Create() *metadata {
 
 			goCode = append(goCode, fmt.Sprintf("%s %s\n", col.name, col.type_.goString()))
 
-			// == MySQL: Limit the key length in TEXT or BLOB columns used like primary keys.
+			// == MySQL: Limit the key length in TEXT or BLOB columns
 			sqlString := col.type_.tmplAction()
-			if col.isPrimaryKey {
+
+			if col.cons == cPrimaryKey || col.cons == cUnique {
 				switch col.type_ {
 				case String, Binary:
 					sqlString = "VARCHAR(32)"
@@ -117,23 +118,22 @@ func (md *metadata) Create() *metadata {
 				sqlString,
 			))
 
-			if col.isPrimaryKey {
+			if col.cons == cPrimaryKey {
 				extra += " PRIMARY KEY"
-			}
-			if col.isForeignKey {
-				sqlExtraCode = append(sqlExtraCode,
-					fmt.Sprintf("\n\tFOREIGN KEY(%s) REFERENCES %s(%s)",
-						col.name, col.fkTable, col.fkColumn))
-			}
-
-			if col.defaultValue != nil {
+			} else if col.cons == cForeignKey {
+				extra += fmt.Sprintf(" REFERENCES %s(%s)", col.fkTable, col.fkColumn)
+				//sqlExtraCode = append(sqlExtraCode,
+				//fmt.Sprintf("\n\tFOREIGN KEY(%s) REFERENCES %s(%s)",
+				//col.name, col.fkTable, col.fkColumn))
+			} else if col.cons == cUnique {
+				extra += " UNIQUE"
+			} else if col.defaultValue != nil {
 				extra += " DEFAULT "
 
 				switch t := col.defaultValue.(type) {
 				case bool:
 					extra += boolAction(t)
-				//case string:
-					//extra += fmt.Sprintf("'%s'", t)
+				//case string: extra += fmt.Sprintf("'%s'", t)
 				case byte:
 					extra += fmt.Sprintf("'%s'", string(t))
 				case rune:
@@ -149,6 +149,10 @@ func (md *metadata) Create() *metadata {
 			if i+1 == len(table.columns) {
 				if len(sqlExtraCode) != 0 {
 					sqlCode = append(sqlCode, ",\n"+strings.Join(sqlExtraCode, ","))
+				}
+				if len(table.uniqueCons) != 0 {
+					sqlCode = append(sqlCode, fmt.Sprintf(",\n\n\tUNIQUE (%s)",
+						strings.Join(table.uniqueCons, ", ")))
 				}
 
 				sqlCode = append(sqlCode, "\n);\n")

@@ -17,6 +17,9 @@ type table struct {
 
 	columns []column
 	data    [][]interface{}
+
+	// Constraints to table level
+	uniqueCons []string
 }
 
 // Table defines a new table.
@@ -52,4 +55,23 @@ func (t *table) Insert(a ...interface{}) {
 
 	t.data = append(t.data, vec)
 	t.meta.useInsert = true
+}
+
+// Unique creates explicit/composite unique constraint.
+func (t *table) Unique(columns ...string) {
+	for _, c := range columns {
+		found := false
+
+		for _, tc := range t.columns {
+			if tc.name == c {
+				found = true
+				break
+			}
+		}
+		if !found {
+			log.Fatalf("table %q: Unique(): column %q does not exist", t.name, c)
+		}
+	}
+
+	t.uniqueCons = columns
 }

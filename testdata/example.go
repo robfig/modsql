@@ -24,13 +24,14 @@ func main() {
 		Column("t_float32", Float32),
 		Column("t_float64", Float64),
 
-		Column("t_string", String),
+		Column("t_string", String).Unique(),
 		Column("t_binary", Binary),
 
 		Column("t_byte", Byte),
 		Column("t_rune", Rune),
 		Column("t_bool", Bool),
 	)
+	types.Unique("t_float32", "t_float64")
 
 	def := Table("default_value", metadata,
 		Column("id", Int).PrimaryKey(),

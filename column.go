@@ -18,14 +18,22 @@ var (
 	columnsErr   []string
 )
 
+type constraint int
+
+const (
+	cNone constraint = iota
+	cPrimaryKey
+	cForeignKey
+	cUnique
+)
+
 type column struct {
-	isPrimaryKey bool
-	isForeignKey bool
+	cons constraint
 
 	type_ sqlType
 	name  string
 
-	// foreign key
+	// Foreign key
 	fkTable  string
 	fkColumn string
 
@@ -58,24 +66,32 @@ func (c *column) Default(v interface{}) *column {
 	return c
 }
 
-// PrimaryKey indicates that the column is a primary key.
-func (c *column) PrimaryKey() *column {
-	if c.isForeignKey {
-		c.addErrorKey()
+// ForeignKey defines the column to foreign key.
+func (c *column) ForeignKey(table, column string) *column {
+	if c.cons == cPrimaryKey || c.cons == cUnique {
+		c.addErrorCons()
 	}
-	c.isPrimaryKey = true
+	c.cons = cForeignKey
+	c.fkTable = table
+	c.fkColumn = column
 	return c
 }
 
-// ForeignKey indicates that the column is foreign key.
-func (c *column) ForeignKey(table, column string) *column {
-	if c.isPrimaryKey {
-		c.addErrorKey()
+// PrimaryKey defines the column to primary key.
+func (c *column) PrimaryKey() *column {
+	if c.cons == cForeignKey || c.cons == cUnique {
+		c.addErrorCons()
 	}
-	c.isForeignKey = true
+	c.cons = cPrimaryKey
+	return c
+}
 
-	c.fkTable = table
-	c.fkColumn = column
+// Unique defines the column to constraint unique.
+func (c *column) Unique() *column {
+	if c.cons == cPrimaryKey || c.cons == cForeignKey {
+		c.addErrorCons()
+	}
+	c.cons = cUnique
 	return c
 }
 
@@ -146,7 +162,8 @@ func (c *column) checkDefValue() bool {
 	return true
 }
 
-func (c *column) addErrorKey() {
+func (c *column) addErrorCons() {
 	columnsErr = append(columnsErr,
-		fmt.Sprintf("\n column %q has several keys", c.name))
+		fmt.Sprintf("\n column %q only can be primary key, foreign key or unique",
+			c.name))
 }
