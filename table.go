@@ -17,7 +17,7 @@ type fkConstraint struct {
 	dst   []string
 }
 
-type indexMul struct {
+type compoIndex struct {
 	isUnique bool
 	index    []string
 }
@@ -29,12 +29,11 @@ type table struct {
 	columns []column
 	data    [][]interface{}
 
-	// Constraints to table level
+	// Constraints and indexes to table level
 	uniqueCons []string
 	pkCons     []string
-	fkCons     fkConstraint // []
-
-	index []indexMul
+	fkCons     []fkConstraint
+	index      []compoIndex
 }
 
 // Table defines a new table.
@@ -96,14 +95,16 @@ func (t *table) ForeignKey(table string, columns map[string]string) {
 			t.name, table)
 	}
 
+	var fk fkConstraint
+
 	for k, v := range columns {
-		t.fkCons.src = append(t.fkCons.src, k)
-		t.fkCons.dst = append(t.fkCons.dst, v)
+		fk.src = append(fk.src, k)
+		fk.dst = append(fk.dst, v)
 	}
 
-	t.checkColumns("ForeignKey", t.fkCons.src)
+	t.checkColumns("ForeignKey", fk.src)
 
-	for _, c := range t.fkCons.dst {
+	for _, c := range fk.dst {
 		found = false
 
 		for _, tc := range tableColumns {
@@ -124,7 +125,8 @@ func (t *table) ForeignKey(table string, columns map[string]string) {
 		}
 	}
 
-	t.fkCons.table = table
+	fk.table = table
+	t.fkCons = append(t.fkCons, fk)
 }
 
 // PrimaryKey creates explicit/composite primary key constraint.
@@ -142,7 +144,7 @@ func (t *table) Unique(columns ...string) {
 // Index creates an index on a group of columns.
 func (t *table) Index(unique bool, columns ...string) {
 	t.checkColumns("Index", columns)
-	t.index = append(t.index, indexMul{unique, columns})
+	t.index = append(t.index, compoIndex{unique, columns})
 }
 
 // * * *

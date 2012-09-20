@@ -112,10 +112,13 @@ func (md *metadata) Create() *metadata {
 				}
 			}
 			if !limit {
-				for _, v := range table.fkCons.src {
-					if col.name == v {
-						limit = true
-						break
+			L:
+				for _, fk := range table.fkCons {
+					for _, v := range fk.src {
+						if col.name == v {
+							limit = true
+							break L
+						}
 					}
 				}
 			}
@@ -190,10 +193,10 @@ func (md *metadata) Create() *metadata {
 					cons = append(cons, fmt.Sprintf("PRIMARY KEY (%s)",
 						strings.Join(table.pkCons, ", ")))
 				}
-				if len(table.fkCons.src) != 0 {
+				for _, fk := range table.fkCons {
 					cons = append(cons, fmt.Sprintf("FOREIGN KEY (%s) REFERENCES %s (%s)",
-						strings.Join(table.fkCons.src, ", "), table.fkCons.table,
-						strings.Join(table.fkCons.dst, ", ")))
+						strings.Join(fk.src, ", "), fk.table,
+						strings.Join(fk.dst, ", ")))
 				}
 
 				if len(cons) != 0 {
