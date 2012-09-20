@@ -32,6 +32,8 @@ func main() {
 		Column("t_bool", Bool),
 	)
 	types.Unique("t_float32", "t_float64")
+	types.Index(false, "t_int8", "t_float32")
+	types.Index(true, "t_int16", "t_int32")
 
 	def := Table("default_value", metadata,
 		Column("id", Int).PrimaryKey(),

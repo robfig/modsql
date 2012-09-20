@@ -92,7 +92,7 @@ func (md *metadata) Create() *metadata {
 
 		goCode = append(goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
 		sqlCode = append(sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", quote(table.name)))
-		index := make([]string, 0)
+		columnIndex := make([]string, 0)
 
 		for i, col := range table.columns {
 			extra := ""
@@ -128,7 +128,7 @@ func (md *metadata) Create() *metadata {
 				}
 			}
 
-			if limit || col.cons == consPrimaryKey || col.cons == consUnique {
+			if limit || col.cons == primaryKey || col.cons == unique {
 				switch col.type_ {
 				case String, Binary:
 					sqlString = "VARCHAR(32)"
@@ -142,19 +142,22 @@ func (md *metadata) Create() *metadata {
 				sqlString,
 			))
 
-			if col.cons == consPrimaryKey {
+			if col.cons == primaryKey {
 				extra += " PRIMARY KEY"
-			} else if col.cons == consForeignKey {
+			} else if col.cons == foreignKey {
 				extra += fmt.Sprintf(" REFERENCES %s(%s)", col.fkTable, col.fkColumn)
-			} else if col.cons == consUnique {
+			} else if col.cons == unique {
 				extra += " UNIQUE"
 
-			} else if col.idx == iIndex {
-				index = append(index, fmt.Sprintf("CREATE INDEX ix_%s_%s ON %s (%s);\n",
-					table.name, col.name, table.name, col.name))
-			} else if col.idx == iIndexUnique {
-				index = append(index, fmt.Sprintf("CREATE UNIQUE INDEX ix_%s_%s ON %s (%s);\n",
-					table.name, col.name, table.name, col.name))
+			} else if col.index != 0 {
+				unique := ""
+				if col.index == uniqIndex {
+					unique = "UNIQUE "
+				}
+
+				columnIndex = append(columnIndex,
+					fmt.Sprintf("CREATE %sINDEX ix_%s_%s ON %s (%s);\n",
+						unique, table.name, col.name, table.name, col.name))
 			}
 
 			if col.defaultValue != nil {
@@ -199,9 +202,24 @@ func (md *metadata) Create() *metadata {
 				sqlCode = append(sqlCode, "\n);\n")
 				goCode = append(goCode, "}\n")
 
-				if len(index) != 0 {
-					sqlCode = append(sqlCode, index...)
+				// Indexes
+				for i, v := range table.index {
+					name := fmt.Sprintf("_m%d", i+1)
+
+					unique := ""
+					if v.isUnique {
+						unique = "UNIQUE "
+					}
+
+					columnIndex = append(columnIndex,
+						fmt.Sprintf("CREATE %sINDEX ix_%s_%s ON %s (%s);\n",
+							unique, table.name, name, table.name,
+							strings.Join(v.index, ", ")))
 				}
+				if len(columnIndex) != 0 {
+					sqlCode = append(sqlCode, columnIndex...)
+				}
+
 			} else {
 				sqlCode = append(sqlCode, ",")
 			}

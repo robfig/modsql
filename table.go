@@ -17,6 +17,11 @@ type fkConstraint struct {
 	dst   []string
 }
 
+type indexMul struct {
+	isUnique bool
+	index    []string
+}
+
 type table struct {
 	name string
 	meta *metadata
@@ -27,7 +32,9 @@ type table struct {
 	// Constraints to table level
 	uniqueCons []string
 	pkCons     []string
-	fkCons     fkConstraint
+	fkCons     fkConstraint // []
+
+	index []indexMul
 }
 
 // Table defines a new table.
@@ -101,7 +108,7 @@ func (t *table) ForeignKey(table string, columns map[string]string) {
 
 		for _, tc := range tableColumns {
 			if tc.name == c {
-				if tc.cons != consPrimaryKey && tc.cons != consUnique {
+				if tc.cons != primaryKey && tc.cons != unique {
 					log.Fatalf("table %q: ForeignKey(): column %q in foreign "+
 						"table %q has to be a PRIMARY KEY or UNIQUE constraint",
 						t.name, c, table)
@@ -130,6 +137,12 @@ func (t *table) PrimaryKey(columns ...string) {
 func (t *table) Unique(columns ...string) {
 	t.checkColumns("Unique", columns)
 	t.uniqueCons = columns
+}
+
+// Index creates an index on a group of columns.
+func (t *table) Index(unique bool, columns ...string) {
+	t.checkColumns("Index", columns)
+	t.index = append(t.index, indexMul{unique, columns})
 }
 
 // * * *

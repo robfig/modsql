@@ -12,29 +12,29 @@ import (
 	"time"
 )
 
-type constraint int
+type constraintType int
 
 const (
-	_ constraint = iota
-	consPrimaryKey
-	consForeignKey
-	consUnique
+	_ constraintType = iota
+	primaryKey
+	foreignKey
+	unique
 )
 
-type index int
+type indexType int
 
 const (
-	_ index = iota
-	iIndex
-	iIndexUnique
+	_ indexType = iota
+	noUniqIndex
+	uniqIndex
 )
 
 // For columns with a wrong type
 var columnsErr []string
 
 type column struct {
-	cons constraint
-	idx  index
+	cons  constraintType
+	index indexType
 
 	type_ sqlType
 	name  string
@@ -47,11 +47,11 @@ type column struct {
 }
 
 // Column defines a new column.
-func Column(name string, type_ sqlType) *column {
-	col := new(column)
-	col.name = name
-	col.type_ = type_
-	return col
+func Column(name string, t sqlType) *column {
+	c := new(column)
+	c.name = name
+	c.type_ = t
+	return c
 }
 
 // Default sets a value by default.
@@ -78,23 +78,23 @@ func (c *column) Index(unique bool) *column {
 	}
 
 	if unique {
-		c.idx = iIndexUnique
+		c.index = uniqIndex
 	} else {
-		c.idx = iIndex
+		c.index = noUniqIndex
 	}
 	return c
 }
 
 // ForeignKey defines the column to foreign key.
 func (c *column) ForeignKey(table, column string) *column {
-	if c.cons == consPrimaryKey || c.cons == consUnique {
+	if c.cons == primaryKey || c.cons == unique {
 		c.addErrorCons()
 	}
-	if c.idx != 0 {
+	if c.index != 0 {
 		c.addErrorIndex()
 	}
 
-	c.cons = consForeignKey
+	c.cons = foreignKey
 	c.fkTable = table
 	c.fkColumn = column
 	return c
@@ -102,27 +102,27 @@ func (c *column) ForeignKey(table, column string) *column {
 
 // PrimaryKey defines the column to primary key.
 func (c *column) PrimaryKey() *column {
-	if c.cons == consForeignKey || c.cons == consUnique {
+	if c.cons == foreignKey || c.cons == unique {
 		c.addErrorCons()
 	}
-	if c.idx != 0 {
+	if c.index != 0 {
 		c.addErrorIndex()
 	}
 
-	c.cons = consPrimaryKey
+	c.cons = primaryKey
 	return c
 }
 
 // Unique defines the column to UNIQUE constraint.
 func (c *column) Unique() *column {
-	if c.cons == consPrimaryKey || c.cons == consForeignKey {
+	if c.cons == primaryKey || c.cons == foreignKey {
 		c.addErrorCons()
 	}
-	if c.idx != 0 {
+	if c.index != 0 {
 		c.addErrorIndex()
 	}
 
-	c.cons = consUnique
+	c.cons = unique
 	return c
 }
 
