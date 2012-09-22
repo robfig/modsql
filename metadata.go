@@ -103,37 +103,43 @@ func (md *metadata) Create() *metadata {
 
 			// == MySQL: Limit the key length in TEXT or BLOB columns
 			sqlString := col.type_.tmplAction()
-			limit := false
 
-			for _, v := range table.pkCons {
-				if col.name == v {
+			if col.type_ == String || col.type_ == Binary {
+				limit := false
+
+				if col.cons == primaryKey || col.cons == unique {
 					limit = true
-					break
 				}
-			}
-			if !limit {
-			L:
-				for _, fk := range table.fkCons {
-					for _, v := range fk.src {
+
+				if !limit {
+					for _, v := range table.uniqueCons {
 						if col.name == v {
 							limit = true
-							break L
+							break
 						}
 					}
 				}
-			}
-			if !limit {
-				for _, v := range table.uniqueCons {
-					if col.name == v {
-						limit = true
-						break
+				if !limit {
+					for _, v := range table.pkCons {
+						if col.name == v {
+							limit = true
+							break
+						}
 					}
 				}
-			}
+				if !limit {
+				L:
+					for _, fk := range table.fkCons {
+						for _, v := range fk.src {
+							if col.name == v {
+								limit = true
+								break L
+							}
+						}
+					}
+				}
 
-			if limit || col.cons == primaryKey || col.cons == unique {
-				switch col.type_ {
-				case String, Binary:
+				if limit {
 					sqlString = "VARCHAR(32)"
 				}
 			}
