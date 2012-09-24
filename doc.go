@@ -20,7 +20,6 @@ If it is used the type Int, then the SQL files will have variables delimited by
 "{{" and "}}", which will be parsed by the function Load according to the
 architecture where it is being run.
 
-
 Examples
 
 See in directory testdata; the file "example.go" is the model, "zmodsql.go" is
@@ -33,7 +32,6 @@ For testing into a SQL engine, there is to run:
 
 See files "db-*_test.go" to know how databases were configured.
 
-
 Unsupported
 
 The null handling is very different in every SQL engine, so instead I prefer to
@@ -42,5 +40,10 @@ http://www.sqlite.org/nulls.html
 
 Avoid cascades due to being magic; instead, I handle it from the application layer.  
 http://stackoverflow.com/questions/59297/when-why-to-use-cascading-in-sql-server
+
+Note
+
+There are public methods which are not showed in the documentation due they
+belong to private types. It happens in both types "column" and "table".
 */
 package modsql
