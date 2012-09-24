@@ -40,7 +40,7 @@ var sqlInt = struct {
 	"bigint",
 }
 
-// Load loads a database from a file created by modsql.
+// Load loads a database from a file created by ModSQL.
 func Load(db *sql.DB, filename string) error {
 	once.Do(func() {
 		if runtime.GOARCH != "amd64" {
