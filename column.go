@@ -15,10 +15,9 @@ import (
 type constraintType int
 
 const (
-	_ constraintType = iota
-	primaryKey
+	primaryKey constraintType = 1 << iota
 	foreignKey
-	unique
+	uniqueCons
 )
 
 type indexType int
@@ -87,14 +86,14 @@ func (c *column) Index(unique bool) *column {
 
 // ForeignKey defines the column to foreign key.
 func (c *column) ForeignKey(table, column string) *column {
-	if c.cons == primaryKey || c.cons == unique {
+	if c.cons == uniqueCons {
 		c.addErrorCons()
 	}
 	if c.index != 0 {
 		c.addErrorIndex()
 	}
 
-	c.cons = foreignKey
+	c.cons |= foreignKey
 	c.fkTable = table
 	c.fkColumn = column
 	return c
@@ -102,14 +101,14 @@ func (c *column) ForeignKey(table, column string) *column {
 
 // PrimaryKey defines the column to primary key.
 func (c *column) PrimaryKey() *column {
-	if c.cons == foreignKey || c.cons == unique {
+	if c.cons == uniqueCons {
 		c.addErrorCons()
 	}
 	if c.index != 0 {
 		c.addErrorIndex()
 	}
 
-	c.cons = primaryKey
+	c.cons |= primaryKey
 	return c
 }
 
@@ -122,7 +121,7 @@ func (c *column) Unique() *column {
 		c.addErrorIndex()
 	}
 
-	c.cons = unique
+	c.cons = uniqueCons
 	return c
 }
 
@@ -195,7 +194,7 @@ func (c *column) checkDefValue() bool {
 
 func (c *column) addErrorCons() {
 	columnsErr = append(columnsErr,
-		fmt.Sprintf("\n column %q only can have set a PRIMARY KEY, FOREIGN KEY or UNIQUE constraint",
+		fmt.Sprintf("\n column %q only can have set a primary key, foreign key or unique constraint",
 			c.name))
 }
 

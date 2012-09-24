@@ -26,11 +26,73 @@ type default_value struct {
 	d_byte    byte
 	d_rune    rune
 	d_bool    bool
-	d_findex  int
 }
 
 type times struct {
 	typeId     int
 	t_duration time.Duration
 	t_datetime time.Time
+}
+
+type account struct {
+	acc_num   int
+	acc_type  int
+	acc_descr string
+}
+
+type sub_account struct {
+	sub_acc   int
+	ref_num   int
+	ref_type  int
+	sub_descr string
+}
+
+type catalog struct {
+	catalog_id  int
+	name        string
+	description string
+	price       float32
+}
+
+type magazine struct {
+	catalog_id int
+	page_count string
+}
+
+type mp3 struct {
+	catalog_id int
+	size       int
+	length     float32
+	filename   string
+}
+
+type book struct {
+	book_id int
+	title   string
+	author  string
+}
+
+type chapter struct {
+	chapter_id int
+	title      string
+	book_fk    int
+}
+
+type person struct {
+	person_id  int
+	first_name string
+	last_name  string
+}
+
+type address struct {
+	address_id int
+	street     string
+	city       string
+	state      string
+	post_code  string
+}
+
+type person_address struct {
+	person_id  int
+	address_id int
 }

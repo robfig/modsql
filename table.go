@@ -102,19 +102,13 @@ func (t *table) ForeignKey(table string, columns map[string]string) {
 		fk.dst = append(fk.dst, v)
 	}
 
-	t.checkColumns("ForeignKey", fk.src)
+	t.existColumns("ForeignKey", fk.src)
 
 	for _, c := range fk.dst {
 		found = false
 
 		for _, tc := range tableColumns {
 			if tc.name == c {
-				if tc.cons != primaryKey && tc.cons != unique {
-					log.Fatalf("table %q: ForeignKey(): column %q in foreign "+
-						"table %q has to be a PRIMARY KEY or UNIQUE constraint",
-						t.name, c, table)
-				}
-
 				found = true
 				break
 			}
@@ -131,25 +125,26 @@ func (t *table) ForeignKey(table string, columns map[string]string) {
 
 // PrimaryKey creates explicit/composite primary key constraint.
 func (t *table) PrimaryKey(columns ...string) {
-	t.checkColumns("PrimaryKey", columns)
+	t.existColumns("PrimaryKey", columns)
 	t.pkCons = columns
 }
 
 // Unique creates explicit/composite unique constraint.
 func (t *table) Unique(columns ...string) {
-	t.checkColumns("Unique", columns)
+	t.existColumns("Unique", columns)
 	t.uniqueCons = columns
 }
 
 // Index creates an index on a group of columns.
 func (t *table) Index(unique bool, columns ...string) {
-	t.checkColumns("Index", columns)
+	t.existColumns("Index", columns)
 	t.index = append(t.index, compoIndex{unique, columns})
 }
 
 // * * *
 
-func (t *table) checkColumns(funcName string, columns []string) {
+// existColumns checks if the given columns are in the actual table.
+func (t *table) existColumns(funcName string, columns []string) {
 	for _, c := range columns {
 		found := false
 

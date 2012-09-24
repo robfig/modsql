@@ -46,13 +46,7 @@ func main() {
 		Column("d_byte", Byte).Default(byte('b')),
 		Column("d_rune", Rune).Default('r'),
 		Column("d_bool", Bool).Default(false),
-
-		Column("d_findex", Int),
 	)
-	/*def.ForeignKey("types", map[string]string{
-		"d_string": "t_string",
-		"d_findex": "t_int",
-	})*/
 
 	times := Table("times", metadata,
 		Column("typeId", Int).ForeignKey("types", "t_int"),
@@ -74,10 +68,95 @@ func main() {
 		1, 10, 10.10,
 		"foo", []byte{'1', '2'},
 		"a", "z", false,
-		1,
 	)
 
 	times.Insert(1, 5*time.Hour+3*time.Minute+12*time.Second, time.Now())
+
+	// == Examples of relationships
+	//
+
+	// == Composite foreign keys
+
+	accounts := Table("account", metadata,
+		Column("acc_num", Int),
+		Column("acc_type", Int),
+		Column("acc_descr", String),
+	)
+	accounts.PrimaryKey("acc_num", "acc_type")
+
+	subAccounts := Table("sub_account", metadata,
+		Column("sub_acc", Int).PrimaryKey(),
+		Column("ref_num", Int),
+		Column("ref_type", Int),
+		Column("sub_descr", String),
+	)
+	subAccounts.ForeignKey("account", map[string]string{
+		"ref_num":  "acc_num",
+		"ref_type": "acc_type",
+	})
+
+	// == One-to-one
+	// For related entities which share basic attributes.
+
+	Table("catalog", metadata,
+		Column("catalog_id", Int).PrimaryKey(),
+		Column("name", String),
+		Column("description", String),
+		Column("price", Float32),
+	)
+
+	Table("magazine", metadata,
+		Column("catalog_id", Int).PrimaryKey().ForeignKey("catalog", "catalog_id"),
+		Column("page_count", String),
+	)
+
+	Table("mp3", metadata,
+		Column("catalog_id", Int).PrimaryKey().ForeignKey("catalog", "catalog_id"),
+		Column("size", Int),
+		Column("length", Float32),
+		Column("filename", String),
+	)
+
+	// == Many-to-one
+	// An item will have many different components, and those components are not
+	// of a type that can be shared by other items.
+
+	Table("book", metadata,
+		Column("book_id", Int).PrimaryKey(),
+		Column("title", String),
+		Column("author", String),
+	)
+
+	Table("chapter", metadata,
+		Column("chapter_id", Int).PrimaryKey(),
+		Column("title", String),
+		Column("book_fk", Int).ForeignKey("book", "book_id"),
+	)
+
+	// == Many-to-many
+
+	// Each person can have several addresses (work, home, grandma's house) and
+	// each address can have multiple persons.
+
+	Table("person", metadata,
+		Column("person_id", Int).PrimaryKey(),
+		Column("first_name", String),
+		Column("last_name", String),
+	)
+
+	Table("address", metadata,
+		Column("address_id", Int).PrimaryKey(),
+		Column("street", String),
+		Column("city", String),
+		Column("state", String),
+		Column("post_code", String),
+	)
+
+	person_addr := Table("person_address", metadata,
+		Column("person_id", Int).ForeignKey("person", "person_id"),
+		Column("address_id", Int).ForeignKey("address", "address_id"),
+	)
+	person_addr.PrimaryKey("person_id", "address_id")
 
 	// * * *
 

@@ -107,7 +107,7 @@ func (md *metadata) Create() *metadata {
 			if col.type_ == String || col.type_ == Binary {
 				limit := false
 
-				if col.cons == primaryKey || col.cons == unique {
+				if col.cons&primaryKey != 0 || col.cons&uniqueCons != 0 {
 					limit = true
 				}
 
@@ -151,22 +151,14 @@ func (md *metadata) Create() *metadata {
 				sqlString,
 			))
 
-			if col.cons == primaryKey {
+			if col.cons&primaryKey != 0 {
 				extra += " PRIMARY KEY"
-			} else if col.cons == foreignKey {
-				extra += fmt.Sprintf(" REFERENCES %s(%s)", col.fkTable, col.fkColumn)
-			} else if col.cons == unique {
+			}
+			if col.cons&uniqueCons != 0 {
 				extra += " UNIQUE"
-
-			} else if col.index != 0 {
-				unique := ""
-				if col.index == uniqIndex {
-					unique = "UNIQUE "
-				}
-
-				columnIndex = append(columnIndex,
-					fmt.Sprintf("CREATE %sINDEX ix_%s_%s ON %s (%s);\n",
-						unique, table.name, col.name, table.name, col.name))
+			}
+			if col.cons&foreignKey != 0 {
+				extra += fmt.Sprintf(" REFERENCES %s(%s)", col.fkTable, col.fkColumn)
 			}
 
 			if col.defaultValue != nil {
@@ -183,6 +175,15 @@ func (md *metadata) Create() *metadata {
 				default:
 					extra += fmt.Sprintf("%v", t)
 				}
+			}
+			if col.index != 0 {
+				unique := ""
+				if col.index == uniqIndex {
+					unique = "UNIQUE "
+				}
+				columnIndex = append(columnIndex,
+					fmt.Sprintf("CREATE %sINDEX idx_%s_%s ON %s (%s);\n",
+						unique, table.name, col.name, table.name, col.name))
 			}
 
 			sqlCode = append(sqlCode, extra)
@@ -221,7 +222,7 @@ func (md *metadata) Create() *metadata {
 					}
 
 					columnIndex = append(columnIndex,
-						fmt.Sprintf("CREATE %sINDEX ix_%s_%s ON %s (%s);\n",
+						fmt.Sprintf("CREATE %sINDEX idx_%s_%s ON %s (%s);\n",
 							unique, table.name, name, table.name,
 							strings.Join(v.index, ", ")))
 				}

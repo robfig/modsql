@@ -20,14 +20,27 @@ If it is used the type Int, then the SQL files will have variables delimited by
 "{{" and "}}", which will be parsed by the function Load according to the
 architecture where it is being run.
 
-Like example, see in directory testdata; the file "example.go" is the model,
-"zmodsql.go" is the generated code, and "zmodsql_*.sql" are the SQL files
-generated for every engine which were indicated in the model (function Metadata).
+
+Examples
+
+See in directory testdata; the file "example.go" is the model, "zmodsql.go" is
+the generated code, and "zmodsql_*.sql" are the SQL files generated for every
+engine which were indicated in the model (function Metadata).
 
 For testing into a SQL engine, there is to run:
 
    go test -v -tags postgresql|mysql|sqlite
 
 See files "db-*_test.go" to know how databases were configured.
+
+
+Unsupported
+
+The null handling is very different in every SQL engine, so instead I prefer to
+add empty values according to the type (just like in Go).  
+http://www.sqlite.org/nulls.html
+
+Avoid cascades due to being magic; instead, I handle it from the application layer.  
+http://stackoverflow.com/questions/59297/when-why-to-use-cascading-in-sql-server
 */
 package modsql
