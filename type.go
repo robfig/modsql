@@ -25,14 +25,15 @@ func (e sqlEngine) check() error {
 	return fmt.Errorf("wrong engine: %s", e)
 }
 
-func (e sqlEngine) shortString() string {
+// sqlFile returns the filename for the SQL statements.
+func (e sqlEngine) sqlFile() string {
 	switch e {
 	case MySQL:
-		return "my"
+		return "zmysql.sql"
 	case PostgreSQL:
-		return "pg"
+		return "zpostgresql.sql"
 	case SQLite:
-		return "lite"
+		return "zsqlite.sql"
 	}
 	panic("unreachable")
 }

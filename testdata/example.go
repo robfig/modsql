@@ -32,7 +32,6 @@ func main() {
 		Column("t_bool", Bool),
 	)
 	types.Unique("t_float32", "t_float64")
-	types.Index(false, "t_int8", "t_float32")
 	types.Index(true, "t_int16", "t_int32")
 
 	def := Table("default_value", metadata,
@@ -49,11 +48,10 @@ func main() {
 	)
 
 	times := Table("times", metadata,
-		Column("typeId", Int).ForeignKey("types", "t_int"),
+		Column("typeId", Int),
 		Column("t_duration", Duration),
-		Column("t_datetime", DateTime).Index(false),
+		Column("t_datetime", DateTime),
 	)
-	times.PrimaryKey("t_duration", "t_datetime")
 
 	// Insert values
 
@@ -90,6 +88,7 @@ func main() {
 		Column("ref_type", Int),
 		Column("sub_descr", String),
 	)
+	subAccounts.Index(false, "ref_num", "ref_type") // MySQL needs individual indexes
 	subAccounts.ForeignKey("account", map[string]string{
 		"ref_num":  "acc_num",
 		"ref_type": "acc_type",

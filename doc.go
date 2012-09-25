@@ -22,9 +22,9 @@ architecture where it is being run.
 
 Examples
 
-See in directory testdata; the file "example.go" is the model, "zmodsql.go" is
-the generated code, and "zmodsql_*.sql" are the SQL files generated for every
-engine which were indicated in the model (function Metadata).
+See in directory "testdata"; the file "example.go" is the model, "zmodsql.go" is
+the generated Go code, and "z[engine].sql" for the SQL files generated for every
+engine which was indicated in the model (function Metadata).
 
 For testing into a SQL engine, there is to run:
 

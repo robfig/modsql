@@ -36,7 +36,7 @@ func TestPostgreSQL(t *testing.T) {
 	}
 	defer db.Close()
 
-	if err = Load(db, "zmodsql_pg.sql"); err != nil {
+	if err = Load(db, "zpostgresql.sql"); err != nil {
 		t.Fatal(err)
 	}
 }

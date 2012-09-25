@@ -23,8 +23,6 @@ import (
 	"time"
 )
 
-const _FILENAME = "zmodsql"
-
 // metadata defines a collection of table definitions.
 type metadata struct {
 	useInsert bool
@@ -294,12 +292,12 @@ func (md *metadata) Write() {
 			log.Fatal(err)
 		}
 
-		if err = ioutil.WriteFile(md.sqlFile(eng), buf.Bytes(), 0644); err != nil {
+		if err = ioutil.WriteFile(eng.sqlFile(), buf.Bytes(), 0644); err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	file, err := os.OpenFile(_FILENAME+".go", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile("zmodsql.go", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -391,9 +389,4 @@ func (md *metadata) insert(main *[]string) {
 	insert = append(insert, "\nCOMMIT;\n")
 
 	*main = append(*main, insert...)
-}
-
-// sqlFile returns the filename for the SQL statements.
-func (md *metadata) sqlFile(eng sqlEngine) string {
-	return fmt.Sprintf("%s_%s.sql", _FILENAME, eng.shortString())
 }

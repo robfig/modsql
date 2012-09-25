@@ -20,8 +20,7 @@ CREATE TABLE types (
 );
 CREATE UNIQUE INDEX idx_types_t_float64 ON types (t_float64);
 CREATE INDEX idx_types_t_rune ON types (t_rune);
-CREATE INDEX idx_types__m1 ON types (t_int8, t_float32);
-CREATE UNIQUE INDEX idx_types__m2 ON types (t_int16, t_int32);
+CREATE UNIQUE INDEX idx_types__m1 ON types (t_int16, t_int32);
 
 CREATE TABLE default_value (
 	id        {{.PostgreInt}} PRIMARY KEY,
@@ -35,13 +34,10 @@ CREATE TABLE default_value (
 );
 
 CREATE TABLE times (
-	typeId     {{.PostgreInt}} REFERENCES types(t_int),
+	typeId     {{.PostgreInt}},
 	t_duration time without time zone,
-	t_datetime timestamp without time zone,
-
-	PRIMARY KEY (t_duration, t_datetime)
+	t_datetime timestamp without time zone
 );
-CREATE INDEX idx_times_t_datetime ON times (t_datetime);
 
 CREATE TABLE account (
 	acc_num   {{.PostgreInt}},
@@ -57,8 +53,9 @@ CREATE TABLE sub_account (
 	ref_type  {{.PostgreInt}},
 	sub_descr text,
 
-	FOREIGN KEY (ref_type, ref_num) REFERENCES account (acc_type, acc_num)
+	FOREIGN KEY (ref_num, ref_type) REFERENCES account (acc_num, acc_type)
 );
+CREATE INDEX idx_sub_account__m1 ON sub_account (ref_num, ref_type);
 
 CREATE TABLE catalog (
 	catalog_id  {{.PostgreInt}} PRIMARY KEY,
@@ -114,5 +111,5 @@ CREATE TABLE person_address (
 
 INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 'A', 'Z', TRUE);
 INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES(1, 10, 10.1, 'foo', '12', 'a', 'z', FALSE);
-INSERT INTO times (typeId, t_duration, t_datetime) VALUES(1, '5:3:12', '2012-09-25 07:48:17');
+INSERT INTO times (typeId, t_duration, t_datetime) VALUES(1, '5:3:12', '2012-09-25 21:12:46');
 COMMIT;
