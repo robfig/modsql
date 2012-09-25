@@ -175,9 +175,10 @@ type sqlAction struct {
 	Float32 string
 	Float64 string
 
-	String string
-	Byte   string
-	Rune   string
+	String      string
+	StringLimit string
+	Byte        string
+	Rune        string
 
 	Binary string
 
@@ -206,9 +207,10 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 			Float32: "FLOAT",
 			Float64: "DOUBLE",
 
-			String: "TEXT",
-			Byte:   "CHAR(1)",
-			Rune:   "CHAR(4)",
+			String:      "TEXT",
+			StringLimit: "VARCHAR(255)",
+			Byte:        "CHAR(1)",
+			Rune:        "CHAR(4)",
 
 			Binary: "BLOB",
 
@@ -230,9 +232,10 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 			Float32: "real",
 			Float64: "double precision",
 
-			String: "text",
-			Byte:   "character",
-			Rune:   "character varying(4)",
+			String:      "text",
+			StringLimit: "text",
+			Byte:        "character",
+			Rune:        "character varying(4)",
 
 			Binary: "bytea",
 
@@ -254,9 +257,10 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 			Float32: "REAL",
 			Float64: "REAL",
 
-			String: "TEXT",
-			Byte:   "TEXT",
-			Rune:   "TEXT",
+			String:      "TEXT",
+			StringLimit: "TEXT",
+			Byte:        "TEXT",
+			Rune:        "TEXT",
 
 			Binary: "BLOB",
 

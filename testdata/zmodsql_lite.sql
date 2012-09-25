@@ -10,7 +10,7 @@ CREATE TABLE types (
 	t_int64   INTEGER,
 	t_float32 REAL,
 	t_float64 REAL,
-	t_string  VARCHAR(255) UNIQUE,
+	t_string  TEXT UNIQUE,
 	t_binary  BLOB,
 	t_byte    TEXT,
 	t_rune    TEXT,
@@ -57,7 +57,7 @@ CREATE TABLE sub_account (
 	ref_type  INTEGER,
 	sub_descr TEXT,
 
-	FOREIGN KEY (ref_num, ref_type) REFERENCES account (acc_num, acc_type)
+	FOREIGN KEY (ref_type, ref_num) REFERENCES account (acc_type, acc_num)
 );
 
 CREATE TABLE catalog (
@@ -114,5 +114,5 @@ CREATE TABLE person_address (
 
 INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 'A', 'Z', 1);
 INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES(1, 10, 10.1, 'foo', '12', 'a', 'z', 0);
-INSERT INTO times (typeId, t_duration, t_datetime) VALUES(1, '5:3:12', '2012-09-24 21:30:13');
+INSERT INTO times (typeId, t_duration, t_datetime) VALUES(1, '5:3:12', '2012-09-25 07:48:17');
 COMMIT;

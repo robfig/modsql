@@ -140,7 +140,7 @@ func (md *metadata) Create() *metadata {
 				}
 
 				if limit {
-					sqlString = "VARCHAR(255)"
+					sqlString = "{{.StringLimit}}"
 				}
 			}
 			// ==
