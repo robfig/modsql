@@ -23,11 +23,13 @@ type compoIndex struct {
 }
 
 type table struct {
-	name string
-	meta *metadata
-
+	name    string
+	meta    *metadata
 	columns []column
-	data    [][]interface{}
+
+	// To insert values
+	data     [][]interface{}
+	testData [][]interface{}
 
 	// Constraints and indexes to table level
 	uniqueCons []string
@@ -58,7 +60,7 @@ func Table(name string, meta *metadata, col ...*column) *table {
 // Insert generates SQL statements to insert values.
 func (t *table) Insert(a ...interface{}) {
 	if len(a) != len(t.columns) {
-		log.Fatalf("incorrect number of arguments for Insert in table %q: have %d, want %d",
+		log.Fatalf("incorrect number of arguments to insert in table %q: have %d, want %d",
 			t.name, len(a), len(t.columns))
 	}
 
@@ -69,6 +71,23 @@ func (t *table) Insert(a ...interface{}) {
 
 	t.data = append(t.data, vec)
 	t.meta.useInsert = true
+}
+
+// InsertTest generates SQL statements to insert values in test database.
+// It is generated in file names with suffix "_test".
+func (t *table) InsertTest(a ...interface{}) {
+	if len(a) != len(t.columns) {
+		log.Fatalf("incorrect number of arguments to insert test data in table %q: have %d, want %d",
+			t.name, len(a), len(t.columns))
+	}
+
+	vec := make([]interface{}, 0)
+	for _, v := range a {
+		vec = append(vec, v)
+	}
+
+	t.testData = append(t.testData, vec)
+	t.meta.useInsertTest = true
 }
 
 // ForeignKey creates explicit/composite foreign key constraint.

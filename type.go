@@ -29,11 +29,11 @@ func (e sqlEngine) check() error {
 func (e sqlEngine) sqlFile() string {
 	switch e {
 	case MySQL:
-		return "zmysql.sql"
+		return "zmysql"
 	case PostgreSQL:
-		return "zpostgresql.sql"
+		return "zpostgresql"
 	case SQLite:
-		return "zsqlite.sql"
+		return "zsqlite"
 	}
 	panic("unreachable")
 }

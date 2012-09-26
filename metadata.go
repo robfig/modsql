@@ -30,11 +30,14 @@ const (
 
 // metadata defines a collection of table definitions.
 type metadata struct {
-	useInsert bool
-	engines   []sqlEngine
-	tables    []*table
-	sqlCode   []byte
-	goCode    []byte
+	useInsert     bool
+	useInsertTest bool
+
+	engines []sqlEngine
+	tables  []*table
+	goCode  []byte
+	sqlCode []byte
+	sqlTest []byte
 }
 
 // Metadata returns a new metadata.
@@ -251,7 +254,14 @@ func (md *metadata) Create() *metadata {
 
 	// == Insert
 	if md.useInsert {
-		md.insert(&sqlCode)
+		sqlCode = append(sqlCode, md.genInsert(false)...)
+	}
+	if md.useInsertTest {
+		sqlTest := make([]string, 0)
+
+		sqlTest = append(sqlTest, fmt.Sprintf("%s\nBEGIN;", _HEADER))
+		sqlTest = append(sqlTest, md.genInsert(true)...)
+		md.sqlTest = []byte(strings.Join(sqlTest, ""))
 	}
 
 	md.sqlCode = []byte(strings.Join(sqlCode, ""))
@@ -297,8 +307,15 @@ func (md *metadata) Write() {
 			log.Fatal(err)
 		}
 
-		if err = ioutil.WriteFile(eng.sqlFile(), buf.Bytes(), 0644); err != nil {
+		filename := eng.sqlFile()
+
+		if err = ioutil.WriteFile(filename+".sql", buf.Bytes(), 0644); err != nil {
 			log.Fatal(err)
+		}
+		if md.useInsertTest {
+			if err = ioutil.WriteFile(filename+"_test.sql", md.sqlTest, 0644); err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 
@@ -366,16 +383,20 @@ func (md *metadata) formatValues(v []interface{}) []string {
 	return res
 }
 
-// insert generates SQL statements for insert values; they are finally added to
-// the slice main.
-func (md *metadata) insert(main *[]string) {
+// genInsert generates SQL statements to insert values.
+// If testdata is true, it generates values for test.
+func (md *metadata) genInsert(testdata bool) []string {
 	var data [][]interface{}
 	insert := make([]string, 0)
 
 	for _, table := range md.tables {
 		tableName := table.name
 
-		data = table.data
+		if testdata {
+			data = table.testData
+		} else {
+			data = table.data
+		}
 
 		if len(data) != 0 {
 			var columns []string
@@ -392,6 +413,5 @@ func (md *metadata) insert(main *[]string) {
 		}
 	}
 	insert = append(insert, "\nCOMMIT;\n")
-
-	*main = append(*main, insert...)
+	return insert
 }
