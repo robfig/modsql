@@ -301,6 +301,14 @@ func (md *metadata) Write() {
 		log.Fatal(err)
 	}
 
+	var tmplTest *template.Template
+	if md.useInsertTest {
+		tmplTest, err = template.New("").Parse(string(md.sqlTest))
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	for _, eng := range md.engines {
 		buf := new(bytes.Buffer)
 		if err = tmpl.Execute(buf, getSQLAction(eng)); err != nil {
@@ -312,8 +320,13 @@ func (md *metadata) Write() {
 		if err = ioutil.WriteFile(filename+".sql", buf.Bytes(), 0644); err != nil {
 			log.Fatal(err)
 		}
+
 		if md.useInsertTest {
-			if err = ioutil.WriteFile(filename+"_test.sql", md.sqlTest, 0644); err != nil {
+			buf = new(bytes.Buffer)
+			if err = tmplTest.Execute(buf, getSQLAction(eng)); err != nil {
+				log.Fatal(err)
+			}
+			if err = ioutil.WriteFile(filename+"_test.sql", buf.Bytes(), 0644); err != nil {
 				log.Fatal(err)
 			}
 		}

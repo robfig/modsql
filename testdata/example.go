@@ -62,13 +62,13 @@ func main() {
 		"A", "Z", true,
 	)
 
-	def.Insert(
+	def.InsertTestData(
 		1, 10, 10.10,
 		"foo", []byte{'1', '2'},
 		"a", "z", false,
 	)
 
-	times.InsertTestData(1, 5*time.Hour+3*time.Minute+12*time.Second,
+	times.Insert(1, 5*time.Hour+3*time.Minute+12*time.Second,
 		time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))
 
 	// == Examples of relationships
