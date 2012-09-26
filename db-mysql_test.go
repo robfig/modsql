@@ -28,15 +28,14 @@ import (
 //
 //   mysql> drop database modsql_test;
 func TestMySQL(t *testing.T) {
-	host = "/var/run/mysqld/mysqld.sock"
-
-	db, err := sql.Open("mysql", fmt.Sprintf("%s@unix(%s)/%s", username, host, dbname))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s@unix(%s)/%s",
+		username, host.mysql, dbname))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Close()
 
 	if err = Load(db, "zmysql.sql"); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 }

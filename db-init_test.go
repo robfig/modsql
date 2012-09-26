@@ -16,11 +16,19 @@ import (
 )
 
 // For access to databases
+
 var (
-	host     string
-	username string
 	dbname   = "modsql_test"
+	username string
 )
+
+var host = struct {
+	mysql      string
+	postgresql string
+}{
+	"/var/run/mysqld/mysqld.sock",
+	"/var/run/postgresql",
+}
 
 func init() {
 	err := os.Chdir("testdata")

@@ -53,7 +53,7 @@ CREATE TABLE sub_account (
 	ref_type  {{.MySQLInt}},
 	sub_descr TEXT,
 
-	FOREIGN KEY (ref_num, ref_type) REFERENCES account (acc_num, acc_type)
+	FOREIGN KEY (ref_type, ref_num) REFERENCES account (acc_type, acc_num)
 );
 CREATE INDEX idx_sub_account__m1 ON sub_account (ref_num, ref_type);
 
@@ -111,5 +111,5 @@ CREATE TABLE person_address (
 
 INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 'A', 'Z', TRUE);
 INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES(1, 10, 10.1, 'foo', '12', 'a', 'z', FALSE);
-INSERT INTO times (typeId, t_duration, t_datetime) VALUES(1, '5:3:12', '2012-09-25 21:12:46');
+INSERT INTO times (typeId, t_duration, t_datetime) VALUES(1, '5:3:12', '2009-11-10 23:00:00');
 COMMIT;

@@ -27,16 +27,14 @@ import (
 //
 //   sudo -u postgres dropdb modsql_test
 func TestPostgreSQL(t *testing.T) {
-	host = "/var/run/postgresql"
-
 	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s host=%s sslmode=disable",
-		username, dbname, host))
+		username, dbname, host.postgresql))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Close()
 
 	if err = Load(db, "zpostgresql.sql"); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 }
