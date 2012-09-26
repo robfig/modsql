@@ -36,5 +36,7 @@ func TestPostgreSQL(t *testing.T) {
 
 	if err = Load(db, "zpostgresql.sql"); err != nil {
 		t.Error(err)
+	} else if err = Load(db, "zpostgresql_test.sql"); err != nil {
+		t.Error(err)
 	}
 }
