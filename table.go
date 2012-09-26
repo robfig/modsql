@@ -73,9 +73,9 @@ func (t *table) Insert(a ...interface{}) {
 	t.meta.useInsert = true
 }
 
-// InsertTest generates SQL statements to insert values in test database.
+// InsertTestData generates SQL statements to insert values in test database.
 // It is generated in file names with suffix "_test".
-func (t *table) InsertTest(a ...interface{}) {
+func (t *table) InsertTestData(a ...interface{}) {
 	if len(a) != len(t.columns) {
 		log.Fatalf("incorrect number of arguments to insert test data in table %q: have %d, want %d",
 			t.name, len(a), len(t.columns))

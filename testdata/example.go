@@ -68,7 +68,7 @@ func main() {
 		"a", "z", false,
 	)
 
-	times.InsertTest(1, 5*time.Hour+3*time.Minute+12*time.Second,
+	times.InsertTestData(1, 5*time.Hour+3*time.Minute+12*time.Second,
 		time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))
 
 	// == Examples of relationships
