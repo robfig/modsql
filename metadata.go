@@ -35,9 +35,9 @@ type metadata struct {
 
 	engines []sqlEngine
 	tables  []*table
-	goCode  []byte
-	sqlCode []byte
-	sqlTest []byte
+	goCode  []string
+	sqlCode []string
+	sqlTest []string
 }
 
 // Metadata returns a new metadata.
@@ -87,11 +87,8 @@ func (md *metadata) Create() *metadata {
 		pkgName = pkg.Name
 	}
 
-	goCode := make([]string, 0)
-	sqlCode := make([]string, 0)
-
-	goCode = append(goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER, pkgName))
-	sqlCode = append(sqlCode,
+	md.goCode = append(md.goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER, pkgName))
+	md.sqlCode = append(md.sqlCode,
 		fmt.Sprintf("%s\n%s\nBEGIN;", _CONSTRAINT, _HEADER))
 
 	for _, table := range md.tables {
@@ -105,8 +102,8 @@ func (md *metadata) Create() *metadata {
 		}
 		// ==
 
-		goCode = append(goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
-		sqlCode = append(sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", quote(table.name)))
+		md.goCode = append(md.goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
+		md.sqlCode = append(md.sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", quote(table.name)))
 		columnIndex := make([]string, 0)
 
 		for i, col := range table.columns {
@@ -114,7 +111,7 @@ func (md *metadata) Create() *metadata {
 			field := "\n\t"
 			nameQuoted := quote(col.name)
 
-			goCode = append(goCode, fmt.Sprintf("%s %s\n",
+			md.goCode = append(md.goCode, fmt.Sprintf("%s %s\n",
 				validFieldName(col.name), col.type_.goString()))
 
 			// == MySQL: Limit the key length in TEXT or BLOB columns
@@ -161,7 +158,7 @@ func (md *metadata) Create() *metadata {
 			}
 			// ==
 
-			sqlCode = append(sqlCode, fmt.Sprintf("%s %s%s",
+			md.sqlCode = append(md.sqlCode, fmt.Sprintf("%s %s%s",
 				field+nameQuoted,
 				sqlAlign(fieldMaxLen, len(nameQuoted)),
 				sqlString,
@@ -202,7 +199,7 @@ func (md *metadata) Create() *metadata {
 						unique, table.name, col.name, table.name, col.name))
 			}
 
-			sqlCode = append(sqlCode, extra)
+			md.sqlCode = append(md.sqlCode, extra)
 
 			// The last column
 			if i+1 == len(table.columns) {
@@ -223,10 +220,10 @@ func (md *metadata) Create() *metadata {
 				}
 
 				if len(cons) != 0 {
-					sqlCode = append(sqlCode, ",\n\n\t"+strings.Join(cons, ",\n\t"))
+					md.sqlCode = append(md.sqlCode, ",\n\n\t"+strings.Join(cons, ",\n\t"))
 				}
-				sqlCode = append(sqlCode, "\n);\n")
-				goCode = append(goCode, "}\n")
+				md.sqlCode = append(md.sqlCode, "\n);\n")
+				md.goCode = append(md.goCode, "}\n")
 
 				// Indexes
 				for i, v := range table.index {
@@ -243,29 +240,24 @@ func (md *metadata) Create() *metadata {
 							strings.Join(v.index, ", ")))
 				}
 				if len(columnIndex) != 0 {
-					sqlCode = append(sqlCode, columnIndex...)
+					md.sqlCode = append(md.sqlCode, columnIndex...)
 				}
 
 			} else {
-				sqlCode = append(sqlCode, ",")
+				md.sqlCode = append(md.sqlCode, ",")
 			}
 		}
 	}
 
 	// == Insert
 	if md.useInsert {
-		sqlCode = append(sqlCode, md.genInsert(false)...)
+		md.sqlCode = append(md.sqlCode, md.genInsert(false)...)
 	}
 	if md.useInsertTest {
-		sqlTest := make([]string, 0)
-
-		sqlTest = append(sqlTest, fmt.Sprintf("%s\nBEGIN;", _HEADER))
-		sqlTest = append(sqlTest, md.genInsert(true)...)
-		md.sqlTest = []byte(strings.Join(sqlTest, ""))
+		md.sqlTest = append(md.sqlTest, fmt.Sprintf("%s\nBEGIN;", _HEADER))
+		md.sqlTest = append(md.sqlTest, md.genInsert(true)...)
 	}
 
-	md.sqlCode = []byte(strings.Join(sqlCode, ""))
-	md.goCode = []byte(strings.Join(goCode, ""))
 	return md
 }
 
@@ -277,7 +269,7 @@ func (md *metadata) PrintGo() *metadata {
 
 // PrintSQL prints the SQL statements.
 func (md *metadata) PrintSQL() *metadata {
-	tmpl, err := template.New("").Parse(string(md.sqlCode))
+	tmpl, err := template.New("").Parse(strings.Join(md.sqlCode, ""))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -296,14 +288,14 @@ func (md *metadata) Write() {
 		log.Fatalf("no data created; use Create()")
 	}
 
-	tmpl, err := template.New("").Parse(string(md.sqlCode))
+	tmpl, err := template.New("").Parse(strings.Join(md.sqlCode, ""))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	var tmplTest *template.Template
 	if md.useInsertTest {
-		tmplTest, err = template.New("").Parse(string(md.sqlTest))
+		tmplTest, err = template.New("").Parse(strings.Join(md.sqlTest, ""))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -354,7 +346,7 @@ const (
 func (md *metadata) format(out io.Writer) {
 	fset := token.NewFileSet()
 
-	ast, err := parser.ParseFile(fset, "", md.goCode, _PARSER_MODE)
+	ast, err := parser.ParseFile(fset, "", []byte(strings.Join(md.goCode, "")), _PARSER_MODE)
 	if err != nil {
 		goto _error
 	}
