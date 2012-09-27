@@ -2,6 +2,8 @@
 
 package main
 
+import "time"
+
 type types struct {
 	t_int     int
 	t_int8    int8

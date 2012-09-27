@@ -88,8 +88,12 @@ func (md *metadata) Create() *metadata {
 	}
 
 	md.goCode = append(md.goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER, pkgName))
+	md.goCode = append(md.goCode, "") // To add some import
+
 	md.sqlCode = append(md.sqlCode,
 		fmt.Sprintf("%s\n%s\nBEGIN;", _CONSTRAINT, _HEADER))
+
+	useTime := false
 
 	for _, table := range md.tables {
 		// == Get the length of largest field
@@ -110,6 +114,10 @@ func (md *metadata) Create() *metadata {
 			extra := ""
 			field := "\n\t"
 			nameQuoted := quote(col.name)
+
+			if !useTime && (col.type_ == Duration || col.type_ == DateTime) {
+				useTime = true
+			}
 
 			md.goCode = append(md.goCode, fmt.Sprintf("%s %s\n",
 				validFieldName(col.name), col.type_.goString()))
@@ -247,6 +255,10 @@ func (md *metadata) Create() *metadata {
 				md.sqlCode = append(md.sqlCode, ",")
 			}
 		}
+	}
+
+	if useTime {
+		md.goCode[1] = "import \"time\"\n"
 	}
 
 	// == Insert
