@@ -53,7 +53,7 @@ CREATE TABLE sub_account (
 	ref_type  {{.PostgreInt}},
 	sub_descr text,
 
-	FOREIGN KEY (ref_num, ref_type) REFERENCES account (acc_num, acc_type)
+	FOREIGN KEY (ref_type, ref_num) REFERENCES account (acc_type, acc_num)
 );
 CREATE INDEX idx_sub_account__m1 ON sub_account (ref_num, ref_type);
 
@@ -111,4 +111,5 @@ CREATE TABLE user_address (
 
 INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 'A', 'Z', TRUE);
 INSERT INTO times (typeId, t_duration, t_datetime) VALUES(1, '5:3:12', '2009-11-10 23:00:00');
+INSERT INTO times (typeId, t_duration, t_datetime) VALUES(2, NULL, NULL);
 COMMIT;
