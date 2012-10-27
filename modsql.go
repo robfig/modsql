@@ -77,3 +77,32 @@ func Load(db *sql.DB, filename string) error {
 
 	return nil
 }
+
+// == Utility
+//
+
+// quoteSQL returns the name quoted for SQL.
+func quoteSQL(name string) string {
+	if name == "user" {
+		return "{{.Q}}" + name + "{{.Q}}"
+	}
+	return name
+}
+
+// quoteSQLField returns field name quoted for SQL.
+func quoteSQLField(name string) string {
+	if name == "user" {
+		// Add 2 characters by the quotes if are added to the name.
+		return "{{.Q}}" + name + "{{.Q}}  "
+	}
+	return name
+}
+
+// validGoName returns a valid field name in Go.
+func validGoName(name string) string {
+	switch name {
+	case "type":
+		return name + "_"
+	}
+	return name
+}

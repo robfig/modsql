@@ -99,13 +99,11 @@ func (md *metadata) Create() *metadata {
 		// ==
 
 		md.goCode = append(md.goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
-		md.sqlCode = append(md.sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", quote(table.name)))
+		md.sqlCode = append(md.sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", quoteSQL(table.name)))
 		columnIndex := make([]string, 0)
 
 		for i, col := range table.columns {
 			extra := ""
-			field := "\n\t"
-			nameQuoted := quoteField(col.name)
 
 			if !useTime && (col.type_ == Duration || col.type_ == DateTime) {
 				useTime = true
@@ -157,6 +155,8 @@ func (md *metadata) Create() *metadata {
 				}
 			}
 			// ==
+			field := "\n\t"
+			nameQuoted := quoteSQLField(col.name)
 
 			md.sqlCode = append(md.sqlCode, fmt.Sprintf("%s %s%s",
 				field+nameQuoted,
@@ -171,7 +171,7 @@ func (md *metadata) Create() *metadata {
 				extra += " UNIQUE"
 			}
 			if col.cons&foreignKey != 0 {
-				extra += fmt.Sprintf(" REFERENCES %s(%s)", quote(col.fkTable), col.fkColumn)
+				extra += fmt.Sprintf(" REFERENCES %s(%s)", quoteSQL(col.fkTable), col.fkColumn)
 			}
 
 			if col.defaultValue != nil {
@@ -215,7 +215,7 @@ func (md *metadata) Create() *metadata {
 				}
 				for _, fk := range table.fkCons {
 					cons = append(cons, fmt.Sprintf("FOREIGN KEY (%s) REFERENCES %s (%s)",
-						strings.Join(fk.src, ", "), quote(fk.table),
+						strings.Join(fk.src, ", "), quoteSQL(fk.table),
 						strings.Join(fk.dst, ", ")))
 				}
 
@@ -413,11 +413,11 @@ func (md *metadata) genInsert(testdata bool) []string {
 			var columns []string
 
 			for _, col := range table.columns {
-				columns = append(columns, quote(col.name))
+				columns = append(columns, quoteSQL(col.name))
 			}
 			for _, v := range data {
 				insert = append(insert, fmt.Sprintf("\nINSERT INTO %s (%s) VALUES(%s);",
-					quote(tableName),
+					quoteSQL(tableName),
 					strings.Join(columns, ", "),
 					strings.Join(md.formatValues(v), ", ")))
 			}
@@ -425,24 +425,4 @@ func (md *metadata) genInsert(testdata bool) []string {
 	}
 	insert = append(insert, "\nCOMMIT;\n")
 	return insert
-}
-
-// == Utility
-//
-
-// quote adds quotes to special names.
-func quote(name string) string {
-	if name == "user" {
-		return "{{.Q}}" + name + "{{.Q}}"
-	}
-	return name
-}
-
-// quoteField adds quotes to field names.
-func quoteField(name string) string {
-	if name == "user" {
-		// Add 2 characters by the quotes if are added to the name.
-		return "{{.Q}}" + name + "{{.Q}}  "
-	}
-	return name
 }
