@@ -185,6 +185,8 @@ type sqlAction struct {
 
 	Duration string
 	DateTime string
+
+	Q string // character of quote
 }
 
 // getSQLAction returns data corresponding to the engine used.
@@ -217,6 +219,8 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 
 			Duration: "TIME",
 			DateTime: "TIMESTAMP",
+
+			Q: "`",
 		}
 
 	// http://www.postgresql.org/docs/9.2/static/datatype-numeric.html
@@ -242,6 +246,8 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 
 			Duration: "time without time zone",
 			DateTime: "timestamp without time zone",
+
+			Q: `"`,
 		}
 
 	// http://www.sqlite.org/datatype3.html
@@ -267,6 +273,8 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 
 			Duration: "INTEGER", // time()
 			DateTime: "TEXT",    // datetime()
+
+			Q: `"`,
 		}
 	}
 

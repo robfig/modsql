@@ -80,8 +80,8 @@ type chapter struct {
 	book_fk    int
 }
 
-type person struct {
-	person_id  int
+type user struct {
+	user_id    int
 	first_name string
 	last_name  string
 }
@@ -94,7 +94,7 @@ type address struct {
 	post_code  string
 }
 
-type person_address struct {
-	person_id  int
+type user_address struct {
+	user_id    int
 	address_id int
 }

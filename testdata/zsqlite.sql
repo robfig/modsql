@@ -53,7 +53,7 @@ CREATE TABLE sub_account (
 	ref_type  INTEGER,
 	sub_descr TEXT,
 
-	FOREIGN KEY (ref_type, ref_num) REFERENCES account (acc_type, acc_num)
+	FOREIGN KEY (ref_num, ref_type) REFERENCES account (acc_num, acc_type)
 );
 CREATE INDEX idx_sub_account__m1 ON sub_account (ref_num, ref_type);
 
@@ -88,8 +88,8 @@ CREATE TABLE chapter (
 	book_fk    INTEGER REFERENCES book(book_id)
 );
 
-CREATE TABLE person (
-	person_id  INTEGER PRIMARY KEY,
+CREATE TABLE "user" (
+	user_id    INTEGER PRIMARY KEY,
 	first_name TEXT,
 	last_name  TEXT
 );
@@ -102,11 +102,11 @@ CREATE TABLE address (
 	post_code  TEXT
 );
 
-CREATE TABLE person_address (
-	person_id  INTEGER REFERENCES person(person_id),
+CREATE TABLE user_address (
+	user_id    INTEGER REFERENCES "user"(user_id),
 	address_id INTEGER REFERENCES address(address_id),
 
-	PRIMARY KEY (person_id, address_id)
+	PRIMARY KEY (user_id, address_id)
 );
 
 INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 'A', 'Z', 1);

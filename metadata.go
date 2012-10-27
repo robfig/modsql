@@ -58,7 +58,7 @@ func (md *metadata) Create() *metadata {
 	// Quote special names.
 	quote := func(name string) string {
 		if name == "user" {
-			return `"` + name + `"`
+			return "{{.Q}}" + name + "{{.Q}}"
 		}
 		return name
 	}
@@ -179,7 +179,7 @@ func (md *metadata) Create() *metadata {
 				extra += " UNIQUE"
 			}
 			if col.cons&foreignKey != 0 {
-				extra += fmt.Sprintf(" REFERENCES %s(%s)", col.fkTable, col.fkColumn)
+				extra += fmt.Sprintf(" REFERENCES %s(%s)", quote(col.fkTable), col.fkColumn)
 			}
 
 			if col.defaultValue != nil {
@@ -223,7 +223,7 @@ func (md *metadata) Create() *metadata {
 				}
 				for _, fk := range table.fkCons {
 					cons = append(cons, fmt.Sprintf("FOREIGN KEY (%s) REFERENCES %s (%s)",
-						strings.Join(fk.src, ", "), fk.table,
+						strings.Join(fk.src, ", "), quote(fk.table),
 						strings.Join(fk.dst, ", ")))
 				}
 

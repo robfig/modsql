@@ -135,11 +135,11 @@ func main() {
 
 	// == Many-to-many
 
-	// Each person can have several addresses (work, home, grandma's house) and
-	// each address can have multiple persons.
+	// Each user can have several addresses (work, home, grandma's house) and
+	// each address can have multiple users.
 
-	Table("person", metadata,
-		Column("person_id", Int).PrimaryKey(),
+	Table("user", metadata,
+		Column("user_id", Int).PrimaryKey(),
 		Column("first_name", String),
 		Column("last_name", String),
 	)
@@ -152,11 +152,11 @@ func main() {
 		Column("post_code", String),
 	)
 
-	person_addr := Table("person_address", metadata,
-		Column("person_id", Int).ForeignKey("person", "person_id"),
+	user_addr := Table("user_address", metadata,
+		Column("user_id", Int).ForeignKey("user", "user_id"),
 		Column("address_id", Int).ForeignKey("address", "address_id"),
 	)
-	person_addr.PrimaryKey("person_id", "address_id")
+	user_addr.PrimaryKey("user_id", "address_id")
 
 	// * * *
 
