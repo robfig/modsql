@@ -34,9 +34,9 @@ See files "db-*_test.go" to know how databases were configured.
 
 Unsupported
 
-The null handling is very different in every SQL engine, so instead I prefer to
-add empty values according to the type (just like in Go).  
-http://www.sqlite.org/nulls.html
+The null handling is very different in every SQL engine (http://www.sqlite.org/nulls.html),
+so instead I prefer to add empty values according to the type (just like in Go).  
+Although they are useful for fields related to time and date.
 
 Avoid cascades due to being magic; instead, I handle it from the application layer.  
 http://stackoverflow.com/questions/59297/when-why-to-use-cascading-in-sql-server
