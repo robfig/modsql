@@ -387,6 +387,8 @@ func (md *metadata) formatValues(v []interface{}) []string {
 			res = append(res, fmt.Sprintf("'%s'", replTime.Replace(t.String())))
 		case time.Time:
 			res = append(res, fmt.Sprintf("'%s'", t.Format("2006-01-02 15:04:05")))
+		case nil:
+			res = append(res, "NULL")
 		}
 	}
 	return res

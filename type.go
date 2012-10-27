@@ -162,6 +162,7 @@ func (t sqlType) tmplAction() string {
 // A sqlAction represents data to pass to the SQL template.
 type sqlAction struct {
 	Engine string
+	Q      string // character of quote
 
 	Bool  string
 	True  string
@@ -185,8 +186,6 @@ type sqlAction struct {
 
 	Duration string
 	DateTime string
-
-	Q string // character of quote
 }
 
 // getSQLAction returns data corresponding to the engine used.

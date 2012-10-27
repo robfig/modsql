@@ -53,7 +53,7 @@ CREATE TABLE sub_account (
 	ref_type  INTEGER,
 	sub_descr TEXT,
 
-	FOREIGN KEY (ref_type, ref_num) REFERENCES account (acc_type, acc_num)
+	FOREIGN KEY (ref_num, ref_type) REFERENCES account (acc_num, acc_type)
 );
 CREATE INDEX idx_sub_account__m1 ON sub_account (ref_num, ref_type);
 
