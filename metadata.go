@@ -62,10 +62,18 @@ func (md *metadata) Create() *metadata {
 		}
 		return name
 	}
+	// Quote field names.
+	quoteField := func(name string) string {
+		if name == "user" {
+			// Add 2 characters by the quotes if are added to the name.
+			return "{{.Q}}" + name + "{{.Q}}  "
+		}
+		return name
+	}
 
 	// Align SQL types adding spaces.
 	sqlAlign := func(maxLen, nameLen int) string {
-		if maxLen == nameLen {
+		if maxLen <= nameLen {
 			return ""
 		}
 		return strings.Repeat(" ", maxLen-nameLen)
@@ -113,7 +121,7 @@ func (md *metadata) Create() *metadata {
 		for i, col := range table.columns {
 			extra := ""
 			field := "\n\t"
-			nameQuoted := quote(col.name)
+			nameQuoted := quoteField(col.name)
 
 			if !useTime && (col.type_ == Duration || col.type_ == DateTime) {
 				useTime = true
