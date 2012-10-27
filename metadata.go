@@ -55,22 +55,6 @@ func Metadata(eng ...sqlEngine) *metadata {
 
 // Create generates both SQL statements and Go definitions for all tables.
 func (md *metadata) Create() *metadata {
-	// Quote special names.
-	quote := func(name string) string {
-		if name == "user" {
-			return "{{.Q}}" + name + "{{.Q}}"
-		}
-		return name
-	}
-	// Quote field names.
-	quoteField := func(name string) string {
-		if name == "user" {
-			// Add 2 characters by the quotes if are added to the name.
-			return "{{.Q}}" + name + "{{.Q}}  "
-		}
-		return name
-	}
-
 	// Align SQL types adding spaces.
 	sqlAlign := func(maxLen, nameLen int) string {
 		if maxLen <= nameLen {
@@ -427,11 +411,11 @@ func (md *metadata) genInsert(testdata bool) []string {
 			var columns []string
 
 			for _, col := range table.columns {
-				columns = append(columns, col.name)
+				columns = append(columns, quote(col.name))
 			}
 			for _, v := range data {
 				insert = append(insert, fmt.Sprintf("\nINSERT INTO %s (%s) VALUES(%s);",
-					tableName,
+					quote(tableName),
 					strings.Join(columns, ", "),
 					strings.Join(md.formatValues(v), ", ")))
 			}
@@ -439,4 +423,24 @@ func (md *metadata) genInsert(testdata bool) []string {
 	}
 	insert = append(insert, "\nCOMMIT;\n")
 	return insert
+}
+
+// == Utility
+//
+
+// quote adds quotes to special names.
+func quote(name string) string {
+	if name == "user" {
+		return "{{.Q}}" + name + "{{.Q}}"
+	}
+	return name
+}
+
+// quoteField adds quotes to field names.
+func quoteField(name string) string {
+	if name == "user" {
+		// Add 2 characters by the quotes if are added to the name.
+		return "{{.Q}}" + name + "{{.Q}}  "
+	}
+	return name
 }
