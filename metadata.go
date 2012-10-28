@@ -146,14 +146,10 @@ func (md *metadata) Create() *metadata {
 				}
 			}
 			// ==
-			field := "\n\t"
 			nameQuoted := quoteSQLField(col.name)
 
-			md.sqlCode = append(md.sqlCode, fmt.Sprintf("%s %s%s",
-				field+nameQuoted,
-				sqlAlign(fieldMaxLen, len(nameQuoted)),
-				sqlString,
-			))
+			md.sqlCode = append(md.sqlCode, fmt.Sprintf("\n\t%s %s%s",
+				nameQuoted, sqlAlign(fieldMaxLen, len(nameQuoted)), sqlString))
 
 			if col.cons&primaryKey != 0 {
 				extra += " PRIMARY KEY"
