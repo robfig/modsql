@@ -35,9 +35,11 @@ type metadata struct {
 
 	engines []sqlEngine
 	tables  []*table
-	goCode  []string
-	sqlCode []string
-	sqlTest []string
+
+	goCode    []string
+	sqlCreate []string
+	sqlDrop   []string
+	sqlTest   []string
 }
 
 // Metadata returns a new metadata.
@@ -73,8 +75,9 @@ func (md *metadata) Create() *metadata {
 	md.goCode = append(md.goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER, pkgName))
 	md.goCode = append(md.goCode, "") // To add some import
 
-	md.sqlCode = append(md.sqlCode,
+	md.sqlCreate = append(md.sqlCreate,
 		fmt.Sprintf("%s\n%s\nBEGIN;", _CONSTRAINT, _HEADER))
+	md.sqlDrop = append(md.sqlDrop, fmt.Sprintf("%s\nBEGIN;", _HEADER))
 
 	useTime := false
 
@@ -89,8 +92,13 @@ func (md *metadata) Create() *metadata {
 		}
 		// ==
 
-		md.goCode = append(md.goCode, fmt.Sprintf("\ntype %s struct {\n", validGoName(table.name)))
-		md.sqlCode = append(md.sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", table.sqlName))
+		md.goCode = append(md.goCode,
+			fmt.Sprintf("\ntype %s struct {\n", validGoName(table.name)))
+		md.sqlCreate = append(md.sqlCreate,
+			fmt.Sprintf("\nCREATE TABLE %s (", table.sqlName))
+		md.sqlDrop = append(md.sqlDrop,
+			fmt.Sprintf("\nDROP TABLE %s;", table.sqlName))
+
 		columnIndex := make([]string, 0)
 
 		for i, col := range table.columns {
@@ -148,7 +156,7 @@ func (md *metadata) Create() *metadata {
 			// ==
 			nameQuoted := quoteSQLField(col.name)
 
-			md.sqlCode = append(md.sqlCode, fmt.Sprintf("\n\t%s %s%s",
+			md.sqlCreate = append(md.sqlCreate, fmt.Sprintf("\n\t%s %s%s",
 				nameQuoted, sqlAlign(fieldMaxLen, len(nameQuoted)), sqlString))
 
 			if col.cons&primaryKey != 0 {
@@ -186,7 +194,7 @@ func (md *metadata) Create() *metadata {
 						unique, table.name, col.name, table.sqlName, col.name))
 			}
 
-			md.sqlCode = append(md.sqlCode, extra)
+			md.sqlCreate = append(md.sqlCreate, extra)
 
 			// The last column
 			if i+1 == len(table.columns) {
@@ -207,9 +215,9 @@ func (md *metadata) Create() *metadata {
 				}
 
 				if len(cons) != 0 {
-					md.sqlCode = append(md.sqlCode, ",\n\n\t"+strings.Join(cons, ",\n\t"))
+					md.sqlCreate = append(md.sqlCreate, ",\n\n\t"+strings.Join(cons, ",\n\t"))
 				}
-				md.sqlCode = append(md.sqlCode, "\n);\n")
+				md.sqlCreate = append(md.sqlCreate, "\n);\n")
 				md.goCode = append(md.goCode, "}\n")
 
 				// Indexes
@@ -227,11 +235,11 @@ func (md *metadata) Create() *metadata {
 							strings.Join(v.index, ", ")))
 				}
 				if len(columnIndex) != 0 {
-					md.sqlCode = append(md.sqlCode, columnIndex...)
+					md.sqlCreate = append(md.sqlCreate, columnIndex...)
 				}
 
 			} else {
-				md.sqlCode = append(md.sqlCode, ",")
+				md.sqlCreate = append(md.sqlCreate, ",")
 			}
 		}
 	}
@@ -242,12 +250,13 @@ func (md *metadata) Create() *metadata {
 
 	// == Insert
 	if md.useInsert {
-		md.sqlCode = append(md.sqlCode, md.genInsert(false)...)
+		md.sqlCreate = append(md.sqlCreate, md.genInsert(false)...)
 	}
 	if md.useInsertTest {
-		md.sqlTest = append(md.sqlTest, fmt.Sprintf("%s\nBEGIN;", _HEADER))
+		md.sqlTest = append(md.sqlTest, _HEADER + "\nBEGIN;")
 		md.sqlTest = append(md.sqlTest, md.genInsert(true)...)
 	}
+	md.sqlDrop = append(md.sqlDrop, "\nCOMMIT;\n")
 
 	return md
 }
@@ -260,7 +269,7 @@ func (md *metadata) PrintGo() *metadata {
 
 // PrintSQL prints the SQL statements.
 func (md *metadata) PrintSQL() *metadata {
-	tmpl, err := template.New("").Parse(strings.Join(md.sqlCode, ""))
+	tmpl, err := template.New("").Parse(strings.Join(md.sqlCreate, ""))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -275,11 +284,15 @@ func (md *metadata) PrintSQL() *metadata {
 
 // Write writes both SQL statements and Go model.
 func (md *metadata) Write() {
-	if len(md.sqlCode) == 0 {
+	if len(md.sqlCreate) == 0 {
 		log.Fatalf("no data created; use Create()")
 	}
 
-	tmpl, err := template.New("").Parse(strings.Join(md.sqlCode, ""))
+	tmplCreate, err := template.New("").Parse(strings.Join(md.sqlCreate, ""))
+	if err != nil {
+		log.Fatal(err)
+	}
+	tmplDrop, err := template.New("").Parse(strings.Join(md.sqlDrop, ""))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -293,14 +306,21 @@ func (md *metadata) Write() {
 	}
 
 	for _, eng := range md.engines {
+		filename := eng.sqlFile()
+
 		buf := new(bytes.Buffer)
-		if err = tmpl.Execute(buf, getSQLAction(eng)); err != nil {
+		if err = tmplCreate.Execute(buf, getSQLAction(eng)); err != nil {
+			log.Fatal(err)
+		}
+		if err = ioutil.WriteFile(filename+"_init.sql", buf.Bytes(), 0644); err != nil {
 			log.Fatal(err)
 		}
 
-		filename := eng.sqlFile()
-
-		if err = ioutil.WriteFile(filename+".sql", buf.Bytes(), 0644); err != nil {
+		buf = new(bytes.Buffer)
+		if err = tmplDrop.Execute(buf, getSQLAction(eng)); err != nil {
+			log.Fatal(err)
+		}
+		if err = ioutil.WriteFile(filename+"_drop.sql", buf.Bytes(), 0644); err != nil {
 			log.Fatal(err)
 		}
 
