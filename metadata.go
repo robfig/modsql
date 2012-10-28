@@ -63,15 +63,6 @@ func (md *metadata) Create() *metadata {
 		return strings.Repeat(" ", maxLen-nameLen)
 	}
 
-	// A column name could be not valid for a Go field name.
-	validFieldName := func(name string) string {
-		switch name {
-		case "type":
-			return name + "_"
-		}
-		return name
-	}
-
 	// Package name
 	pkgName := "main"
 	pkg, err := build.ImportDir(".", 0)
@@ -98,7 +89,7 @@ func (md *metadata) Create() *metadata {
 		}
 		// ==
 
-		md.goCode = append(md.goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
+		md.goCode = append(md.goCode, fmt.Sprintf("\ntype %s struct {\n", validGoName(table.name)))
 		md.sqlCode = append(md.sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", table.sqlName))
 		columnIndex := make([]string, 0)
 
@@ -110,7 +101,7 @@ func (md *metadata) Create() *metadata {
 			}
 
 			md.goCode = append(md.goCode, fmt.Sprintf("%s %s\n",
-				validFieldName(col.name), col.type_.goString()))
+				validGoName(col.name), col.type_.goString()))
 
 			// == MySQL: Limit the key length in TEXT or BLOB columns
 			sqlString := col.type_.tmplAction()
