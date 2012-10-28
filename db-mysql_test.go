@@ -35,9 +35,12 @@ func TestMySQL(t *testing.T) {
 	}
 	defer db.Close()
 
-	if err = Load(db, "zmysql.sql"); err != nil {
+	if err = Load(db, "zmysql_init.sql"); err != nil {
 		t.Error(err)
 	} else if err = Load(db, "zmysql_test.sql"); err != nil {
+		t.Error(err)
+	}
+	if err = Load(db, "zmysql_drop.sql"); err != nil {
 		t.Error(err)
 	}
 }

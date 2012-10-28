@@ -162,7 +162,6 @@ func (t sqlType) tmplAction() string {
 // A sqlAction represents data to pass to the SQL template.
 type sqlAction struct {
 	Engine string
-	Q      string // character of quote
 
 	Bool  string
 	True  string
@@ -186,6 +185,12 @@ type sqlAction struct {
 
 	Duration string
 	DateTime string
+
+	Q string // character of quote
+
+	MySQLDrop0  string
+	MySQLDrop1  string
+	PostgreDrop string
 }
 
 // getSQLAction returns data corresponding to the engine used.
@@ -220,6 +225,9 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 			DateTime: "TIMESTAMP",
 
 			Q: "`",
+
+			MySQLDrop0: "\nSET FOREIGN_KEY_CHECKS=0;\n",
+			MySQLDrop1: "\n\nSET FOREIGN_KEY_CHECKS=1;",
 		}
 
 	// http://www.postgresql.org/docs/9.2/static/datatype-numeric.html
@@ -247,6 +255,8 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 			DateTime: "timestamp without time zone",
 
 			Q: `"`,
+
+			PostgreDrop: " CASCADE", // automatically drop objects that depend on the table
 		}
 
 	// http://www.sqlite.org/datatype3.html

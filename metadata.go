@@ -77,7 +77,9 @@ func (md *metadata) Create() *metadata {
 
 	md.sqlCreate = append(md.sqlCreate,
 		fmt.Sprintf("%s\n%s\nBEGIN;", _CONSTRAINT, _HEADER))
+
 	md.sqlDrop = append(md.sqlDrop, fmt.Sprintf("%s\nBEGIN;", _HEADER))
+	md.sqlDrop = append(md.sqlDrop, "{{.MySQLDrop0}}")
 
 	useTime := false
 
@@ -97,7 +99,7 @@ func (md *metadata) Create() *metadata {
 		md.sqlCreate = append(md.sqlCreate,
 			fmt.Sprintf("\nCREATE TABLE %s (", table.sqlName))
 		md.sqlDrop = append(md.sqlDrop,
-			fmt.Sprintf("\nDROP TABLE %s;", table.sqlName))
+			fmt.Sprintf("\nDROP TABLE %s{{.PostgreDrop}};", table.sqlName))
 
 		columnIndex := make([]string, 0)
 
@@ -253,9 +255,10 @@ func (md *metadata) Create() *metadata {
 		md.sqlCreate = append(md.sqlCreate, md.genInsert(false)...)
 	}
 	if md.useInsertTest {
-		md.sqlTest = append(md.sqlTest, _HEADER + "\nBEGIN;")
+		md.sqlTest = append(md.sqlTest, _HEADER+"\nBEGIN;")
 		md.sqlTest = append(md.sqlTest, md.genInsert(true)...)
 	}
+	md.sqlDrop = append(md.sqlDrop, "{{.MySQLDrop1}}")
 	md.sqlDrop = append(md.sqlDrop, "\nCOMMIT;\n")
 
 	return md

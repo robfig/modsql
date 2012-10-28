@@ -26,9 +26,12 @@ func TestSQLite(t *testing.T) {
 	}
 	defer db.Close()
 
-	if err = Load(db, "zsqlite.sql"); err != nil {
+	if err = Load(db, "zsqlite_init.sql"); err != nil {
 		t.Error(err)
 	} else if err = Load(db, "zsqlite_test.sql"); err != nil {
+		t.Error(err)
+	}
+	if err = Load(db, "zsqlite_drop.sql"); err != nil {
 		t.Error(err)
 	}
 }
