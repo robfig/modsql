@@ -99,7 +99,7 @@ func (md *metadata) Create() *metadata {
 		// ==
 
 		md.goCode = append(md.goCode, fmt.Sprintf("\ntype %s struct {\n", table.name))
-		md.sqlCode = append(md.sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", quoteSQL(table.name)))
+		md.sqlCode = append(md.sqlCode, fmt.Sprintf("\nCREATE TABLE %s (", table.sqlName))
 		columnIndex := make([]string, 0)
 
 		for i, col := range table.columns {
@@ -196,7 +196,7 @@ func (md *metadata) Create() *metadata {
 				}
 				columnIndex = append(columnIndex,
 					fmt.Sprintf("CREATE %sINDEX idx_%s_%s ON %s (%s);\n",
-						unique, table.name, col.name, table.name, col.name))
+						unique, table.name, col.name, table.sqlName, col.name))
 			}
 
 			md.sqlCode = append(md.sqlCode, extra)
@@ -236,7 +236,7 @@ func (md *metadata) Create() *metadata {
 
 					columnIndex = append(columnIndex,
 						fmt.Sprintf("CREATE %sINDEX idx_%s_%s ON %s (%s);\n",
-							unique, table.name, name, table.name,
+							unique, table.name, name, table.sqlName,
 							strings.Join(v.index, ", ")))
 				}
 				if len(columnIndex) != 0 {
@@ -401,8 +401,6 @@ func (md *metadata) genInsert(testdata bool) []string {
 	insert := make([]string, 0)
 
 	for _, table := range md.tables {
-		tableName := table.name
-
 		if testdata {
 			data = table.testData
 		} else {
@@ -417,7 +415,7 @@ func (md *metadata) genInsert(testdata bool) []string {
 			}
 			for _, v := range data {
 				insert = append(insert, fmt.Sprintf("\nINSERT INTO %s (%s) VALUES(%s);",
-					quoteSQL(tableName),
+					table.sqlName,
 					strings.Join(columns, ", "),
 					strings.Join(md.formatValues(v), ", ")))
 			}

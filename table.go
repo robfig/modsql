@@ -24,6 +24,7 @@ type compoIndex struct {
 
 type table struct {
 	name    string
+	sqlName string
 	meta    *metadata
 	columns []column
 
@@ -47,6 +48,7 @@ func Table(name string, meta *metadata, col ...*column) *table {
 
 	t := new(table)
 	t.name = name
+	t.sqlName = quoteSQL(name)
 	t.meta = meta
 
 	for _, v := range col {
