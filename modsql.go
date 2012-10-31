@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -24,6 +25,37 @@ func init() {
 	log.SetFlags(0)
 	log.SetPrefix("ERROR: ")
 }
+
+// namesToQuote are names which have to be quoted to be used in SQL statements.
+var namesToQuote = [...]string{"user"}
+
+// Queries represent the SQL statements to be used into database functions.
+type Queries map[int]string
+
+// Replace replaces the placeholder parameter and adds the quote character
+// to tables and columns (if were necessary), according to the SQL engine.
+//
+// The parameter "from" indicates the SQL engine format for the placeholder
+// used in the statement, and "to" is to convert it to another engine format.
+//
+// TODO: by now, the statement should be in PostgreSQL, so from = PostgreSQL.
+func (q Queries) Replace(to, from Engine) {
+	rePlaceholder := regexp.MustCompile(`$\d+`) // format in PostgreSQL
+
+	for k, v := range q {
+		for _, name := range namesToQuote {
+			q[k] = strings.Replace(v, name, quoteChar[to]+name+quoteChar[to], 1)
+		}
+	}
+
+	if to == MySQL {
+		for k, v := range q {
+			q[k] = rePlaceholder.ReplaceAllString(v, "?")
+		}
+	}
+}
+
+// * * *
 
 // sqlInt has the integer type for the SQL engine according to the architecture.
 var sqlInt = struct {
@@ -83,17 +115,21 @@ func Load(db *sql.DB, filename string) error {
 
 // quoteSQL returns the name quoted for SQL.
 func quoteSQL(name string) string {
-	if name == "user" {
-		return "{{.Q}}" + name + "{{.Q}}"
+	for _, v := range namesToQuote {
+		if v == name {
+			return "{{.Q}}" + name + "{{.Q}}"
+		}
 	}
 	return name
 }
 
 // quoteSQLField returns field name quoted for SQL.
 func quoteSQLField(name string) string {
-	if name == "user" {
-		// Add 2 characters by the quotes if are added to the name.
-		return "{{.Q}}" + name + "{{.Q}}  "
+	for _, v := range namesToQuote {
+		if v == name {
+			// Add 2 characters by the quotes if are added to the name.
+			return "{{.Q}}" + name + "{{.Q}}  "
+		}
 	}
 	return name
 }

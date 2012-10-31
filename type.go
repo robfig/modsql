@@ -8,16 +8,16 @@ package modsql
 
 import "fmt"
 
-// A sqlEngine represents the SQL engine.
-type sqlEngine string
+// An Engine represents the SQL engine.
+type Engine string
 
 const (
-	MySQL      sqlEngine = "mysql"
-	PostgreSQL           = "postgresql"
-	SQLite               = "sqlite"
+	MySQL      Engine = "mysql"
+	PostgreSQL        = "postgresql"
+	SQLite            = "sqlite"
 )
 
-func (e sqlEngine) check() error {
+func (e Engine) check() error {
 	switch e {
 	case MySQL, PostgreSQL, SQLite:
 		return nil
@@ -26,7 +26,7 @@ func (e sqlEngine) check() error {
 }
 
 // sqlFile returns the filename for the SQL statements.
-func (e sqlEngine) sqlFile() string {
+func (e Engine) sqlFile() string {
 	switch e {
 	case MySQL:
 		return "zmysql"
@@ -36,6 +36,13 @@ func (e sqlEngine) sqlFile() string {
 		return "zsqlite"
 	}
 	panic("unreachable")
+}
+
+// quoteChar are the characters used to quote a name according to a SQL engine.
+var quoteChar = map[Engine]string{
+	MySQL:      "`",
+	PostgreSQL: `"`,
+	SQLite:     `"`,
 }
 
 // * * *
@@ -194,7 +201,7 @@ type sqlAction struct {
 }
 
 // getSQLAction returns data corresponding to the engine used.
-func getSQLAction(eng sqlEngine) *sqlAction {
+func getSQLAction(eng Engine) *sqlAction {
 	a := new(sqlAction)
 
 	switch eng {
@@ -224,7 +231,7 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 			Duration: "TIME",
 			DateTime: "TIMESTAMP",
 
-			Q: "`",
+			Q: quoteChar[MySQL],
 
 			MySQLDrop0: "\nSET FOREIGN_KEY_CHECKS=0;\n",
 			MySQLDrop1: "\n\nSET FOREIGN_KEY_CHECKS=1;",
@@ -254,7 +261,7 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 			Duration: "time without time zone",
 			DateTime: "timestamp without time zone",
 
-			Q: `"`,
+			Q: quoteChar[PostgreSQL],
 
 			PostgreDrop: " CASCADE", // automatically drop objects that depend on the table
 		}
@@ -283,7 +290,7 @@ func getSQLAction(eng sqlEngine) *sqlAction {
 			Duration: "INTEGER", // time()
 			DateTime: "TEXT",    // datetime()
 
-			Q: `"`,
+			Q: quoteChar[SQLite],
 		}
 	}
 

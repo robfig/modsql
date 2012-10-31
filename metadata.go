@@ -33,7 +33,7 @@ type metadata struct {
 	useInsert     bool
 	useInsertTest bool
 
-	engines []sqlEngine
+	engines []Engine
 	tables  []*table
 
 	goCode    []string
@@ -43,7 +43,7 @@ type metadata struct {
 }
 
 // Metadata returns a new metadata.
-func Metadata(eng ...sqlEngine) *metadata {
+func Metadata(eng ...Engine) *metadata {
 	for _, v := range eng {
 		if err := v.check(); err != nil {
 			log.Fatal(err)
