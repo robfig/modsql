@@ -9,13 +9,25 @@ package modsql
 import "fmt"
 
 // An Engine represents the SQL engine.
-type Engine string
+type Engine int
 
 const (
-	MySQL      Engine = "mysql"
-	PostgreSQL        = "postgresql"
-	SQLite            = "sqlite"
+	MySQL Engine = iota + 1
+	PostgreSQL
+	SQLite
 )
+
+func (e Engine) String() string {
+	switch e {
+	case MySQL:
+		return "mysql"
+	case PostgreSQL:
+		return "postgresql"
+	case SQLite:
+		return "sqlite"
+	}
+	panic("unreachable")
+}
 
 func (e Engine) check() error {
 	switch e {
@@ -301,7 +313,7 @@ func getSQLAction(eng Engine) *sqlAction {
 		a.False = "FALSE"
 		a.True = "TRUE"
 	}
-	a.Engine = string(eng)
+	a.Engine = eng.String()
 
 	return a
 }

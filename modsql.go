@@ -40,7 +40,7 @@ type Queries map[int]string
 //
 // TODO: by now, the statement should be in PostgreSQL, so from = PostgreSQL.
 func (q Queries) Replace(to, from Engine) {
-	rePlaceholder := regexp.MustCompile(`$\d+`) // format in PostgreSQL
+	rePlaceholder := regexp.MustCompile(`\$\d+`) // format in PostgreSQL
 
 	for k, v := range q {
 		for _, name := range namesToQuote {
