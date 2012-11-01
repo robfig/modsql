@@ -26,7 +26,8 @@ func init() {
 	log.SetPrefix("ERROR: ")
 }
 
-// namesToQuote are names which have to be quoted to be used in SQL statements.
+// namesToQuote are names which have to be quoted to be used in SQL statements
+// (tables and columns).
 var namesToQuote = [...]string{"user"}
 
 // Queries represent the SQL statements to be used into database functions.
@@ -35,22 +36,57 @@ type Queries map[int]string
 // Replace replaces the placeholder parameter and adds the quote character
 // to tables and columns (if were necessary), according to the SQL engine.
 //
-// The parameter "from" indicates the SQL engine format for the placeholder
-// used in the statement, and "to" is to convert it to another engine format.
+// The parameter "src" indicates the SQL engine format for the placeholder
+// used in the statement, and "dst" is to convert it to another engine format.
 //
-// TODO: by now, the statement should be in PostgreSQL, so from = PostgreSQL.
-func (q Queries) Replace(to, from Engine) {
-	rePlaceholder := regexp.MustCompile(`\$\d+`) // format in PostgreSQL
-
+// TODO: replacement related SQLite. Add tests.
+func (q Queries) Replace(dst, src Engine) {
+	// Quotes
 	for k, v := range q {
 		for _, name := range namesToQuote {
-			q[k] = strings.Replace(v, name, quoteChar[to]+name+quoteChar[to], 1)
+			q[k] = strings.Replace(v, name, quoteChar[dst]+name+quoteChar[dst], 1)
 		}
 	}
 
-	if to == MySQL {
-		for k, v := range q {
-			q[k] = rePlaceholder.ReplaceAllString(v, "?")
+	// Placeholder parameter
+	if src != dst {
+		switch src {
+		case MySQL:
+			rePlaceholder := regexp.MustCompile(`\?`)
+
+			if dst == PostgreSQL {
+				for k, v := range q {
+					_v := v
+					i := -1
+					nParam := 0
+
+					_v = rePlaceholder.ReplaceAllStringFunc(_v, func(s string) string {
+						if i != 0 {
+							nParam++
+							return fmt.Sprintf("$%d", nParam)
+						}
+						return v
+					})
+
+					if v != _v {
+						q[k] = _v
+					}
+				}
+			} else if dst == SQLite {
+				panic("TODO: handle SQLite")
+			}
+		case PostgreSQL:
+			rePlaceholder := regexp.MustCompile(`\$\d+`)
+
+			if dst == MySQL {
+				for k, v := range q {
+					q[k] = rePlaceholder.ReplaceAllLiteralString(v, "?")
+				}
+			} else if dst == SQLite {
+				panic("TODO: handle SQLite")
+			}
+		case SQLite:
+			panic("TODO: handle SQLite")
 		}
 	}
 }
