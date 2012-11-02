@@ -353,7 +353,7 @@ func (md *metadata) Write() {
 const (
 	_PARSER_MODE  = parser.ParseComments
 	_PRINTER_MODE = printer.TabIndent | printer.UseSpaces
-	_TAB_WIDTH    = 8
+	_TAB_WIDTH    = 4
 )
 
 // format formats the Go source code.
@@ -424,13 +424,13 @@ func (md *metadata) genInsert(testdata bool) []string {
 				columns = append(columns, quoteSQL(col.name))
 			}
 			for _, v := range data {
-				insert = append(insert, fmt.Sprintf("\nINSERT INTO %s (%s) VALUES(%s);",
+				insert = append(insert, fmt.Sprintf("\nINSERT INTO %s (%s)\n\tVALUES(%s);\n",
 					table.sqlName,
 					strings.Join(columns, ", "),
 					strings.Join(md.formatValues(v), ", ")))
 			}
 		}
 	}
-	insert = append(insert, "\nCOMMIT;\n")
+	insert = append(insert, "COMMIT;\n")
 	return insert
 }
