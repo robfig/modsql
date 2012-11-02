@@ -424,11 +424,12 @@ func (md *metadata) genInsert(testdata bool) []string {
 				columns = append(columns, quoteSQL(col.name))
 			}
 			for _, v := range data {
-				insert = append(insert, fmt.Sprintf("\nINSERT INTO %s (%s)\n\tVALUES(%s);\n",
+				insert = append(insert, fmt.Sprintf("\nINSERT INTO %s (%s)\n\tVALUES(%s);",
 					table.sqlName,
 					strings.Join(columns, ", "),
 					strings.Join(md.formatValues(v), ", ")))
 			}
+			insert = append(insert, "\n")
 		}
 	}
 	insert = append(insert, "COMMIT;\n")

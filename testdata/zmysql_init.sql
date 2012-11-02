@@ -114,7 +114,6 @@ INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float6
 
 INSERT INTO times (typeId, t_duration, t_datetime)
 	VALUES(1, '5:3:12', '2009-11-10 23:00:00');
-
 INSERT INTO times (typeId, t_duration, t_datetime)
 	VALUES(2, NULL, NULL);
 COMMIT;
