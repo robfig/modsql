@@ -23,7 +23,7 @@ var once sync.Once
 
 func init() {
 	log.SetFlags(0)
-	log.SetPrefix("ERROR: ")
+	log.SetPrefix("FAIL: ")
 }
 
 // namesToQuote are names which have to be quoted to be used in SQL statements

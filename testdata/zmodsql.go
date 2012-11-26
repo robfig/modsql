@@ -4,6 +4,12 @@ package main
 
 import "time"
 
+const (
+	// sex
+	MALE = iota
+	FEMALE
+)
+
 type types struct {
 	t_int     int
 	t_int8    int8

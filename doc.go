@@ -13,12 +13,22 @@ access. The API is based in SQLAlchemy's (http://www.sqlalchemy.org/).
 ModSQL enables to create primary key, foreign key and unique constraints, and
 indexes at both column and table level.
 
-It generates the files SQL and Go at writing to the file system, but it also can
-shows the generated output. The name for the generated files start with "zmodsql".
+It generates the SQL and Go files at writing to the file system, but it also can
+shows the generated output. The name for the generated files start with "z".
 
 If it is used the type Int, then the SQL files will have variables delimited by
 "{{" and "}}", which will be parsed by the function Load according to the
 architecture where it is being run.
+
+Enumeration
+
+The function "Enum" allows to create a table with the given names whose values
+will be the same in both SQL tables and Go code.
+
+Some SQL engines have a type to handle enumerations but they have some issues
+as explained here:
+
+http://komlenic.com/244/8-reasons-why-mysqls-enum-data-type-is-evil/
 
 Examples
 
@@ -35,10 +45,10 @@ See files "db-*_test.go" to know how databases were configured.
 Unsupported
 
 The null handling is very different in every SQL engine (http://www.sqlite.org/nulls.html),
-so instead I prefer to add empty values according to the type (just like in Go).  
+so instead I prefer to add empty values according to the type (just like in Go).
 Although they are useful for fields related to time and date.
 
-Avoid cascades due to being magic; instead, I handle it from the application layer.  
+Avoid cascades due to being magic; instead, I handle it from the application layer.
 http://stackoverflow.com/questions/59297/when-why-to-use-cascading-in-sql-server
 
 Note

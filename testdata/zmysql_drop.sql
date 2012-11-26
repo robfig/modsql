@@ -3,6 +3,7 @@
 BEGIN;
 SET FOREIGN_KEY_CHECKS=0;
 
+DROP TABLE sex;
 DROP TABLE types;
 DROP TABLE default_value;
 DROP TABLE times;

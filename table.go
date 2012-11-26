@@ -23,20 +23,34 @@ type compoIndex struct {
 }
 
 type table struct {
+	forEnum bool // table with list of permitted values that are enumerated 
 	name    string
 	sqlName string
 	meta    *metadata
 	columns []column
-
-	// To insert values
-	data     [][]interface{}
-	testData [][]interface{}
 
 	// Constraints and indexes to table level
 	uniqueCons []string
 	pkCons     []string
 	fkCons     []fkConstraint
 	index      []compoIndex
+
+	// To insert values
+	data     [][]interface{}
+	testData [][]interface{}
+}
+
+// Enum defines a table for enumeration values.
+func Enum(name string, meta *metadata, value ...string) {
+	t := Table(name, meta,
+		Column("id", Int).PrimaryKey(),
+		Column("name", String),
+	)
+	t.forEnum = true
+
+	for i, v := range value {
+		t.Insert(i, v)
+	}
 }
 
 // Table defines a new table.
@@ -150,16 +164,16 @@ func (t *table) PrimaryKey(columns ...string) {
 	t.pkCons = columns
 }
 
-// Unique creates explicit/composite unique constraint.
-func (t *table) Unique(columns ...string) {
-	t.existColumns("Unique", columns)
-	t.uniqueCons = columns
-}
-
 // Index creates an index on a group of columns.
 func (t *table) Index(unique bool, columns ...string) {
 	t.existColumns("Index", columns)
 	t.index = append(t.index, compoIndex{unique, columns})
+}
+
+// Unique creates explicit/composite unique constraint.
+func (t *table) Unique(columns ...string) {
+	t.existColumns("Unique", columns)
+	t.uniqueCons = columns
 }
 
 // * * *

@@ -9,6 +9,10 @@ It enables to generate SQL code for PostgreSQL, MySQL and SQLite engines.
 
 	go get github.com/kless/modsql
 
+## TODO
+
++ Add tests for Queries.Replace
+
 ## License
 
 The source files are distributed under the [Mozilla Public License, version 2.0](http://mozilla.org/MPL/2.0/),

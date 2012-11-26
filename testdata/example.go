@@ -14,6 +14,11 @@ import (
 func main() {
 	metadata := Metadata(PostgreSQL, MySQL, SQLite)
 
+	Enum("sex", metadata,
+		"male",
+		"female",
+	)
+
 	types := Table("types", metadata,
 		Column("t_int", Int).PrimaryKey(),
 		Column("t_int8", Int8),

@@ -94,8 +94,13 @@ func (md *metadata) Create() *metadata {
 		}
 		// ==
 
-		md.goCode = append(md.goCode,
-			fmt.Sprintf("\ntype %s struct {\n", validGoName(table.name)))
+		if !table.forEnum {
+			md.goCode = append(md.goCode,
+				fmt.Sprintf("\ntype %s struct {\n", validGoName(table.name)))
+		} else {
+			md.goCode = append(md.goCode, "\nconst(\n")
+		}
+
 		md.sqlCreate = append(md.sqlCreate,
 			fmt.Sprintf("\nCREATE TABLE %s (", table.sqlName))
 		md.sqlDrop = append(md.sqlDrop,
@@ -110,8 +115,20 @@ func (md *metadata) Create() *metadata {
 				useTime = true
 			}
 
-			md.goCode = append(md.goCode, fmt.Sprintf("%s %s\n",
-				validGoName(col.name), col.type_.goString()))
+			if !table.forEnum {
+				md.goCode = append(md.goCode, fmt.Sprintf("%s %s\n",
+					validGoName(col.name), col.type_.goString()))
+			} else if i == 0 {
+				for iData, vData := range table.data {
+					if iData == 0 {
+						md.goCode = append(md.goCode, fmt.Sprintf("// %s\n%s = iota\n",
+							table.name, strings.ToUpper(vData[1].(string))))
+					} else {
+						md.goCode = append(md.goCode, fmt.Sprintf("%s\n",
+							strings.ToUpper(vData[1].(string))))
+					}
+				}
+			}
 
 			// == MySQL: Limit the key length in TEXT or BLOB columns
 			sqlString := col.type_.tmplAction()
@@ -220,7 +237,11 @@ func (md *metadata) Create() *metadata {
 					md.sqlCreate = append(md.sqlCreate, ",\n\n\t"+strings.Join(cons, ",\n\t"))
 				}
 				md.sqlCreate = append(md.sqlCreate, "\n);\n")
-				md.goCode = append(md.goCode, "}\n")
+				if !table.forEnum {
+					md.goCode = append(md.goCode, "}\n")
+				} else {
+					md.goCode = append(md.goCode, ")\n")
+				}
 
 				// Indexes
 				for i, v := range table.index {
