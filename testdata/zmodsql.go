@@ -6,8 +6,8 @@ import "time"
 
 const (
 	// sex
-	MALE = iota
-	FEMALE
+	SEX_MALE = iota
+	SEX_FEMALE
 )
 
 type types struct {

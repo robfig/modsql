@@ -21,6 +21,7 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"unicode"
 )
 
 const (
@@ -119,13 +120,24 @@ func (md *metadata) Create() *metadata {
 				md.goCode = append(md.goCode, fmt.Sprintf("%s %s\n",
 					validGoName(col.name), col.type_.goString()))
 			} else if i == 0 {
+				name := table.name
+
+				// Get the first part of the table name; until '_' or letter is upper
+				for iName, letter := range table.name[1:] {
+					if unicode.IsUpper(letter) || letter == '_' {
+						name = table.name[:iName+1]
+						break
+					}
+				}
+				name = strings.ToUpper(name) + "_"
+
 				for iData, vData := range table.data {
 					if iData == 0 {
 						md.goCode = append(md.goCode, fmt.Sprintf("// %s\n%s = iota\n",
-							table.name, strings.ToUpper(vData[1].(string))))
+							table.name, name+strings.ToUpper(vData[1].(string))))
 					} else {
 						md.goCode = append(md.goCode, fmt.Sprintf("%s\n",
-							strings.ToUpper(vData[1].(string))))
+							name+strings.ToUpper(vData[1].(string))))
 					}
 				}
 			}

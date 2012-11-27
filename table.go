@@ -23,7 +23,7 @@ type compoIndex struct {
 }
 
 type table struct {
-	forEnum bool // table with list of permitted values that are enumerated 
+	forEnum bool // table with list of permitted values that are enumerated
 	name    string
 	sqlName string
 	meta    *metadata
