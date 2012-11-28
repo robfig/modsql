@@ -41,10 +41,13 @@ type Queries map[int]string
 //
 // TODO: replacement related SQLite. Add tests.
 func (q Queries) Replace(dst, src Engine) {
-	// Quotes
+	// Add quotes
 	for k, v := range q {
 		for _, name := range namesToQuote {
-			q[k] = strings.Replace(v, name, quoteChar[dst]+name+quoteChar[dst], 1)
+			re := regexp.MustCompile(fmt.Sprintf(`(\W|^)%s(\W|$)`, name))
+			if re.MatchString(v) {
+				q[k] = re.ReplaceAllString(v, quoteChar[dst]+name+quoteChar[dst])
+			}
 		}
 	}
 
