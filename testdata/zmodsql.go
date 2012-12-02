@@ -4,10 +4,10 @@ package main
 
 import "time"
 
+// sex
 const (
-	// sex
-	SEX_MALE = iota
-	SEX_FEMALE
+	SEX_FEMALE = iota
+	SEX_MALE
 )
 
 type types struct {

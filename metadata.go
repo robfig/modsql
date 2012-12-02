@@ -95,11 +95,11 @@ func (md *metadata) Create() *metadata {
 		}
 		// ==
 
-		if !table.forEnum {
+		if !table.isEnum {
 			md.goCode = append(md.goCode,
 				fmt.Sprintf("\ntype %s struct {\n", validGoName(table.name)))
 		} else {
-			md.goCode = append(md.goCode, "\nconst(\n")
+			md.goCode = append(md.goCode, "\n// "+table.name+"\nconst(\n")
 		}
 
 		md.sqlCreate = append(md.sqlCreate,
@@ -116,7 +116,7 @@ func (md *metadata) Create() *metadata {
 				useTime = true
 			}
 
-			if !table.forEnum {
+			if !table.isEnum {
 				md.goCode = append(md.goCode, fmt.Sprintf("%s %s\n",
 					validGoName(col.name), col.type_.goString()))
 			} else if i == 0 {
@@ -133,8 +133,13 @@ func (md *metadata) Create() *metadata {
 
 				for iData, vData := range table.data {
 					if iData == 0 {
-						md.goCode = append(md.goCode, fmt.Sprintf("// %s\n%s = iota\n",
-							table.name, name+strings.ToUpper(vData[1].(string))))
+						iota_ := "iota"
+
+						if table.startEnum != 0 {
+							iota_ += " + " + strconv.Itoa(table.startEnum)
+						}
+						md.goCode = append(md.goCode, fmt.Sprintf("%s = %s\n",
+							name+strings.ToUpper(vData[1].(string)), iota_))
 					} else {
 						md.goCode = append(md.goCode, fmt.Sprintf("%s\n",
 							name+strings.ToUpper(vData[1].(string))))
@@ -249,7 +254,7 @@ func (md *metadata) Create() *metadata {
 					md.sqlCreate = append(md.sqlCreate, ",\n\n\t"+strings.Join(cons, ",\n\t"))
 				}
 				md.sqlCreate = append(md.sqlCreate, "\n);\n")
-				if !table.forEnum {
+				if !table.isEnum {
 					md.goCode = append(md.goCode, "}\n")
 				} else {
 					md.goCode = append(md.goCode, ")\n")

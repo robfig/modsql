@@ -23,7 +23,9 @@ type compoIndex struct {
 }
 
 type table struct {
-	forEnum bool // table with list of permitted values that are enumerated
+	isEnum    bool // table with list of permitted values that are enumerated
+	startEnum int
+
 	name    string
 	sqlName string
 	meta    *metadata
@@ -40,16 +42,21 @@ type table struct {
 	testData [][]interface{}
 }
 
-// Enum defines a table for enumeration values.
-func Enum(name string, meta *metadata, value ...string) {
+// Enum defines a table for enumeration values starting from start.
+func Enum(name string, meta *metadata, intType sqlType, start int, value ...string) {
+	if intType < Int || intType > Int64 {
+		log.Fatalf("wrong type for integer: %s", intType.goString())
+	}
+
 	t := Table(name, meta,
-		Column("id", Int).PrimaryKey(),
+		Column("id", intType).PrimaryKey(),
 		Column("name", String),
 	)
-	t.forEnum = true
+	t.isEnum = true
+	t.startEnum = start
 
 	for i, v := range value {
-		t.Insert(i, v)
+		t.Insert(i+start, v)
 	}
 }
 

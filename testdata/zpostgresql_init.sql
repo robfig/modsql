@@ -3,7 +3,7 @@
 
 BEGIN;
 CREATE TABLE sex (
-	id   {{.PostgreInt}} PRIMARY KEY,
+	id   smallint PRIMARY KEY,
 	name text
 );
 
@@ -115,9 +115,9 @@ CREATE TABLE user_address (
 );
 
 INSERT INTO sex (id, name)
-	VALUES(0, 'male');
+	VALUES(0, 'female');
 INSERT INTO sex (id, name)
-	VALUES(1, 'female');
+	VALUES(1, 'male');
 
 INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool)
 	VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 'A', 'Z', TRUE);

@@ -14,9 +14,9 @@ import (
 func main() {
 	metadata := Metadata(PostgreSQL, MySQL, SQLite)
 
-	Enum("sex", metadata,
-		"male",
+	Enum("sex", metadata, Int8, 0,
 		"female",
+		"male",
 	)
 
 	types := Table("types", metadata,
