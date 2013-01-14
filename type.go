@@ -20,11 +20,11 @@ const (
 func (e Engine) String() string {
 	switch e {
 	case MySQL:
-		return "mysql"
+		return "MySQL"
 	case PostgreSQL:
-		return "postgresql"
+		return "PostgreSQL"
 	case SQLite:
-		return "sqlite"
+		return "SQLite"
 	}
 	panic("unreachable")
 }
@@ -126,14 +126,6 @@ func (t sqlType) goString() string {
 	panic("unreachable")
 }
 
-// boolAction returns the template action for a boolean.
-func boolAction(b bool) string {
-	if b == true {
-		return "{{.True}}"
-	}
-	return "{{.False}}"
-}
-
 // tmplAction returns a template action which will enable to generate the SQL type
 // for every SQL engine.
 func (t sqlType) tmplAction() string {
@@ -174,6 +166,14 @@ func (t sqlType) tmplAction() string {
 	}
 
 	panic("unreachable")
+}
+
+// boolAction returns the template action for a boolean.
+func boolAction(b bool) string {
+	if b == true {
+		return "{{.True}}"
+	}
+	return "{{.False}}"
 }
 
 // * * *
@@ -316,4 +316,19 @@ func getSQLAction(eng Engine) *sqlAction {
 	a.Engine = eng.String()
 
 	return a
+}
+
+// BoolToSQL returns the SQL name of a boolean according to the SQL engine.
+func BoolToSQL(eng Engine, b bool) string {
+	if eng != SQLite {
+		if b == false {
+			return "FALSE"
+		}
+		return "TRUE"
+	}
+
+	if b == false {
+		return "0"
+	}
+	return "1"
 }
