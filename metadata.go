@@ -501,7 +501,7 @@ func formatSQL(v []interface{}) string {
 		case time.Duration:
 			res[i] = fmt.Sprintf("'%s'", ReplTime.Replace(t.String()))
 		case time.Time:
-			res[i] = fmt.Sprintf("'%s'", t.Format("2006-01-02 15:04:05"))
+			res[i] = fmt.Sprintf("'%s'", t.Format(time.RFC3339))
 
 		case nil:
 			res[i] = "NULL"
