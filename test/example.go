@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	metadata := Metadata(PostgreSQL, MySQL, SQLite)
+	metadata := Metadata("testdata", PostgreSQL, MySQL, SQLite)
 
 	Enum("sex", metadata, Int8, 0,
 		"female",

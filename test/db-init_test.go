@@ -6,13 +6,13 @@
 
 // +build mysql postgresql sqlite
 
-package modsql
+package main
 
 import (
 	"log"
 	"os"
-	"os/exec"
 	"os/user"
+	"path/filepath"
 )
 
 // For access to databases
@@ -31,18 +31,13 @@ var host = struct {
 }
 
 func init() {
-	err := os.Chdir("testdata")
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	u, err := user.Current()
 	if err != nil {
 		log.Fatal(err)
 	}
 	username = u.Username
 
-	if err = exec.Command("go", "run", "example.go").Run(); err != nil {
+	if err = os.Chdir(filepath.Join("..", "testdata")); err != nil {
 		log.Fatal(err)
 	}
 }

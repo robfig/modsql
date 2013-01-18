@@ -37,19 +37,6 @@ func (e Engine) check() error {
 	return fmt.Errorf("wrong engine: %s", e)
 }
 
-// sqlFile returns the filename for the SQL statements.
-func (e Engine) sqlFile() string {
-	switch e {
-	case MySQL:
-		return "zmysql"
-	case PostgreSQL:
-		return "zpostgresql"
-	case SQLite:
-		return "zsqlite"
-	}
-	panic("unreachable")
-}
-
 // quoteChar are the characters used to quote a name according to a SQL engine.
 var quoteChar = map[Engine]string{
 	MySQL:      "`",

@@ -6,7 +6,7 @@
 
 // +build postgresql
 
-package modsql
+package main
 
 import (
 	"database/sql"
@@ -14,6 +14,8 @@ import (
 	"testing"
 
 	_ "github.com/bmizerany/pq"
+	"github.com/kless/modsql"
+	"github.com/kless/modsql/testdata"
 )
 
 // To create the database:
@@ -34,12 +36,17 @@ func TestPostgreSQL(t *testing.T) {
 	}
 	defer db.Close()
 
-	if err = Load(db, "zpostgresql_init.sql"); err != nil {
+	if err = modsql.Load(db, "postgresql_init.sql"); err != nil {
 		t.Error(err)
-	} else if err = Load(db, "zpostgresql_test.sql"); err != nil {
-		t.Error(err)
+	} else {
+		if err = modsql.Load(db, "postgresql_test.sql"); err != nil {
+			t.Error(err)
+		}
+
+		fmt.Println(testdata.ENGINE, "ENG")
 	}
-	if err = Load(db, "zpostgresql_drop.sql"); err != nil {
+
+	if err = modsql.Load(db, "postgresql_drop.sql"); err != nil {
 		t.Error(err)
 	}
 }

@@ -32,15 +32,16 @@ http://komlenic.com/244/8-reasons-why-mysqls-enum-data-type-is-evil/
 
 Examples
 
-See in directory "testdata"; the file "example.go" is the model, "zmodsql.go" is
-the generated Go code, and "z[engine].sql" for the SQL files generated for every
-engine which was indicated in the model (function Metadata).
+The directory "testdata" has the files generated from "test/example.go" which is
+run through "db_test.go".  
+"model.go" is the Go code, and "[engine]*.sql" are the SQL files for every
+engine indicated in the model (function Metadata).
 
 For testing into a SQL engine, there is to run:
 
    go test -v -tags postgresql|mysql|sqlite
 
-See files "db-*_test.go" to know how databases were configured.
+See files "test/db-*_test.go" to know how databases were configured.
 
 Unsupported
 

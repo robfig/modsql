@@ -9,7 +9,6 @@ package modsql
 import (
 	"bytes"
 	"fmt"
-	"go/build"
 	"go/parser"
 	"go/printer"
 	"go/token"
@@ -17,6 +16,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"text/template"
@@ -42,17 +42,34 @@ type metadata struct {
 	sqlCreate []string
 	sqlDrop   []string
 	sqlTest   []string
+
+	dirPath string
+	pkgName string
 }
 
 // Metadata returns a new metadata.
-func Metadata(eng ...Engine) *metadata {
+// The package name is used to create the directory where to generate all files
+// for every engine and for the Go's package.
+//
+// The new directory is created in the path where it is run.
+func Metadata(packageName string, eng ...Engine) *metadata {
 	for _, v := range eng {
 		if err := v.check(); err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	return &metadata{engines: eng}
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dir = filepath.Join(dir, packageName)
+	if err = os.Mkdir(dir, 0755); err != nil && !os.IsExist(err) {
+		log.Fatal(err)
+	}
+
+	return &metadata{engines: eng, dirPath: dir, pkgName: packageName}
 }
 
 // * * *
@@ -67,15 +84,8 @@ func (md *metadata) Create() *metadata {
 		return strings.Repeat(" ", maxLen-nameLen)
 	}
 
-	// Package name
-	pkgName := "main"
-	pkg, err := build.ImportDir(".", 0)
-	if err == nil {
-		pkgName = pkg.Name
-	}
-
-	md.goCode = append(md.goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER_EDIT, pkgName))
-	md.goCode = append(md.goCode, "import \"github.com/kless/modsql\"\n") // Could add another import
+	md.goCode = append(md.goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER_EDIT, md.pkgName))
+	md.goCode = append(md.goCode, "import \"fmt\"\n\n\"github.com/kless/modsql\"\n") // Could add another import
 
 	md.goCode = append(md.goCode, "\n// == EDIT\n")
 	for i, v := range md.engines {
@@ -305,7 +315,7 @@ func (md *metadata) Create() *metadata {
 	}
 
 	if useTime {
-		md.goCode[1] = "import (\"time\"\n\n\"github.com/kless/modsql\")\n"
+		md.goCode[1] = "import (\"fmt\"\n\"time\"\n\n\"github.com/kless/modsql\")\n"
 	}
 
 	// == Insert
@@ -367,7 +377,7 @@ func (md *metadata) Write() {
 	}
 
 	for _, eng := range md.engines {
-		filename := eng.sqlFile()
+		filename := filepath.Join(md.dirPath, strings.ToLower(eng.String()))
 
 		buf := new(bytes.Buffer)
 		if err = tmplCreate.Execute(buf, getSQLAction(eng)); err != nil {
@@ -396,7 +406,8 @@ func (md *metadata) Write() {
 		}
 	}
 
-	file, err := os.OpenFile("zmodsql.go", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(filepath.Join(md.dirPath, "model.go"),
+		os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -535,19 +546,21 @@ func genInsertForType(name string, columns, values []string) string {
 
 		case "time.Duration":
 			verbs[i] = "'%s'"
-			args[i] = fmt.Sprintf("modsql.ReplTime.Replace(%s)", "t."+columns[i])
+			args[i] = fmt.Sprintf("modsql.ReplTime.Replace(%s.String())", "t."+columns[i])
 			addColumn = false
 		case "time.Time":
+			addColumn = false
 			verbs[i] = "'%s'"
 			args[i] = fmt.Sprintf("t%d", len(times))
-			addColumn = false
 
 			times = append(times, fmt.Sprintf(
-				"%s, err := time.Parse(time.RFC3339, %s)\n"+
+				"%s, err := time.Parse(time.RFC3339, %s.String())\n"+
 				"if err != nil {\n"+
 					"return \"\", err\n"+
 				"}\n",
 				args[i], "t."+columns[i]))
+
+			args[i] = args[i] + ".String()"
 
 		case "nil":
 			verbs[i] = "NULL"

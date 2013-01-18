@@ -6,7 +6,7 @@
 
 // +build mysql
 
-package modsql
+package main
 
 import (
 	"database/sql"
@@ -14,6 +14,8 @@ import (
 	"testing"
 
 	_ "code.google.com/p/go-mysql-driver/mysql"
+	"github.com/kless/modsql"
+//	"github.com/kless/modsql/testdata"
 )
 
 // To create the database:
@@ -35,12 +37,17 @@ func TestMySQL(t *testing.T) {
 	}
 	defer db.Close()
 
-	if err = Load(db, "zmysql_init.sql"); err != nil {
+	if err = modsql.Load(db, "mysql_init.sql"); err != nil {
 		t.Error(err)
-	} else if err = Load(db, "zmysql_test.sql"); err != nil {
-		t.Error(err)
+	} else {
+		if err = modsql.Load(db, "mysql_test.sql"); err != nil {
+			t.Error(err)
+		}
+
+		
 	}
-	if err = Load(db, "zmysql_drop.sql"); err != nil {
+
+	if err = modsql.Load(db, "mysql_drop.sql"); err != nil {
 		t.Error(err)
 	}
 }
