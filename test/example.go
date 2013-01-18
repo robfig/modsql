@@ -96,10 +96,10 @@ func main() {
 		Column("sub_descr", String),
 	)
 	subAccounts.Index(false, "ref_num", "ref_type") // MySQL needs individual indexes
-	subAccounts.ForeignKey("account", map[string]string{
-		"ref_num":  "acc_num",
-		"ref_type": "acc_type",
-	})
+	subAccounts.ForeignKey("account",
+		ForeignColumn{"ref_num", "acc_num"},
+		ForeignColumn{"ref_type", "acc_type"},
+	)
 
 	// == One-to-one
 	// For related entities which share basic attributes.

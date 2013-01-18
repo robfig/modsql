@@ -11,6 +11,12 @@ import (
 	"strings"
 )
 
+// A ForeignColumn represents the relationship between the column of two tables.
+type ForeignColumn struct {
+	Local   string
+	Foreign string
+}
+
 type fkConstraint struct {
 	table string
 	src   []string
@@ -116,7 +122,7 @@ func (t *table) InsertTestData(a ...interface{}) {
 // ForeignKey creates explicit/composite foreign key constraint.
 // The keys in the map are the columns of this table, and the values are the
 // foreign columns of the given table.
-func (t *table) ForeignKey(table string, columns map[string]string) {
+func (t *table) ForeignKey(table string, columns ...ForeignColumn) {
 	if table == t.name {
 		log.Fatalf("table %q: ForeignKey(): given foreign table can not have "+
 			"the same name than actual table", table)
@@ -139,9 +145,9 @@ func (t *table) ForeignKey(table string, columns map[string]string) {
 
 	var fk fkConstraint
 
-	for k, v := range columns {
-		fk.src = append(fk.src, k)
-		fk.dst = append(fk.dst, v)
+	for _, col := range columns {
+		fk.src = append(fk.src, col.Local)
+		fk.dst = append(fk.dst, col.Foreign)
 	}
 
 	t.existColumns("ForeignKey", fk.src)
