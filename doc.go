@@ -30,6 +30,12 @@ as explained here:
 
 http://komlenic.com/244/8-reasons-why-mysqls-enum-data-type-is-evil/
 
+Unsupported
+
+The null handling is very different in every SQL engine (http://www.sqlite.org/nulls.html),
+so instead I prefer to add empty values according to the type (just like in Go).
+Although they are useful for fields related to time and date.
+
 Examples
 
 The directory "testdata" has the files generated from "test/example.go" which is
@@ -43,14 +49,13 @@ For testing into a SQL engine, there is to run:
 
 See files "test/db-*_test.go" to know how databases were configured.
 
-Unsupported
-
-The null handling is very different in every SQL engine (http://www.sqlite.org/nulls.html),
-so instead I prefer to add empty values according to the type (just like in Go).
-Although they are useful for fields related to time and date.
-
 Avoid cascades due to being magic; instead, I handle it from the application layer.
 http://stackoverflow.com/questions/59297/when-why-to-use-cascading-in-sql-server
+
+Usage
+
+You have to create a directory for the model's file or files; as suggestion,
+name it "ModSQL". Then, from the project's directory run "go run ModSQL/[file].go"
 
 Note
 

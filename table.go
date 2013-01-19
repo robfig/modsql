@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// A ForeignColumn represents the relationship between the column of two tables.
+// A ForeignColumn represents the relationship between columns of two tables.
 type ForeignColumn struct {
 	Local   string
 	Foreign string
