@@ -13,7 +13,7 @@ type Engine int
 
 const (
 	MySQL Engine = iota + 1
-	PostgreSQL
+	Postgres
 	SQLite
 )
 
@@ -21,8 +21,8 @@ func (e Engine) String() string {
 	switch e {
 	case MySQL:
 		return "MySQL"
-	case PostgreSQL:
-		return "PostgreSQL"
+	case Postgres:
+		return "Postgres"
 	case SQLite:
 		return "SQLite"
 	}
@@ -31,7 +31,7 @@ func (e Engine) String() string {
 
 func (e Engine) check() error {
 	switch e {
-	case MySQL, PostgreSQL, SQLite:
+	case MySQL, Postgres, SQLite:
 		return nil
 	}
 	return fmt.Errorf("wrong engine: %s", e)
@@ -39,9 +39,9 @@ func (e Engine) check() error {
 
 // quoteChar are the characters used to quote a name according to a SQL engine.
 var quoteChar = map[Engine]string{
-	MySQL:      "`",
-	PostgreSQL: `"`,
-	SQLite:     `"`,
+	MySQL:    "`",
+	Postgres: `"`,
+	SQLite:   `"`,
 }
 
 // * * *
@@ -194,9 +194,9 @@ type sqlAction struct {
 
 	Q string // character of quote
 
-	MySQLDrop0  string
-	MySQLDrop1  string
-	PostgreDrop string
+	MySQLDrop0   string
+	MySQLDrop1   string
+	PostgresDrop string
 }
 
 // getSQLAction returns data corresponding to the engine used.
@@ -237,11 +237,11 @@ func getSQLAction(eng Engine) *sqlAction {
 		}
 
 	// http://www.postgresql.org/docs/9.2/static/datatype-numeric.html
-	case PostgreSQL:
+	case Postgres:
 		a = &sqlAction{
 			Bool: "boolean",
 
-			Int:   "{{.PostgreInt}}", // to be parsed in function Load
+			Int:   "{{.PostgresInt}}", // to be parsed in function Load
 			Int8:  "smallint",
 			Int16: "smallint",
 			Int32: "integer",
@@ -260,9 +260,9 @@ func getSQLAction(eng Engine) *sqlAction {
 			Duration: "time without time zone",
 			DateTime: "timestamp without time zone",
 
-			Q: quoteChar[PostgreSQL],
+			Q: quoteChar[Postgres],
 
-			PostgreDrop: " CASCADE", // automatically drop objects that depend on the table
+			PostgresDrop: " CASCADE", // automatically drop objects that depend on the table
 		}
 
 	// http://www.sqlite.org/datatype3.html

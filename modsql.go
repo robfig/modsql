@@ -57,7 +57,7 @@ func (q Queries) Replace(dst, src Engine) {
 		case MySQL:
 			rePlaceholder := regexp.MustCompile(`\?`)
 
-			if dst == PostgreSQL {
+			if dst == Postgres {
 				for k, v := range q {
 					_v := v
 					i := -1
@@ -78,7 +78,7 @@ func (q Queries) Replace(dst, src Engine) {
 			} else if dst == SQLite {
 				panic("TODO: handle SQLite")
 			}
-		case PostgreSQL:
+		case Postgres:
 			rePlaceholder := regexp.MustCompile(`\$\d+`)
 
 			if dst == MySQL {
@@ -98,8 +98,8 @@ func (q Queries) Replace(dst, src Engine) {
 
 // sqlInt has the integer type for the SQL engine according to the architecture.
 var sqlInt = struct {
-	MySQLInt   string
-	PostgreInt string
+	MySQLInt    string
+	PostgresInt string
 }{
 	// architecture of 64-bits
 	"BIGINT",
@@ -111,7 +111,7 @@ func Load(db *sql.DB, filename string) error {
 	once.Do(func() {
 		if runtime.GOARCH != "amd64" {
 			sqlInt.MySQLInt = "INT"
-			sqlInt.PostgreInt = "integer"
+			sqlInt.PostgresInt = "integer"
 		}
 	})
 

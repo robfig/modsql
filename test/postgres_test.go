@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// +build postgresql
+// +build postgres
 
 package main
 
@@ -28,25 +28,25 @@ import (
 // To remove it:
 //
 //   sudo -u postgres dropdb modsql_test
-func TestPostgreSQL(t *testing.T) {
+func TestPostgres(t *testing.T) {
 	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s host=%s sslmode=disable",
-		username, dbname, host.postgresql))
+		username, dbname, host.postgres))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Close()
 
-	if err = modsql.Load(db, "postgresql_init.sql"); err != nil {
+	if err = modsql.Load(db, "postgres_init.sql"); err != nil {
 		t.Error(err)
 	} else {
-		if err = modsql.Load(db, "postgresql_test.sql"); err != nil {
+		if err = modsql.Load(db, "postgres_test.sql"); err != nil {
 			t.Error(err)
 		}
 
 		fmt.Println(testdata.ENGINE, "ENG")
 	}
 
-	if err = modsql.Load(db, "postgresql_drop.sql"); err != nil {
+	if err = modsql.Load(db, "postgres_drop.sql"); err != nil {
 		t.Error(err)
 	}
 }

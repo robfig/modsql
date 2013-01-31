@@ -125,7 +125,7 @@ func (md *metadata) Create() *metadata {
 		md.sqlCreate = append(md.sqlCreate,
 			fmt.Sprintf("\nCREATE TABLE %s (", table.sqlName))
 		md.sqlDrop = append(md.sqlDrop,
-			fmt.Sprintf("\nDROP TABLE %s{{.PostgreDrop}};", table.sqlName))
+			fmt.Sprintf("\nDROP TABLE %s{{.PostgresDrop}};", table.sqlName))
 
 		columnIndex := make([]string, 0)
 		columnNames := make([]string, 0)
@@ -443,7 +443,7 @@ func (md *metadata) format(out io.Writer) {
 
 	return
 _error:
-fmt.Println(strings.Join(md.goCode, ""))
+fmt.Println(strings.Join(md.goCode, "")) // TODO: remove
 	log.Fatalf("format Go code: %s", err)
 }
 

@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// +build mysql postgresql sqlite
+// +build mysql postgres sqlite
 
 package main
 
@@ -23,8 +23,8 @@ var (
 )
 
 var host = struct {
-	mysql      string
-	postgresql string
+	mysql    string
+	postgres string
 }{
 	"/var/run/mysqld/mysqld.sock",
 	"/var/run/postgresql",

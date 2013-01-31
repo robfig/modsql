@@ -10,7 +10,7 @@ import (
 )
 
 // == EDIT
-const ENGINE = modsql.PostgreSQL
+const ENGINE = modsql.Postgres
 
 //const ENGINE = modsql.MySQL
 //const ENGINE = modsql.SQLite

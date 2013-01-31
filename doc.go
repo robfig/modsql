@@ -46,16 +46,16 @@ Although they are useful for fields related to time and date.
 
 Examples
 
-The directory "testdata" has the files generated from "test/example.go" which is
+The directory "testdata" has the files generated from "test/modeler.go" which is
 run through "db_test.go".  
 "model.go" is the Go code, and "[engine]*.sql" are the SQL files for every
 engine indicated in the model (function Metadata).
 
 For testing into a SQL engine, there is to run:
 
-   go test -v -tags postgresql|mysql|sqlite
+   go test -v -tags postgres|mysql|sqlite
 
-See files "test/db-*_test.go" to know how databases were configured.
+See files "test/*_test.go" to know how databases were configured.
 
 Avoid cascades due to being magic; instead, I handle it from the application layer.
 http://stackoverflow.com/questions/59297/when-why-to-use-cascading-in-sql-server

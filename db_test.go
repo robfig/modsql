@@ -6,7 +6,7 @@
 
 // Can not pass arguments from tool "go run", so I've to run "go test" for each
 // engine.
-// build mysql postgresql sqlite
+// build mysql postgres sqlite
 
 package modsql
 
@@ -20,7 +20,7 @@ import (
 
 func TestDatabase(t *testing.T) {
 	// Generate files in directory "testdata"
-	err := exec.Command("go", "run", "test/example.go").Run()
+	err := exec.Command("go", "run", "test/modeler.go").Run()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func TestDatabase(t *testing.T) {
 	}
 	fmt.Println(string(out))
 
-	args[len(args)-1] = "postgresql"
+	args[len(args)-1] = "postgres"
 	out, err = exec.Command("go", args...).CombinedOutput()
 	if err != nil {
 		log.Fatal(err)
