@@ -14,11 +14,19 @@ ModSQL enables to create primary key, foreign key and unique constraints, and
 indexes at both column and table level.
 
 It generates the SQL and Go files at writing to the file system, but it also can
-shows the generated output. The name for the generated files start with "z".
+shows the generated output.
 
 If it is used the type Int, then the SQL files will have variables delimited by
 "{{" and "}}", which will be parsed by the function Load according to the
 architecture where it is being run.
+
+Features
+
+Dialect implemented for PostgreSQL, MySQL, SQLite3
+Schema generation
+Support primary and foreign keys, indexes and unique constraints, also for composites
+Default values
+Enumerations
 
 Enumeration
 
@@ -56,6 +64,9 @@ Usage
 
 You have to create a directory for the model's file or files; as suggestion,
 name it "ModSQL". Then, from the project's directory run "go run ModSQL/[file].go"
+
+The Go file generated uses the constant "ENGINE" according to the given values
+in the function "Metadata", using the first engine by default.
 
 Note
 

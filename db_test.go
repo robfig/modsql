@@ -18,7 +18,7 @@ import (
 	"testing"
 )
 
-func TestDB(t *testing.T) {
+func TestDatabase(t *testing.T) {
 	// Generate files in directory "testdata"
 	err := exec.Command("go", "run", "test/example.go").Run()
 	if err != nil {
