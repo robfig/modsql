@@ -15,7 +15,6 @@ import (
 
 	_ "github.com/bmizerany/pq"
 	"github.com/kless/modsql"
-	"github.com/kless/modsql/testdata"
 )
 
 // To create the database:
@@ -34,7 +33,6 @@ func TestPostgres(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
 
 	if err = modsql.Load(db, "postgres_init.sql"); err != nil {
 		t.Error(err)
@@ -42,12 +40,13 @@ func TestPostgres(t *testing.T) {
 		if err = modsql.Load(db, "postgres_test.sql"); err != nil {
 			t.Error(err)
 		}
-
-		m := testdata.Catalog{1, "zine", "electronic magazine", 10}
-		fmt.Println(m.Insert())
+		if err = testFromModel(db); err != nil {
+			t.Error(err)
+		}
+		if err = modsql.Load(db, "postgres_drop.sql"); err != nil {
+			t.Error(err)
+		}
 	}
 
-	if err = modsql.Load(db, "postgres_drop.sql"); err != nil {
-		t.Error(err)
-	}
+	db.Close()
 }

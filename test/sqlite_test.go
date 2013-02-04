@@ -15,7 +15,6 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/kless/modsql"
-//	"github.com/kless/modsql/testdata"
 )
 
 func TestSQLite(t *testing.T) {
@@ -26,7 +25,6 @@ func TestSQLite(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
 
 	if err = modsql.Load(db, "sqlite_init.sql"); err != nil {
 		t.Error(err)
@@ -34,11 +32,13 @@ func TestSQLite(t *testing.T) {
 		if err = modsql.Load(db, "sqlite_test.sql"); err != nil {
 			t.Error(err)
 		}
-
-		
+		if err = testFromModel(db); err != nil {
+			t.Error(err)
+		}
+		if err = modsql.Load(db, "sqlite_drop.sql"); err != nil {
+			t.Error(err)
+		}
 	}
 
-	if err = modsql.Load(db, "sqlite_drop.sql"); err != nil {
-		t.Error(err)
-	}
+	db.Close()
 }

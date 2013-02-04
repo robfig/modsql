@@ -9,10 +9,13 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 	"os/user"
 	"path/filepath"
+
+	"github.com/kless/modsql/testdata"
 )
 
 // For access to databases
@@ -40,4 +43,24 @@ func init() {
 	if err = os.Chdir(filepath.Join("..", "testdata")); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// * * *
+
+// testFromModel checks SQL statements generated from the Go model.
+func testFromModel(db *sql.DB) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	m := testdata.Catalog{1, "zine", "electronic magazine", 10}
+	if _, err = db.Exec(m.Insert()); err != nil {
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+	return nil
 }

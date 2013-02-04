@@ -124,7 +124,13 @@ func Load(db *sql.DB, filename string) error {
 		return err
 	}
 
-	for firstLine := ""; ; {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// Handle multiple lines
+	for fullLine := ""; ; {
 		line, err := buf.ReadString('\n')
 		if err == io.EOF {
 			break
@@ -134,18 +140,21 @@ func Load(db *sql.DB, filename string) error {
 		if line == "" || strings.HasPrefix(line, "//") {
 			continue
 		}
+		fullLine += line
 
-		firstLine += line
-
-		if !strings.HasSuffix(line, ";") {
+		if !strings.HasSuffix(line, ";") { // Multiple line
 			continue
 		}
-		if _, err = db.Exec(firstLine); err != nil {
-			return fmt.Errorf("SQL line: %s\n%s", firstLine, err)
+
+		if _, err = db.Exec(fullLine); err != nil {
+			return fmt.Errorf("SQL line: %s\n%s", fullLine, err)
 		}
-		firstLine = ""
+		fullLine = ""
 	}
 
+	if err = tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
 

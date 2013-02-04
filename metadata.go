@@ -97,9 +97,9 @@ func (md *metadata) Create() *metadata {
 	md.goCode = append(md.goCode, "//==\n")
 
 	md.sqlCreate = append(md.sqlCreate,
-		fmt.Sprintf("%s\n%s\nBEGIN;", _CONSTRAINT, _HEADER))
+		fmt.Sprintf("%s\n%s", _CONSTRAINT, _HEADER))
 
-	md.sqlDrop = append(md.sqlDrop, fmt.Sprintf("%s\nBEGIN;", _HEADER))
+	md.sqlDrop = append(md.sqlDrop, _HEADER)
 	md.sqlDrop = append(md.sqlDrop, "{{.MySQLDrop0}}")
 
 	useTime := false
@@ -323,11 +323,11 @@ func (md *metadata) Create() *metadata {
 		md.sqlCreate = append(md.sqlCreate, md.genInsert(false)...)
 	}
 	if md.useInsertTest {
-		md.sqlTest = append(md.sqlTest, _HEADER+"\nBEGIN;")
+		md.sqlTest = append(md.sqlTest, _HEADER)
 		md.sqlTest = append(md.sqlTest, md.genInsert(true)...)
 	}
 	md.sqlDrop = append(md.sqlDrop, "{{.MySQLDrop1}}")
-	md.sqlDrop = append(md.sqlDrop, "\nCOMMIT;\n")
+	md.sqlDrop = append(md.sqlDrop, "\n\n")
 
 	return md
 }
@@ -475,7 +475,7 @@ func (md *metadata) genInsert(testdata bool) []string {
 			insert = append(insert, "\n")
 		}
 	}
-	insert = append(insert, "COMMIT;\n")
+	insert = append(insert, "\n")
 	return insert
 }
 
@@ -579,7 +579,7 @@ func genInsertForType(name string, columns, values []string) string {
 	}
 
 	return fmt.Sprintf(
-		"func (t %s) Insert() %s {"+
+		"func (t *%s) Insert() %s {"+
 			"%s"+
 			"return fmt.Sprintf(\"INSERT INTO %s (%s) VALUES(%s);\","+
 			"\n%s)%s"+
