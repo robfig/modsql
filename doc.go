@@ -47,7 +47,7 @@ Although they are useful for fields related to time and date.
 Examples
 
 The directory "testdata" has the files generated from "test/modeler.go" which is
-run through "db_test.go".  
+run through "db_test.go".
 "model.go" is the Go code, and "[engine]*.sql" are the SQL files for every
 engine indicated in the model (function Metadata).
 

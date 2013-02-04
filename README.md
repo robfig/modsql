@@ -12,6 +12,8 @@ It enables to generate SQL code for PostgreSQL, MySQL and SQLite engines.
 ## TODO
 
 + Add tests for Queries.Replace
++ Take care of SQL_injection, checking in generated Go code whether a field "string"
+has ";" and then some SQL stamenten like "DROP" or "SELECT".
 
 ## License
 

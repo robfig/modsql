@@ -15,15 +15,31 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"testing"
 )
 
 func TestDatabase(t *testing.T) {
-	// Generate files in directory "testdata"
-	err := exec.Command("go", "run", "test/modeler.go").Run()
+	// == Generate files in directory "testdata"
+	newTestdata := false
+	src := filepath.Join("test", "modeler.go")
+
+	infoSrc, err := os.Stat(src)
 	if err != nil {
 		log.Fatal(err)
 	}
+	infoDst, err := os.Stat(filepath.Join("testdata", "model.go"))
+	if err != nil {
+		newTestdata = true
+	}
+
+	if newTestdata || infoSrc.ModTime().After(infoDst.ModTime()) {
+		err := exec.Command("go", "run", src).Run()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	//==
 
 	if err = os.Chdir("test"); err != nil {
 		log.Fatal(err)
