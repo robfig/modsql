@@ -43,7 +43,8 @@ func TestPostgres(t *testing.T) {
 			t.Error(err)
 		}
 
-		fmt.Println(testdata.ENGINE, "ENG")
+		m := testdata.Catalog{1, "zine", "electronic magazine", 10}
+		fmt.Println(m.Insert())
 	}
 
 	if err = modsql.Load(db, "postgres_drop.sql"); err != nil {

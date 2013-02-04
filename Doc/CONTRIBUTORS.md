@@ -7,7 +7,7 @@ contributed) code to the **ModSQL** repository.*
 example, the employees of an organization are listed here but not in AUTHORS,
 because the organization holds the copyright.*
 
-*Names should be added to this file as: `Name <email address>`*
+*Names should be added to this file as: `[Name](web address)` or `Name <email>`*
 
 *Please keep the list sorted.*
 
@@ -15,7 +15,7 @@ because the organization holds the copyright.*
 
 ### Initial author
 
-Jonas mg <jonas.mg@sent.at>
+[Jonas mg](https://github.com/kless)
 
 ### Maintainer
 

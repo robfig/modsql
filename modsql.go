@@ -172,12 +172,3 @@ func quoteSQLField(name string) string {
 	}
 	return name
 }
-
-// validGoName returns a valid name in Go.
-func validGoName(name string) string {
-	switch name {
-	case "type":
-		return name + "_"
-	}
-	return name
-}

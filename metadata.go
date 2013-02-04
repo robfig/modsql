@@ -117,7 +117,7 @@ func (md *metadata) Create() *metadata {
 
 		if !table.isEnum {
 			md.goCode = append(md.goCode,
-				fmt.Sprintf("\ntype %s struct {\n", validGoName(table.name)))
+				fmt.Sprintf("\ntype %s struct {\n", strings.Title(table.name)))
 		} else {
 			md.goCode = append(md.goCode, "\n// "+table.name+"\nconst(\n")
 		}
@@ -139,11 +139,11 @@ func (md *metadata) Create() *metadata {
 			}
 
 			if !table.isEnum {
-				name := validGoName(col.name)
 				type_ := col.type_.goString()
 
-				md.goCode = append(md.goCode, fmt.Sprintf("%s %s\n", name, type_))
-				columnNames = append(columnNames, name)
+				md.goCode = append(md.goCode,
+					fmt.Sprintf("%s %s\n", strings.Title(col.name), type_))
+				columnNames = append(columnNames, col.name)
 				columnValues = append(columnValues, type_)
 			} else if i == 0 {
 				name := table.name
@@ -533,7 +533,7 @@ func genInsertForType(name string, columns, values []string) string {
 		switch v {
 		case "bool":
 			verbs[i] = "%s"
-			args[i] = fmt.Sprintf("modsql.BoolToSQL(ENGINE, %s)", "t."+columns[i])
+			args[i] = fmt.Sprintf("modsql.BoolToSQL(ENGINE, %s)", "t."+strings.Title(columns[i]))
 			addColumn = false
 
 		case "int", "int8", "int16", "int32", "int64":
@@ -546,7 +546,7 @@ func genInsertForType(name string, columns, values []string) string {
 
 		case "time.Duration":
 			verbs[i] = "'%s'"
-			args[i] = fmt.Sprintf("modsql.ReplTime.Replace(%s.String())", "t."+columns[i])
+			args[i] = fmt.Sprintf("modsql.ReplTime.Replace(%s.String())", "t."+strings.Title(columns[i]))
 			addColumn = false
 		case "time.Time":
 			addColumn = false
@@ -558,7 +558,7 @@ func genInsertForType(name string, columns, values []string) string {
 				"if err != nil {\n"+
 					"return \"\", err\n"+
 				"}\n",
-				args[i], "t."+columns[i]))
+				args[i], "t."+strings.Title(columns[i])))
 
 			args[i] = args[i] + ".String()"
 
@@ -567,7 +567,7 @@ func genInsertForType(name string, columns, values []string) string {
 		}
 
 		if addColumn {
-			args[i] = "t." + columns[i]
+			args[i] = "t." + strings.Title(columns[i])
 		}
 	}
 
@@ -579,12 +579,12 @@ func genInsertForType(name string, columns, values []string) string {
 	}
 
 	return fmt.Sprintf(
-		"func (t %s) insert() %s {"+
+		"func (t %s) Insert() %s {"+
 			"%s"+
 			"return fmt.Sprintf(\"INSERT INTO %s (%s) VALUES(%s);\","+
 			"\n%s)%s"+
 		"}",
-		name,
+		strings.Title(name),
 		retSignature,
 		strings.Join(times, ""),
 		name,

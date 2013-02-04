@@ -22,166 +22,166 @@ const (
 	SEX_MALE
 )
 
-type types struct {
-	t_int     int
-	t_int8    int8
-	t_int16   int16
-	t_int32   int32
-	t_int64   int64
-	t_float32 float32
-	t_float64 float64
-	t_string  string
-	t_binary  []byte
-	t_byte    byte
-	t_rune    rune
-	t_bool    bool
+type Types struct {
+	T_int     int
+	T_int8    int8
+	T_int16   int16
+	T_int32   int32
+	T_int64   int64
+	T_float32 float32
+	T_float64 float64
+	T_string  string
+	T_binary  []byte
+	T_byte    byte
+	T_rune    rune
+	T_bool    bool
 }
 
-func (t types) insert() string {
+func (t Types) Insert() string {
 	return fmt.Sprintf("INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES(%d, %d, %d, %d, %d, %g, %g, '%s', '%s', , , %s);",
-		t.t_int, t.t_int8, t.t_int16, t.t_int32, t.t_int64, t.t_float32, t.t_float64, t.t_string, t.t_binary, t.t_byte, t.t_rune, modsql.BoolToSQL(ENGINE, t.t_bool))
+		t.T_int, t.T_int8, t.T_int16, t.T_int32, t.T_int64, t.T_float32, t.T_float64, t.T_string, t.T_binary, t.T_byte, t.T_rune, modsql.BoolToSQL(ENGINE, t.T_bool))
 }
 
-type default_value struct {
-	id        int
-	d_int8    int8
-	d_float32 float32
-	d_string  string
-	d_binary  []byte
-	d_byte    byte
-	d_rune    rune
-	d_bool    bool
+type Default_value struct {
+	Id        int
+	D_int8    int8
+	D_float32 float32
+	D_string  string
+	D_binary  []byte
+	D_byte    byte
+	D_rune    rune
+	D_bool    bool
 }
 
-func (t default_value) insert() string {
+func (t Default_value) Insert() string {
 	return fmt.Sprintf("INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES(%d, %d, %g, '%s', '%s', , , %s);",
-		t.id, t.d_int8, t.d_float32, t.d_string, t.d_binary, t.d_byte, t.d_rune, modsql.BoolToSQL(ENGINE, t.d_bool))
+		t.Id, t.D_int8, t.D_float32, t.D_string, t.D_binary, t.D_byte, t.D_rune, modsql.BoolToSQL(ENGINE, t.D_bool))
 }
 
-type times struct {
-	typeId     int
-	t_duration time.Duration
-	t_datetime time.Time
+type Times struct {
+	TypeId     int
+	T_duration time.Duration
+	T_datetime time.Time
 }
 
-func (t times) insert() (string, error) {
-	t0, err := time.Parse(time.RFC3339, t.t_datetime.String())
+func (t Times) Insert() (string, error) {
+	t0, err := time.Parse(time.RFC3339, t.T_datetime.String())
 	if err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("INSERT INTO times (typeId, t_duration, t_datetime) VALUES(%d, '%s', '%s');",
-		t.typeId, modsql.ReplTime.Replace(t.t_duration.String()), t0.String()), nil
+		t.TypeId, modsql.ReplTime.Replace(t.T_duration.String()), t0.String()), nil
 }
 
-type account struct {
-	acc_num   int
-	acc_type  int
-	acc_descr string
+type Account struct {
+	Acc_num   int
+	Acc_type  int
+	Acc_descr string
 }
 
-func (t account) insert() string {
+func (t Account) Insert() string {
 	return fmt.Sprintf("INSERT INTO account (acc_num, acc_type, acc_descr) VALUES(%d, %d, '%s');",
-		t.acc_num, t.acc_type, t.acc_descr)
+		t.Acc_num, t.Acc_type, t.Acc_descr)
 }
 
-type sub_account struct {
-	sub_acc   int
-	ref_num   int
-	ref_type  int
-	sub_descr string
+type Sub_account struct {
+	Sub_acc   int
+	Ref_num   int
+	Ref_type  int
+	Sub_descr string
 }
 
-func (t sub_account) insert() string {
+func (t Sub_account) Insert() string {
 	return fmt.Sprintf("INSERT INTO sub_account (sub_acc, ref_num, ref_type, sub_descr) VALUES(%d, %d, %d, '%s');",
-		t.sub_acc, t.ref_num, t.ref_type, t.sub_descr)
+		t.Sub_acc, t.Ref_num, t.Ref_type, t.Sub_descr)
 }
 
-type catalog struct {
-	catalog_id  int
-	name        string
-	description string
-	price       float32
+type Catalog struct {
+	Catalog_id  int
+	Name        string
+	Description string
+	Price       float32
 }
 
-func (t catalog) insert() string {
+func (t Catalog) Insert() string {
 	return fmt.Sprintf("INSERT INTO catalog (catalog_id, name, description, price) VALUES(%d, '%s', '%s', %g);",
-		t.catalog_id, t.name, t.description, t.price)
+		t.Catalog_id, t.Name, t.Description, t.Price)
 }
 
-type magazine struct {
-	catalog_id int
-	page_count string
+type Magazine struct {
+	Catalog_id int
+	Page_count string
 }
 
-func (t magazine) insert() string {
+func (t Magazine) Insert() string {
 	return fmt.Sprintf("INSERT INTO magazine (catalog_id, page_count) VALUES(%d, '%s');",
-		t.catalog_id, t.page_count)
+		t.Catalog_id, t.Page_count)
 }
 
-type mp3 struct {
-	catalog_id int
-	size       int
-	length     float32
-	filename   string
+type Mp3 struct {
+	Catalog_id int
+	Size       int
+	Length     float32
+	Filename   string
 }
 
-func (t mp3) insert() string {
+func (t Mp3) Insert() string {
 	return fmt.Sprintf("INSERT INTO mp3 (catalog_id, size, length, filename) VALUES(%d, %d, %g, '%s');",
-		t.catalog_id, t.size, t.length, t.filename)
+		t.Catalog_id, t.Size, t.Length, t.Filename)
 }
 
-type book struct {
-	book_id int
-	title   string
-	author  string
+type Book struct {
+	Book_id int
+	Title   string
+	Author  string
 }
 
-func (t book) insert() string {
+func (t Book) Insert() string {
 	return fmt.Sprintf("INSERT INTO book (book_id, title, author) VALUES(%d, '%s', '%s');",
-		t.book_id, t.title, t.author)
+		t.Book_id, t.Title, t.Author)
 }
 
-type chapter struct {
-	chapter_id int
-	title      string
-	book_fk    int
+type Chapter struct {
+	Chapter_id int
+	Title      string
+	Book_fk    int
 }
 
-func (t chapter) insert() string {
+func (t Chapter) Insert() string {
 	return fmt.Sprintf("INSERT INTO chapter (chapter_id, title, book_fk) VALUES(%d, '%s', %d);",
-		t.chapter_id, t.title, t.book_fk)
+		t.Chapter_id, t.Title, t.Book_fk)
 }
 
-type user struct {
-	user_id    int
-	first_name string
-	last_name  string
+type User struct {
+	User_id    int
+	First_name string
+	Last_name  string
 }
 
-func (t user) insert() string {
+func (t User) Insert() string {
 	return fmt.Sprintf("INSERT INTO user (user_id, first_name, last_name) VALUES(%d, '%s', '%s');",
-		t.user_id, t.first_name, t.last_name)
+		t.User_id, t.First_name, t.Last_name)
 }
 
-type address struct {
-	address_id int
-	street     string
-	city       string
-	state      string
-	post_code  string
+type Address struct {
+	Address_id int
+	Street     string
+	City       string
+	State      string
+	Post_code  string
 }
 
-func (t address) insert() string {
+func (t Address) Insert() string {
 	return fmt.Sprintf("INSERT INTO address (address_id, street, city, state, post_code) VALUES(%d, '%s', '%s', '%s', '%s');",
-		t.address_id, t.street, t.city, t.state, t.post_code)
+		t.Address_id, t.Street, t.City, t.State, t.Post_code)
 }
 
-type user_address struct {
-	user_id    int
-	address_id int
+type User_address struct {
+	User_id    int
+	Address_id int
 }
 
-func (t user_address) insert() string {
+func (t User_address) Insert() string {
 	return fmt.Sprintf("INSERT INTO user_address (user_id, address_id) VALUES(%d, %d);",
-		t.user_id, t.address_id)
+		t.User_id, t.Address_id)
 }
