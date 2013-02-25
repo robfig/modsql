@@ -34,8 +34,7 @@ func TestDatabase(t *testing.T) {
 	}
 
 	if newTestdata || infoSrc.ModTime().After(infoDst.ModTime()) {
-		err := exec.Command("go", "run", src).Run()
-		if err != nil {
+		if err = exec.Command("go", "run", src).Run(); err != nil {
 			log.Fatal(err)
 		}
 	}

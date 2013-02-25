@@ -9,12 +9,6 @@ It enables to generate SQL code for PostgreSQL, MySQL and SQLite engines.
 
 	go get github.com/kless/modsql
 
-## TODO
-
-+ Add tests for Queries.Replace
-+ Take care of SQL_injection, checking in generated Go code whether a field "string"
-has ";" and then some SQL stamenten like "DROP" or "SELECT".
-
 ## License
 
 The source files are distributed under the [Mozilla Public License, version 2.0](http://mozilla.org/MPL/2.0/),

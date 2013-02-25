@@ -15,6 +15,7 @@ import (
 	"os/user"
 	"path/filepath"
 
+	"github.com/kless/modsql"
 	"github.com/kless/modsql/testdata"
 )
 
@@ -48,19 +49,35 @@ func init() {
 // * * *
 
 // testFromModel checks SQL statements generated from the Go model.
-func testFromModel(db *sql.DB) error {
+func testFromModel(db *sql.DB, eng modsql.Engine) error {
+	testdata.Insert.Prepare(db, eng)
+	defer testdata.Insert.Close()
+
 	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
 
+	// Data input
 	m := testdata.Catalog{1, "zine", "electronic magazine", 10}
-	if _, err = db.Exec(m.Insert()); err != nil {
+
+	args, err := m.Args()
+	if err != nil {
 		return err
 	}
+
+	if _, err = tx.Stmt(m.StmtInsert()).Exec(args...); err != nil {
+		return err
+	}
+	// ==
 
 	if err = tx.Commit(); err != nil {
 		return err
 	}
+
+	/*if _, err = m.StmtInsert().Exec(args...); err != nil {
+		return err
+	}*/
+
 	return nil
 }

@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -30,66 +29,75 @@ func init() {
 // (tables and columns).
 var namesToQuote = [...]string{"user"}
 
-// Queries represent the SQL statements to be used into database functions.
-type Queries map[int]string
+// Statements represents multiple SQL statements prepared to be used with
+// different place holders.
+type Statements struct {
+	raw  map[int]string
+	Stmt map[int]*sql.Stmt // to generate from raw
+}
 
-// Replace replaces the placeholder parameter and adds the quote character
-// to tables and columns (if were necessary), according to the SQL engine.
-//
-// The parameter "src" indicates the SQL engine format for the placeholder
-// used in the statement, and "dst" is to convert it to another engine format.
-//
-// TODO: replacement related SQLite. Add tests.
-func (q Queries) Replace(dst, src Engine) {
-	// Add quotes
-	for k, v := range q {
-		for _, name := range namesToQuote {
-			re := regexp.MustCompile(fmt.Sprintf(`(\W|^)%s(\W|$)`, name))
-			if re.MatchString(v) {
-				q[k] = re.ReplaceAllString(v, quoteChar[dst]+name+quoteChar[dst])
-			}
+// NewStatements returns a set of multiple statements.
+// The string to indicate the place holder in raw statements has to be "{P}",
+// and the quote character has to be "{Q}".
+func NewStatements(raw map[int]string) *Statements {
+	return &Statements{
+		raw,
+		make(map[int]*sql.Stmt, len(raw)),
+	}
+}
+
+// Prepare creates the prepared statements 
+func (m *Statements) Prepare(db *sql.DB, eng Engine) {
+	m.setPlaceholder(eng)
+
+	for k, v := range m.raw {
+		stmt, err := db.Prepare(v)
+		if err != nil {
+			log.Fatal(err)
+		}
+		m.Stmt[k] = stmt
+	}
+}
+
+// Close closes all prepared statements.
+// The zero value for a slice of errors is an empty slice.
+func (m *Statements) Close() []error {
+	errors := make([]error, 0)
+
+	for _, v := range m.Stmt {
+		if err := v.Close(); err != nil {
+			errors = append(errors, err)
 		}
 	}
+	return errors
+}
 
-	// Placeholder parameter
-	if src != dst {
-		switch src {
-		case MySQL:
-			rePlaceholder := regexp.MustCompile(`\?`)
+// setPlaceholder replaces "{P}" with the placeholder parameter and "{Q} with
+// the quote character, according to the SQL engine.
+func (m *Statements) setPlaceholder(eng Engine) {
+	switch eng {
+	case MySQL, SQLite:
+		for k, v := range m.raw {
+			v = strings.Replace(v, "{P}", "?", -1)
 
-			if dst == Postgres {
-				for k, v := range q {
-					_v := v
-					i := -1
-					nParam := 0
-
-					_v = rePlaceholder.ReplaceAllStringFunc(_v, func(s string) string {
-						if i != 0 {
-							nParam++
-							return fmt.Sprintf("$%d", nParam)
-						}
-						return v
-					})
-
-					if v != _v {
-						q[k] = _v
-					}
-				}
-			} else if dst == SQLite {
-				panic("TODO: handle SQLite")
+			if !strings.Contains(v, "{Q}") {
+				m.raw[k] = v
+			} else {
+				m.raw[k] = strings.Replace(v, "{Q}", quoteChar[eng], -1)
 			}
-		case Postgres:
-			rePlaceholder := regexp.MustCompile(`\$\d+`)
+		}
 
-			if dst == MySQL {
-				for k, v := range q {
-					q[k] = rePlaceholder.ReplaceAllLiteralString(v, "?")
-				}
-			} else if dst == SQLite {
-				panic("TODO: handle SQLite")
+	case Postgres:
+		for k, v := range m.raw {
+			for nParam := 1; strings.Contains(v, "{P}"); nParam++ {
+				v = strings.Replace(v, "{P}", fmt.Sprintf("$%d", nParam), 1)
 			}
-		case SQLite:
-			panic("TODO: handle SQLite")
+
+			if !strings.Contains(v, "{Q}") {
+				m.raw[k] = v
+			} else {
+				m.raw[k] = strings.Replace(v, "{Q}", quoteChar[eng], -1)
+			}
 		}
 	}
 }
@@ -161,7 +169,17 @@ func Load(db *sql.DB, filename string) error {
 // == Utility
 //
 
-// quoteSQL returns the name quoted for SQL.
+// quoteStatementSQL returns the name quoted for SQL, to use into a statement.
+func quoteStatementSQL(name string) string {
+	for _, v := range namesToQuote {
+		if v == name {
+			return "{Q}" + name + "{Q}"
+		}
+	}
+	return name
+}
+
+// quoteSQL returns the name quoted for SQL, to use into a template.
 func quoteSQL(name string) string {
 	for _, v := range namesToQuote {
 		if v == name {
@@ -171,8 +189,8 @@ func quoteSQL(name string) string {
 	return name
 }
 
-// quoteSQLField returns field name quoted for SQL.
-func quoteSQLField(name string) string {
+// quoteFieldSQL returns field name quoted for SQL, to use into a template.
+func quoteFieldSQL(name string) string {
 	for _, v := range namesToQuote {
 		if v == name {
 			// Add 2 characters by the quotes if are added to the name.

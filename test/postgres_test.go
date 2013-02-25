@@ -40,7 +40,7 @@ func TestPostgres(t *testing.T) {
 		if err = modsql.Load(db, "postgres_test.sql"); err != nil {
 			t.Error(err)
 		}
-		if err = testFromModel(db); err != nil {
+		if err = testFromModel(db, modsql.Postgres); err != nil {
 			t.Error(err)
 		}
 		if err = modsql.Load(db, "postgres_drop.sql"); err != nil {

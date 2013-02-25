@@ -41,7 +41,7 @@ func TestMySQL(t *testing.T) {
 		if err = modsql.Load(db, "mysql_test.sql"); err != nil {
 			t.Error(err)
 		}
-		if err = testFromModel(db); err != nil {
+		if err = testFromModel(db, modsql.MySQL); err != nil {
 			t.Error(err)
 		}
 		if err = modsql.Load(db, "mysql_drop.sql"); err != nil {

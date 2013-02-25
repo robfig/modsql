@@ -32,7 +32,7 @@ func TestSQLite(t *testing.T) {
 		if err = modsql.Load(db, "sqlite_test.sql"); err != nil {
 			t.Error(err)
 		}
-		if err = testFromModel(db); err != nil {
+		if err = testFromModel(db, modsql.SQLite); err != nil {
 			t.Error(err)
 		}
 		if err = modsql.Load(db, "sqlite_drop.sql"); err != nil {

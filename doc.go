@@ -5,10 +5,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 /*
-Package ModSQL enables to use a Go model to define the database model and
-generate its corresponding SQL language and Go types. It is not an ORM neither
-it is not going to be it since an ORM creates an extra layer to the database
-access. The API is based in SQLAlchemy's (http://www.sqlalchemy.org/).
+Package ModSQL defines the database model and generates its corresponding SQL
+language and Go types. It is not an ORM neither it is not going to be it since
+an ORM creates an extra layer to the database access. The API is based in
+SQLAlchemy's (http://www.sqlalchemy.org/).
 
 ModSQL enables to create primary key, foreign key and unique constraints, and
 indexes at both column and table level.

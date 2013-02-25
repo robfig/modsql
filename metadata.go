@@ -35,6 +35,8 @@ type metadata struct {
 	useInsert     bool
 	useInsertTest bool
 
+	posQueries int
+
 	engines []Engine
 	tables  []*table
 
@@ -42,6 +44,7 @@ type metadata struct {
 	sqlCreate []string
 	sqlDrop   []string
 	sqlTest   []string
+	sqlInsert []string
 
 	dirPath string
 	pkgName string
@@ -85,7 +88,10 @@ func (md *metadata) Create() *metadata {
 	}
 
 	md.goCode = append(md.goCode, fmt.Sprintf("%s\npackage %s\n", _HEADER_EDIT, md.pkgName))
-	md.goCode = append(md.goCode, "import \"fmt\"\n\n\"github.com/kless/modsql\"\n") // Could add another import
+
+	md.goCode = append(md.goCode, "import (\n\"database/sql\"\n")
+	md.goCode = append(md.goCode, "") // Could add another import
+	md.goCode = append(md.goCode, "\n\"github.com/kless/modsql\"\n)")
 
 	md.goCode = append(md.goCode, "\n// == EDIT\n")
 	for i, v := range md.engines {
@@ -94,7 +100,22 @@ func (md *metadata) Create() *metadata {
 		}
 		md.goCode = append(md.goCode, "const ENGINE = modsql."+v.String()+"\n")
 	}
-	md.goCode = append(md.goCode, "//==\n")
+
+	md.goCode = append(md.goCode, `
+//==
+
+var Insert = modsql.NewStatements(map[int]string{
+`)
+
+	// To add all queries
+	md.posQueries = len(md.goCode)
+	md.goCode = append(md.goCode, "")
+
+	md.goCode = append(md.goCode, `,
+})
+
+// * * *
+`)
 
 	md.sqlCreate = append(md.sqlCreate,
 		fmt.Sprintf("%s\n%s", _CONSTRAINT, _HEADER))
@@ -103,6 +124,7 @@ func (md *metadata) Create() *metadata {
 	md.sqlDrop = append(md.sqlDrop, "{{.MySQLDrop0}}")
 
 	useTime := false
+	iTable := 0 // to differenciate from tables for enums
 
 	for _, table := range md.tables {
 		// == Get the length of largest field
@@ -131,7 +153,7 @@ func (md *metadata) Create() *metadata {
 		columnNames := make([]string, 0)
 		columnValues := make([]string, 0)
 
-		for i, col := range table.columns {
+		for iCol, col := range table.columns {
 			extra := ""
 
 			if !useTime && (col.type_ == Duration || col.type_ == DateTime) {
@@ -145,7 +167,7 @@ func (md *metadata) Create() *metadata {
 					fmt.Sprintf("%s %s\n", strings.Title(col.name), type_))
 				columnNames = append(columnNames, col.name)
 				columnValues = append(columnValues, type_)
-			} else if i == 0 {
+			} else if iCol == 0 {
 				name := table.name
 
 				// Get the first part of the table name; until '_' or letter is upper
@@ -216,7 +238,7 @@ func (md *metadata) Create() *metadata {
 				}
 			}
 			// ==
-			nameQuoted := quoteSQLField(col.name)
+			nameQuoted := quoteFieldSQL(col.name)
 
 			md.sqlCreate = append(md.sqlCreate, fmt.Sprintf("\n\t%s %s%s",
 				nameQuoted, sqlAlign(fieldMaxLen, len(nameQuoted)), sqlString))
@@ -259,7 +281,7 @@ func (md *metadata) Create() *metadata {
 			md.sqlCreate = append(md.sqlCreate, extra)
 
 			// The last column
-			if i+1 == len(table.columns) {
+			if iCol+1 == len(table.columns) {
 				var cons []string
 
 				if len(table.uniqueCons) != 0 {
@@ -284,8 +306,9 @@ func (md *metadata) Create() *metadata {
 					md.goCode = append(md.goCode, "}\n")
 
 					md.goCode = append(md.goCode,
-						genInsertForType(table.name, columnNames, columnValues),
+						md.genInsertForType(iTable, table.name, columnNames, columnValues),
 					)
+					iTable++
 				} else {
 					md.goCode = append(md.goCode, ")\n")
 				}
@@ -315,8 +338,10 @@ func (md *metadata) Create() *metadata {
 	}
 
 	if useTime {
-		md.goCode[1] = "import (\"fmt\"\n\"time\"\n\n\"github.com/kless/modsql\")\n"
+		md.goCode[2] = "\"time\"\n"
 	}
+
+	md.goCode[md.posQueries] = strings.Join(md.sqlInsert, ",\n")
 
 	// == Insert
 	if md.useInsert {
@@ -522,7 +547,7 @@ func formatSQL(v []interface{}) string {
 }
 
 // genInsertForType generate the SQL statement to insert data from a Go type.
-func genInsertForType(name string, columns, values []string) string {
+func (md *metadata) genInsertForType(idx int, name string, columns, values []string) string {
 	verbs := make([]string, len(columns))
 	args := make([]string, len(columns))
 	times := make([]string, 0)
@@ -533,7 +558,7 @@ func genInsertForType(name string, columns, values []string) string {
 		switch v {
 		case "bool":
 			verbs[i] = "%s"
-			args[i] = fmt.Sprintf("modsql.BoolToSQL(ENGINE, %s)", "t."+strings.Title(columns[i]))
+			args[i] = fmt.Sprintf("modsql.BoolToSQL(ENGINE, t.%s)", strings.Title(columns[i]))
 			addColumn = false
 
 		case "int", "int8", "int16", "int32", "int64":
@@ -546,7 +571,7 @@ func genInsertForType(name string, columns, values []string) string {
 
 		case "time.Duration":
 			verbs[i] = "'%s'"
-			args[i] = fmt.Sprintf("modsql.ReplTime.Replace(%s.String())", "t."+strings.Title(columns[i]))
+			args[i] = fmt.Sprintf("modsql.ReplTime.Replace(t.%s.String())", strings.Title(columns[i]))
 			addColumn = false
 		case "time.Time":
 			addColumn = false
@@ -554,11 +579,11 @@ func genInsertForType(name string, columns, values []string) string {
 			args[i] = fmt.Sprintf("t%d", len(times))
 
 			times = append(times, fmt.Sprintf(
-				"%s, err := time.Parse(time.RFC3339, %s.String())\n"+
+				"%s, err := time.Parse(time.RFC3339, t.%s.String())\n"+
 				"if err != nil {\n"+
-					"return \"\", err\n"+
+					"return nil, err\n"+
 				"}\n",
-				args[i], "t."+strings.Title(columns[i])))
+				args[i], strings.Title(columns[i])))
 
 			args[i] = args[i] + ".String()"
 
@@ -571,26 +596,29 @@ func genInsertForType(name string, columns, values []string) string {
 		}
 	}
 
-	retSignature := "string"
-	ret := ""
-	if len(times) != 0 {
-		retSignature = "(string, error)"
-		ret = ", nil"
-	}
+	tmplArgs := strings.Repeat("{P}, ", len(args))
+	md.sqlInsert = append(md.sqlInsert,
+		fmt.Sprintf("%d: \"INSERT INTO %s (%s) VALUES(%s)\"",
+			len(md.sqlInsert), quoteStatementSQL(name), strings.Join(columns, ", "),
+			tmplArgs[:len(tmplArgs)-2]),
+	)
+
+	name = strings.Title(name)
 
 	return fmt.Sprintf(
-		"func (t *%s) Insert() %s {"+
+		"func (t *%s) Args() ([]interface{}, error) {\n"+
 			"%s"+
-			"return fmt.Sprintf(\"INSERT INTO %s (%s) VALUES(%s);\","+
-			"\n%s)%s"+
-		"}",
-		strings.Title(name),
-		retSignature,
-		strings.Join(times, ""),
+			"return []interface{}{\n"+
+				"%s,\n"+
+			"}, nil\n"+
+		"}\n\n"+
+
+		"func (t *%s) StmtInsert() *sql.Stmt { return Insert.Stmt[%d] }",
+
 		name,
-		strings.Join(columns, ", "),
-		strings.Join(verbs, ", "),
+		strings.Join(times, ""),
 		strings.Join(args, ", "),
-		ret,
+		name,
+		idx,
 	)
 }
