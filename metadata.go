@@ -114,6 +114,11 @@ var Insert = modsql.NewStatements(map[int]string{
 	md.goCode = append(md.goCode, `,
 })
 
+type Modeler interface {
+	Args() ([]interface{}, error)
+	StmtInsert() *sql.Stmt
+}
+
 // * * *
 `)
 

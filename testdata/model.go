@@ -33,6 +33,11 @@ var Insert = modsql.NewStatements(map[int]string{
 	12: "INSERT INTO user_address (user_id, address_id) VALUES({P}, {P})",
 })
 
+type Modeler interface {
+	Args() ([]interface{}, error)
+	StmtInsert() *sql.Stmt
+}
+
 // * * *
 
 // sex
