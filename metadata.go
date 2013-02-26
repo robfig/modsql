@@ -98,13 +98,43 @@ func (md *metadata) Create() *metadata {
 		if i != 0 {
 			md.goCode = append(md.goCode, "//")
 		}
-		md.goCode = append(md.goCode, "const ENGINE = modsql."+v.String()+"\n")
+		md.goCode = append(md.goCode, "var ENGINE = modsql."+v.String()+"\n")
 	}
 
 	md.goCode = append(md.goCode, `
-//==
+// * * *
 
-var Insert = modsql.NewStatements(map[int]string{
+type Modeler interface {
+	Args() ([]interface{}, error)
+	StmtInsert() *sql.Stmt
+}
+
+// Init prepares all statements in "listStatements".
+// It hast to be called before of insert data.
+func Init(db *sql.DB) {
+	for _, v := range listStatements {
+		v.Prepare(db, ENGINE)
+	}
+}
+
+// Close closes all statements in "listStatements".
+// Returns the first error, if any.
+func Close() error {
+	var err, errExit error
+
+	for _, v := range listStatements {
+		if err = v.Close(); err != nil && errExit == nil {
+			errExit = err
+		}
+	}
+	return errExit
+}
+
+var listStatements = []*modsql.Statements{insert}
+
+// * * *
+
+var insert = modsql.NewStatements(map[int]string{
 `)
 
 	// To add all queries
@@ -114,12 +144,6 @@ var Insert = modsql.NewStatements(map[int]string{
 	md.goCode = append(md.goCode, `,
 })
 
-type Modeler interface {
-	Args() ([]interface{}, error)
-	StmtInsert() *sql.Stmt
-}
-
-// * * *
 `)
 
 	md.sqlCreate = append(md.sqlCreate,
@@ -618,7 +642,7 @@ func (md *metadata) genInsertForType(idx int, name string, columns, values []str
 			"}, nil\n"+
 		"}\n\n"+
 
-		"func (t *%s) StmtInsert() *sql.Stmt { return Insert.Stmt[%d] }",
+		"func (t *%s) StmtInsert() *sql.Stmt { return insert.Stmt[%d] }",
 
 		name,
 		strings.Join(times, ""),

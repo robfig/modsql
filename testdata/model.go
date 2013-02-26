@@ -10,14 +10,44 @@ import (
 )
 
 // == EDIT
-const ENGINE = modsql.Postgres
+var ENGINE = modsql.Postgres
 
-//const ENGINE = modsql.MySQL
-//const ENGINE = modsql.SQLite
+//var ENGINE = modsql.MySQL
+//var ENGINE = modsql.SQLite
 
-//==
+// * * *
 
-var Insert = modsql.NewStatements(map[int]string{
+type Modeler interface {
+	Args() ([]interface{}, error)
+	StmtInsert() *sql.Stmt
+}
+
+// Init prepares all statements in "listStatements".
+// It hast to be called before of insert data.
+func Init(db *sql.DB) {
+	for _, v := range listStatements {
+		v.Prepare(db, ENGINE)
+	}
+}
+
+// Close closes all statements in "listStatements".
+// Returns the first error, if any.
+func Close() error {
+	var err, errExit error
+
+	for _, v := range listStatements {
+		if err = v.Close(); err != nil && errExit == nil {
+			errExit = err
+		}
+	}
+	return errExit
+}
+
+var listStatements = []*modsql.Statements{insert}
+
+// * * *
+
+var insert = modsql.NewStatements(map[int]string{
 	0:  "INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES({P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P})",
 	1:  "INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES({P}, {P}, {P}, {P}, {P}, {P}, {P}, {P})",
 	2:  "INSERT INTO times (typeId, t_duration, t_datetime) VALUES({P}, {P}, {P})",
@@ -32,13 +62,6 @@ var Insert = modsql.NewStatements(map[int]string{
 	11: "INSERT INTO address (address_id, street, city, state, post_code) VALUES({P}, {P}, {P}, {P}, {P})",
 	12: "INSERT INTO user_address (user_id, address_id) VALUES({P}, {P})",
 })
-
-type Modeler interface {
-	Args() ([]interface{}, error)
-	StmtInsert() *sql.Stmt
-}
-
-// * * *
 
 // sex
 const (
@@ -67,7 +90,7 @@ func (t *Types) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Types) StmtInsert() *sql.Stmt { return Insert.Stmt[0] }
+func (t *Types) StmtInsert() *sql.Stmt { return insert.Stmt[0] }
 
 type Default_value struct {
 	Id        int
@@ -86,7 +109,7 @@ func (t *Default_value) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Default_value) StmtInsert() *sql.Stmt { return Insert.Stmt[1] }
+func (t *Default_value) StmtInsert() *sql.Stmt { return insert.Stmt[1] }
 
 type Times struct {
 	TypeId     int
@@ -104,7 +127,7 @@ func (t *Times) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Times) StmtInsert() *sql.Stmt { return Insert.Stmt[2] }
+func (t *Times) StmtInsert() *sql.Stmt { return insert.Stmt[2] }
 
 type Account struct {
 	Acc_num   int
@@ -118,7 +141,7 @@ func (t *Account) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Account) StmtInsert() *sql.Stmt { return Insert.Stmt[3] }
+func (t *Account) StmtInsert() *sql.Stmt { return insert.Stmt[3] }
 
 type Sub_account struct {
 	Sub_acc   int
@@ -133,7 +156,7 @@ func (t *Sub_account) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Sub_account) StmtInsert() *sql.Stmt { return Insert.Stmt[4] }
+func (t *Sub_account) StmtInsert() *sql.Stmt { return insert.Stmt[4] }
 
 type Catalog struct {
 	Catalog_id  int
@@ -148,7 +171,7 @@ func (t *Catalog) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Catalog) StmtInsert() *sql.Stmt { return Insert.Stmt[5] }
+func (t *Catalog) StmtInsert() *sql.Stmt { return insert.Stmt[5] }
 
 type Magazine struct {
 	Catalog_id int
@@ -161,7 +184,7 @@ func (t *Magazine) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Magazine) StmtInsert() *sql.Stmt { return Insert.Stmt[6] }
+func (t *Magazine) StmtInsert() *sql.Stmt { return insert.Stmt[6] }
 
 type Mp3 struct {
 	Catalog_id int
@@ -176,7 +199,7 @@ func (t *Mp3) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Mp3) StmtInsert() *sql.Stmt { return Insert.Stmt[7] }
+func (t *Mp3) StmtInsert() *sql.Stmt { return insert.Stmt[7] }
 
 type Book struct {
 	Book_id int
@@ -190,7 +213,7 @@ func (t *Book) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Book) StmtInsert() *sql.Stmt { return Insert.Stmt[8] }
+func (t *Book) StmtInsert() *sql.Stmt { return insert.Stmt[8] }
 
 type Chapter struct {
 	Chapter_id int
@@ -204,7 +227,7 @@ func (t *Chapter) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Chapter) StmtInsert() *sql.Stmt { return Insert.Stmt[9] }
+func (t *Chapter) StmtInsert() *sql.Stmt { return insert.Stmt[9] }
 
 type User struct {
 	User_id    int
@@ -218,7 +241,7 @@ func (t *User) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *User) StmtInsert() *sql.Stmt { return Insert.Stmt[10] }
+func (t *User) StmtInsert() *sql.Stmt { return insert.Stmt[10] }
 
 type Address struct {
 	Address_id int
@@ -234,7 +257,7 @@ func (t *Address) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *Address) StmtInsert() *sql.Stmt { return Insert.Stmt[11] }
+func (t *Address) StmtInsert() *sql.Stmt { return insert.Stmt[11] }
 
 type User_address struct {
 	User_id    int
@@ -247,4 +270,4 @@ func (t *User_address) Args() ([]interface{}, error) {
 	}, nil
 }
 
-func (t *User_address) StmtInsert() *sql.Stmt { return Insert.Stmt[12] }
+func (t *User_address) StmtInsert() *sql.Stmt { return insert.Stmt[12] }

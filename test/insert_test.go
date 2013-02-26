@@ -16,12 +16,13 @@ import (
 
 // testInsert checks SQL statements generated from Go model.
 func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
-	testdata.Insert.Prepare(db, eng)
-	defer testdata.Insert.Close()
+	testdata.ENGINE = eng
+	testdata.Init(db)
+	defer testdata.Close()
 
 	err := insertFromTx(db)
 	if err != nil {
-		testdata.Insert.Close()
+		testdata.Close()
 		t.Fatal(err)
 	}
 
@@ -29,7 +30,7 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 	insert := func(model testdata.Modeler) {
 		args, err := model.Args()
 		if err != nil {
-			testdata.Insert.Close()
+			testdata.Close()
 			t.Fatal(err)
 		}
 		if _, err = model.StmtInsert().Exec(args...); err != nil {

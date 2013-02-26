@@ -60,16 +60,16 @@ func (m *Statements) Prepare(db *sql.DB, eng Engine) {
 }
 
 // Close closes all prepared statements.
-// The zero value for a slice of errors is an empty slice.
-func (m *Statements) Close() []error {
-	errors := make([]error, 0)
+// Returns the first error, if any.
+func (m *Statements) Close() error {
+	var err, errExit error
 
 	for _, v := range m.Stmt {
-		if err := v.Close(); err != nil {
-			errors = append(errors, err)
+		if err = v.Close(); err != nil && errExit == nil {
+			errExit = err
 		}
 	}
-	return errors
+	return errExit
 }
 
 // setPlaceholder replaces "{P}" with the placeholder parameter and "{Q} with
