@@ -25,6 +25,17 @@ func init() {
 	log.SetPrefix("FAIL: ")
 }
 
+// Modeler is the interface that wraps the basic Args and StmtInsert methods
+// generated in the file "model.go" 
+//
+// Args returns the data. It is to be used in prepared statements.
+//
+// StmtInsert returns the prepared statement to insert data into a later execution.
+type Modeler interface {
+	Args() ([]interface{}, error)
+	StmtInsert() *sql.Stmt
+}
+
 // namesToQuote are names which have to be quoted to be used in SQL statements
 // (tables and columns).
 var namesToQuote = [...]string{"user"}

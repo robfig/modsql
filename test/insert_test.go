@@ -27,7 +27,7 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 	}
 
 	// Direct data input
-	insert := func(model testdata.Modeler) {
+	insert := func(model modsql.Modeler) {
 		args, err := model.Args()
 		if err != nil {
 			testdata.Close()

@@ -17,16 +17,6 @@ var ENGINE = modsql.Postgres
 
 // * * *
 
-// Modeler is the interface that wraps the basic Args and StmtInsert methods.
-//
-// Args returns the data. It is to be used in prepared statements.
-//
-// StmtInsert returns the prepared statement to insert data into a later execution.
-type Modeler interface {
-	Args() ([]interface{}, error)
-	StmtInsert() *sql.Stmt
-}
-
 // Init prepares all statements in "listStatements".
 // It hast to be called before of insert data.
 func Init(db *sql.DB) {
