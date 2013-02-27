@@ -484,7 +484,9 @@ const (
 	_TAB_WIDTH    = 4
 )
 
-var ReplTime = strings.NewReplacer("h", ":", "m", ":", "s", "")
+// TimeReplacer is a replacer for duration times.
+// It is to be called from the Go code generated.
+var TimeReplacer = strings.NewReplacer("h", ":", "m", ":", "s", "")
 
 // format formats the Go source code.
 func (md *metadata) format(out io.Writer) {
@@ -569,7 +571,7 @@ func formatSQL(v []interface{}) string {
 			res[i] = fmt.Sprintf("'%s'", t)
 
 		case time.Duration:
-			res[i] = fmt.Sprintf("'%s'", ReplTime.Replace(t.String()))
+			res[i] = fmt.Sprintf("'%s'", TimeReplacer.Replace(t.String()))
 		case time.Time:
 			res[i] = fmt.Sprintf("'%s'", t.Format(time.RFC3339))
 
@@ -584,7 +586,6 @@ func formatSQL(v []interface{}) string {
 func (md *metadata) genInsertForType(idx int, name string, columns, values []string) string {
 	verbs := make([]string, len(columns))
 	args := make([]string, len(columns))
-	times := make([]string, 0)
 
 	for i, v := range values {
 		addColumn := true
@@ -604,22 +605,13 @@ func (md *metadata) genInsertForType(idx int, name string, columns, values []str
 			verbs[i] = "'%s'"
 
 		case "time.Duration":
-			verbs[i] = "'%s'"
-			args[i] = fmt.Sprintf("modsql.ReplTime.Replace(t.%s.String())", strings.Title(columns[i]))
 			addColumn = false
+			verbs[i] = "'%s'"
+			args[i] = fmt.Sprintf("modsql.TimeReplacer.Replace(t.%s.String())", strings.Title(columns[i]))
 		case "time.Time":
 			addColumn = false
 			verbs[i] = "'%s'"
-			args[i] = fmt.Sprintf("t%d", len(times))
-
-			times = append(times, fmt.Sprintf(
-				"%s, err := time.Parse(time.RFC3339, t.%s.String())\n"+
-				"if err != nil {\n"+
-					"return nil, err\n"+
-				"}\n",
-				args[i], strings.Title(columns[i])))
-
-			args[i] = args[i] + ".String()"
+			args[i] = fmt.Sprintf("t.%s.Format(time.RFC3339)", strings.Title(columns[i]))
 
 		case "nil":
 			verbs[i] = "NULL"
@@ -640,17 +632,15 @@ func (md *metadata) genInsertForType(idx int, name string, columns, values []str
 	name = strings.Title(name)
 
 	return fmt.Sprintf(
-		"func (t *%s) Args() ([]interface{}, error) {\n"+
-			"%s"+
+		"func (t *%s) Args() []interface{} {\n"+
 			"return []interface{}{\n"+
 				"%s,\n"+
-			"}, nil\n"+
+			"}\n"+
 		"}\n\n"+
 
 		"func (t *%s) StmtInsert() *sql.Stmt { return insert.Stmt[%d] }",
 
 		name,
-		strings.Join(times, ""),
 		strings.Join(args, ", "),
 		name,
 		idx,
