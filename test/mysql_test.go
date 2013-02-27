@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"testing"
 
-	_ "code.google.com/p/go-mysql-driver/mysql"
+	_ "github.com/Go-SQL-Driver/MySQL"
 	"github.com/kless/modsql"
 )
 

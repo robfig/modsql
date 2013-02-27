@@ -46,7 +46,7 @@ func NewStatements(raw map[int]string) *Statements {
 	}
 }
 
-// Prepare creates the prepared statements 
+// Prepare creates the prepared statements.
 func (m *Statements) Prepare(db *sql.DB, eng Engine) {
 	m.setPlaceholder(eng)
 
