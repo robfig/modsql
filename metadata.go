@@ -584,35 +584,18 @@ func formatSQL(v []interface{}) string {
 
 // genInsertForType generate the SQL statement to insert data from a Go type.
 func (md *metadata) genInsertForType(idx int, name string, columns, values []string) string {
-	verbs := make([]string, len(columns))
 	args := make([]string, len(columns))
 
 	for i, v := range values {
 		addColumn := true
 
 		switch v {
-		case "bool":
-			verbs[i] = "%t"
-
-		case "int", "int8", "int16", "int32", "int64":
-			verbs[i] = "%d"
-		case "float32", "float64":
-			verbs[i] = "%g"
-
-		case "string", "[]byte":
-			verbs[i] = "'%s'"
-
 		case "time.Duration":
 			addColumn = false
-			verbs[i] = "'%s'"
 			args[i] = fmt.Sprintf("modsql.TimeReplacer.Replace(t.%s.String())", strings.Title(columns[i]))
 		case "time.Time":
 			addColumn = false
-			verbs[i] = "'%s'"
 			args[i] = fmt.Sprintf("t.%s.Format(time.RFC3339)", strings.Title(columns[i]))
-
-		case "nil":
-			verbs[i] = "NULL"
 		}
 
 		if addColumn {
