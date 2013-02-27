@@ -592,9 +592,7 @@ func (md *metadata) genInsertForType(idx int, name string, columns, values []str
 
 		switch v {
 		case "bool":
-			verbs[i] = "%s"
-			args[i] = fmt.Sprintf("modsql.BoolToSQL(ENGINE, t.%s)", strings.Title(columns[i]))
-			addColumn = false
+			verbs[i] = "%t"
 
 		case "int", "int8", "int16", "int32", "int64":
 			verbs[i] = "%d"
@@ -618,7 +616,7 @@ func (md *metadata) genInsertForType(idx int, name string, columns, values []str
 		}
 
 		if addColumn {
-			args[i] = "t." + strings.Title(columns[i])
+			args[i] = "&t." + strings.Title(columns[i])
 		}
 	}
 

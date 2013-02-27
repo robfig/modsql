@@ -304,18 +304,3 @@ func getSQLAction(eng Engine) *sqlAction {
 
 	return a
 }
-
-// BoolToSQL returns the SQL name of a boolean according to the SQL engine.
-func BoolToSQL(eng Engine, b bool) string {
-	if eng != SQLite {
-		if b == false {
-			return "FALSE"
-		}
-		return "TRUE"
-	}
-
-	if b == false {
-		return "0"
-	}
-	return "1"
-}

@@ -13,6 +13,7 @@ import (
 
 	"github.com/kless/modsql"
 	"github.com/kless/modsql/testdata"
+_"fmt"
 )
 
 // testInsert checks SQL statements generated from Go model.
@@ -35,6 +36,21 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 	}
 
 	insert(&testdata.Types{0, 8, -16, -32, 64, -1.32, -1.64, "a", []byte{1, 2}, 8, 'r', true})
+
+//	rows := db.QueryRow("SELECT * FROM types")
+/*	if err != nil {
+		t.Fatal(err)
+	}*/
+/*
+	types := new(testdata.Types)
+//	rows.Next()
+	err = rows.Scan(types.Args()...)
+//	rows.Close()
+
+	fmt.Println("ERR:", err)
+	fmt.Println(types)
+*/
+
 	insert(&testdata.Default_value{0, 8, 1.32, "a", []byte{1, 2}, 8, 'r', false})
 	insert(&testdata.Times{0, 7 * time.Hour, time.Date(2011, time.November, 10, 23, 0, 0, 0, time.UTC)})
 
