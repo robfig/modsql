@@ -633,9 +633,7 @@ func (md *metadata) genInsertForType(idx int, name string, columns, values []str
 
 	return fmt.Sprintf(
 		"func (t *%s) Args() []interface{} {\n"+
-			"return []interface{}{\n"+
-				"%s,\n"+
-			"}\n"+
+			"return []interface{}{%s}\n"+
 		"}\n\n"+
 
 		"func (t *%s) StmtInsert() *sql.Stmt { return insert.Stmt[%d] }",

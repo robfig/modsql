@@ -80,9 +80,7 @@ type Types struct {
 }
 
 func (t *Types) Args() []interface{} {
-	return []interface{}{
-		t.T_int, t.T_int8, t.T_int16, t.T_int32, t.T_int64, t.T_float32, t.T_float64, t.T_string, t.T_binary, t.T_byte, t.T_rune, modsql.BoolToSQL(ENGINE, t.T_bool),
-	}
+	return []interface{}{t.T_int, t.T_int8, t.T_int16, t.T_int32, t.T_int64, t.T_float32, t.T_float64, t.T_string, t.T_binary, t.T_byte, t.T_rune, modsql.BoolToSQL(ENGINE, t.T_bool)}
 }
 
 func (t *Types) StmtInsert() *sql.Stmt { return insert.Stmt[0] }
@@ -99,9 +97,7 @@ type Default_value struct {
 }
 
 func (t *Default_value) Args() []interface{} {
-	return []interface{}{
-		t.Id, t.D_int8, t.D_float32, t.D_string, t.D_binary, t.D_byte, t.D_rune, modsql.BoolToSQL(ENGINE, t.D_bool),
-	}
+	return []interface{}{t.Id, t.D_int8, t.D_float32, t.D_string, t.D_binary, t.D_byte, t.D_rune, modsql.BoolToSQL(ENGINE, t.D_bool)}
 }
 
 func (t *Default_value) StmtInsert() *sql.Stmt { return insert.Stmt[1] }
@@ -113,9 +109,7 @@ type Times struct {
 }
 
 func (t *Times) Args() []interface{} {
-	return []interface{}{
-		t.TypeId, modsql.TimeReplacer.Replace(t.T_duration.String()), t.T_datetime.Format(time.RFC3339),
-	}
+	return []interface{}{t.TypeId, modsql.TimeReplacer.Replace(t.T_duration.String()), t.T_datetime.Format(time.RFC3339)}
 }
 
 func (t *Times) StmtInsert() *sql.Stmt { return insert.Stmt[2] }
@@ -127,9 +121,7 @@ type Account struct {
 }
 
 func (t *Account) Args() []interface{} {
-	return []interface{}{
-		t.Acc_num, t.Acc_type, t.Acc_descr,
-	}
+	return []interface{}{t.Acc_num, t.Acc_type, t.Acc_descr}
 }
 
 func (t *Account) StmtInsert() *sql.Stmt { return insert.Stmt[3] }
@@ -142,9 +134,7 @@ type Sub_account struct {
 }
 
 func (t *Sub_account) Args() []interface{} {
-	return []interface{}{
-		t.Sub_acc, t.Ref_num, t.Ref_type, t.Sub_descr,
-	}
+	return []interface{}{t.Sub_acc, t.Ref_num, t.Ref_type, t.Sub_descr}
 }
 
 func (t *Sub_account) StmtInsert() *sql.Stmt { return insert.Stmt[4] }
@@ -157,9 +147,7 @@ type Catalog struct {
 }
 
 func (t *Catalog) Args() []interface{} {
-	return []interface{}{
-		t.Catalog_id, t.Name, t.Description, t.Price,
-	}
+	return []interface{}{t.Catalog_id, t.Name, t.Description, t.Price}
 }
 
 func (t *Catalog) StmtInsert() *sql.Stmt { return insert.Stmt[5] }
@@ -170,9 +158,7 @@ type Magazine struct {
 }
 
 func (t *Magazine) Args() []interface{} {
-	return []interface{}{
-		t.Catalog_id, t.Page_count,
-	}
+	return []interface{}{t.Catalog_id, t.Page_count}
 }
 
 func (t *Magazine) StmtInsert() *sql.Stmt { return insert.Stmt[6] }
@@ -185,9 +171,7 @@ type Mp3 struct {
 }
 
 func (t *Mp3) Args() []interface{} {
-	return []interface{}{
-		t.Catalog_id, t.Size, t.Length, t.Filename,
-	}
+	return []interface{}{t.Catalog_id, t.Size, t.Length, t.Filename}
 }
 
 func (t *Mp3) StmtInsert() *sql.Stmt { return insert.Stmt[7] }
@@ -199,9 +183,7 @@ type Book struct {
 }
 
 func (t *Book) Args() []interface{} {
-	return []interface{}{
-		t.Book_id, t.Title, t.Author,
-	}
+	return []interface{}{t.Book_id, t.Title, t.Author}
 }
 
 func (t *Book) StmtInsert() *sql.Stmt { return insert.Stmt[8] }
@@ -213,9 +195,7 @@ type Chapter struct {
 }
 
 func (t *Chapter) Args() []interface{} {
-	return []interface{}{
-		t.Chapter_id, t.Title, t.Book_fk,
-	}
+	return []interface{}{t.Chapter_id, t.Title, t.Book_fk}
 }
 
 func (t *Chapter) StmtInsert() *sql.Stmt { return insert.Stmt[9] }
@@ -227,9 +207,7 @@ type User struct {
 }
 
 func (t *User) Args() []interface{} {
-	return []interface{}{
-		t.User_id, t.First_name, t.Last_name,
-	}
+	return []interface{}{t.User_id, t.First_name, t.Last_name}
 }
 
 func (t *User) StmtInsert() *sql.Stmt { return insert.Stmt[10] }
@@ -243,9 +221,7 @@ type Address struct {
 }
 
 func (t *Address) Args() []interface{} {
-	return []interface{}{
-		t.Address_id, t.Street, t.City, t.State, t.Post_code,
-	}
+	return []interface{}{t.Address_id, t.Street, t.City, t.State, t.Post_code}
 }
 
 func (t *Address) StmtInsert() *sql.Stmt { return insert.Stmt[11] }
@@ -256,9 +232,7 @@ type User_address struct {
 }
 
 func (t *User_address) Args() []interface{} {
-	return []interface{}{
-		t.User_id, t.Address_id,
-	}
+	return []interface{}{t.User_id, t.Address_id}
 }
 
 func (t *User_address) StmtInsert() *sql.Stmt { return insert.Stmt[12] }
