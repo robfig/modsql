@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestPlaceHolder(t *testing.T) {
+func TestSQLReplacer(t *testing.T) {
 	for _, eng := range []Engine{MySQL, Postgres, SQLite} {
 		stmtInsert := &Statements{raw: map[int]string{
 			0: "INSERT INTO {Q}Foo{Q} (a, b) VALUES({P}, {P})",

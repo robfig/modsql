@@ -56,57 +56,57 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 
 	// Direct insert
 
-	input1 := &testdata.Types{0, 8, -16, -32, 64, -1.32, -1.64, "a", []byte{1, 2}, 8, 'r', true}
+	input0 := &testdata.Types{0, 8, -16, -32, 64, -1.32, -1.64, "a", []byte{1, 2}, 8, 'r', true}
+	insert(input0)
+	scan("SELECT * FROM types WHERE t_int = 0", input0, &testdata.Types{})
+
+	input1 := &testdata.Default_value{0, 8, 1.32, "a", []byte{1, 2}, 8, 'r', false}
 	insert(input1)
-	scan("SELECT * FROM types WHERE t_int = 0", input1, &testdata.Types{})
+	scan("SELECT * FROM default_value WHERE id = 0", input1, &testdata.Default_value{})
 
-	input2 := &testdata.Default_value{0, 8, 1.32, "a", []byte{1, 2}, 8, 'r', false}
+	/*input2 := &testdata.Times{0, 7 * time.Hour, time.Date(2011, time.November, 10, 23, 0, 0, 0, time.UTC)}
 	insert(input2)
-	scan("SELECT * FROM default_value WHERE id = 0", input2, &testdata.Default_value{})
+	scan("SELECT * FROM times WHERE typeId = 0", input2, &testdata.Times{})*/
 
-	/*input3 := &testdata.Times{0, 7 * time.Hour, time.Date(2011, time.November, 10, 23, 0, 0, 0, time.UTC)}
+	input3 := &testdata.Account{11, 22, "a"}
 	insert(input3)
-	scan("SELECT * FROM times WHERE typeId = 0", input3, &testdata.Times{})*/
+	scan("SELECT * FROM account WHERE acc_num = 11", input3, &testdata.Account{})
 
-	input4 := &testdata.Account{11, 22, "a"}
+	input4 := &testdata.Sub_account{1, 11, 22, "a"}
 	insert(input4)
-	scan("SELECT * FROM account WHERE acc_num = 11", input4, &testdata.Account{})
+	scan("SELECT * FROM sub_account WHERE sub_acc = 1", input4, &testdata.Sub_account{})
 
-	input5 := &testdata.Sub_account{1, 11, 22, "a"}
+	input5 := &testdata.Catalog{33, "a", "b", 1.32}
 	insert(input5)
-	scan("SELECT * FROM sub_account WHERE sub_acc = 1", input5, &testdata.Sub_account{})
+	scan("SELECT * FROM catalog WHERE catalog_id = 33", input5, &testdata.Catalog{})
 
-	input6 := &testdata.Catalog{33, "a", "b", 1.32}
+	input6 := &testdata.Magazine{33, "a"}
 	insert(input6)
-	scan("SELECT * FROM catalog WHERE catalog_id = 33", input6, &testdata.Catalog{})
+	scan("SELECT * FROM magazine WHERE catalog_id = 33", input6, &testdata.Magazine{})
 
-	input7 := &testdata.Magazine{33, "a"}
+	input7 := &testdata.Mp3{33, 1, 1.32, "a"}
 	insert(input7)
-	scan("SELECT * FROM magazine WHERE catalog_id = 33", input7, &testdata.Magazine{})
+	scan("SELECT * FROM mp3 WHERE catalog_id = 33", input7, &testdata.Mp3{})
 
-	input8 := &testdata.Mp3{33, 1, 1.32, "a"}
+	input8 := &testdata.Book{44, "a", "b"}
 	insert(input8)
-	scan("SELECT * FROM mp3 WHERE catalog_id = 33", input8, &testdata.Mp3{})
+	scan("SELECT * FROM book WHERE book_id = 44", input8, &testdata.Book{})
 
-	input9 := &testdata.Book{44, "a", "b"}
+	input9 := &testdata.Chapter{1, "a", 44}
 	insert(input9)
-	scan("SELECT * FROM book WHERE book_id = 44", input9, &testdata.Book{})
+	scan("SELECT * FROM chapter WHERE chapter_id = 1", input9, &testdata.Chapter{})
 
-	input10 := &testdata.Chapter{1, "a", 44}
+	input10 := &testdata.User{55, "a", "b"}
 	insert(input10)
-	scan("SELECT * FROM chapter WHERE chapter_id = 1", input10, &testdata.Chapter{})
+	scan("SELECT * FROM {Q}user{Q} WHERE user_id = 55", input10, &testdata.User{})
 
-	input11 := &testdata.User{55, "a", "b"}
+	input11 := &testdata.Address{66, "a", "b", "c", "d"}
 	insert(input11)
-	scan("SELECT * FROM {Q}user{Q} WHERE user_id = 55", input11, &testdata.User{})
+	scan("SELECT * FROM address WHERE address_id = 66", input11, &testdata.Address{})
 
-	input12 := &testdata.Address{66, "a", "b", "c", "d"}
+	input12 := &testdata.User_address{55, 66}
 	insert(input12)
-	scan("SELECT * FROM address WHERE address_id = 66", input12, &testdata.Address{})
-
-	input13 := &testdata.User_address{55, 66}
-	insert(input13)
-	scan("SELECT * FROM user_address WHERE user_id = 55", input13, &testdata.User_address{})
+	scan("SELECT * FROM user_address WHERE user_id = 55", input12, &testdata.User_address{})
 }
 
 // insertFromTx inserts data through a transaction.
