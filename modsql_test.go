@@ -16,7 +16,7 @@ func TestPlaceHolder(t *testing.T) {
 		stmtInsert := &Statements{raw: map[int]string{
 			0: "INSERT INTO {Q}Foo{Q} (a, b) VALUES({P}, {P})",
 		}}
-		stmtInsert.setPlaceholder(eng)
+		stmtInsert.raw[0] = SQLReplacer(eng, stmtInsert.raw[0])
 
 		// Check the quote character
 		if !strings.Contains(stmtInsert.raw[0], quoteChar[eng]) {
