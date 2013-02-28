@@ -40,6 +40,31 @@ type Modeler interface {
 // (tables and columns).
 var namesToQuote = [...]string{"user"}
 
+// SQLReplacer replaces "{P}" with the placeholder parameter and "{Q} with
+// the quote character, according to the SQL engine.
+func SQLReplacer(eng Engine, src string) string {
+	switch eng {
+	case MySQL, SQLite:
+		src = strings.Replace(src, "{P}", "?", -1)
+
+		if strings.Contains(src, "{Q}") {
+			return strings.Replace(src, "{Q}", quoteChar[eng], -1)
+		}
+
+	case Postgres:
+		for nParam := 1; strings.Contains(src, "{P}"); nParam++ {
+			src = strings.Replace(src, "{P}", fmt.Sprintf("$%d", nParam), 1)
+		}
+
+		if strings.Contains(src, "{Q}") {
+			return strings.Replace(src, "{Q}", quoteChar[eng], -1)
+		}
+	default:
+		panic("engine not supported: " + eng.String())
+	}
+	return src
+}
+
 // Statements represents multiple SQL statements prepared to be used with
 // different place holders.
 type Statements struct {
@@ -59,7 +84,9 @@ func NewStatements(raw map[int]string) *Statements {
 
 // Prepare creates the prepared statements.
 func (m *Statements) Prepare(db *sql.DB, eng Engine) {
-	m.setPlaceholder(eng)
+	for k, v := range m.raw {
+		m.raw[k] = SQLReplacer(eng, v)
+	}
 
 	for k, v := range m.raw {
 		stmt, err := db.Prepare(v)
@@ -81,36 +108,6 @@ func (m *Statements) Close() error {
 		}
 	}
 	return errExit
-}
-
-// setPlaceholder replaces "{P}" with the placeholder parameter and "{Q} with
-// the quote character, according to the SQL engine.
-func (m *Statements) setPlaceholder(eng Engine) {
-	switch eng {
-	case MySQL, SQLite:
-		for k, v := range m.raw {
-			v = strings.Replace(v, "{P}", "?", -1)
-
-			if !strings.Contains(v, "{Q}") {
-				m.raw[k] = v
-			} else {
-				m.raw[k] = strings.Replace(v, "{Q}", quoteChar[eng], -1)
-			}
-		}
-
-	case Postgres:
-		for k, v := range m.raw {
-			for nParam := 1; strings.Contains(v, "{P}"); nParam++ {
-				v = strings.Replace(v, "{P}", fmt.Sprintf("$%d", nParam), 1)
-			}
-
-			if !strings.Contains(v, "{Q}") {
-				m.raw[k] = v
-			} else {
-				m.raw[k] = strings.Replace(v, "{Q}", quoteChar[eng], -1)
-			}
-		}
-	}
 }
 
 // * * *
