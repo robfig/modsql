@@ -10,7 +10,7 @@ import (
 	"database/sql"
 	"fmt"
 	"testing"
-	_ "time"
+	//"time"
 
 	"github.com/kless/modsql"
 	"github.com/kless/modsql/testdata"
