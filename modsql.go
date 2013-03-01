@@ -162,7 +162,7 @@ func Load(db *sql.DB, filename string) error {
 			continue
 		}
 
-		if _, err = db.Exec(fullLine); err != nil {
+		if _, err = tx.Exec(fullLine); err != nil {
 			return fmt.Errorf("SQL line: %s\n%s", fullLine, err)
 		}
 		fullLine = ""
