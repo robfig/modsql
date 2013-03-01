@@ -107,6 +107,12 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 	input12 := &testdata.User_address{55, 66}
 	insert(input12)
 	scan("SELECT * FROM user_address WHERE user_id = 55", input12, &testdata.User_address{})
+
+	// Check data inserted at starting
+
+	inputTypes := &testdata.Types{2, 8, 160, 320, 64, 1.323, 1.643, "ones", []byte("12"), 'A', 'Z', true}
+	insert(inputTypes)
+	scan("SELECT * FROM types WHERE t_int = 2", inputTypes, &testdata.Types{})
 }
 
 // insertFromTx inserts data through a transaction.

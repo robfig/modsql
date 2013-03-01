@@ -55,13 +55,13 @@ func Column(name string, t sqlType) *column {
 
 // Default sets a value by default.
 func (c *column) Default(v interface{}) *column {
-	// MySQL: BLOB and TEXT columns cannot be assigned a default value.
 	switch c.type_ {
+	// MySQL: BLOB and TEXT columns cannot be assigned a default value.
 	case String, Binary:
 		log.Fatalf("type of column in %q can not have a default value", c.name)
 	}
-
 	c.defaultValue = v
+
 	if ok := c.checkDefValue(); !ok {
 		columnsErr = append(columnsErr, fmt.Sprintf("\n column %q with type %T",
 			c.name, c.defaultValue),
@@ -152,6 +152,11 @@ func (c *column) checkDefValue() bool {
 			return false
 		}
 
+	case uint8: // for the alias byte
+		if c.type_ != Byte {
+			return false
+		}
+
 	case float32:
 		if c.type_ != Float32 {
 			return false
@@ -161,16 +166,10 @@ func (c *column) checkDefValue() bool {
 			return false
 		}
 
-	case uint8: // for the alias byte
-		if c.type_ != Byte {
-			return false
-		}
-
 	case string:
 		if c.type_ != String {
 			return false
 		}
-
 	case []byte:
 		if c.type_ != Binary {
 			return false

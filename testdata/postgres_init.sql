@@ -16,8 +16,8 @@ CREATE TABLE types (
 	t_float64 double precision,
 	t_string  text UNIQUE,
 	t_binary  bytea,
-	t_byte    character,
-	t_rune    character varying(4),
+	t_byte    smallint,
+	t_rune    integer,
 	t_bool    boolean,
 
 	UNIQUE (t_float32, t_float64)
@@ -32,8 +32,8 @@ CREATE TABLE default_value (
 	d_float32 real DEFAULT 10.2,
 	d_string  text,
 	d_binary  bytea,
-	d_byte    character DEFAULT 'b',
-	d_rune    character varying(4) DEFAULT 'r',
+	d_byte    smallint DEFAULT 98,
+	d_rune    integer DEFAULT 114,
 	d_bool    boolean DEFAULT FALSE
 );
 
@@ -119,7 +119,7 @@ INSERT INTO sex (id, name)
 	VALUES(1, 'male');
 
 INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool)
-	VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 'A', 'Z', TRUE);
+	VALUES(1, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 65, 90, TRUE);
 
 INSERT INTO times (typeId, t_duration, t_datetime)
 	VALUES(1, '5:3:12', '2009-11-10T23:00:00Z');

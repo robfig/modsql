@@ -49,6 +49,7 @@ func main() {
 
 		Column("d_byte", Byte).Default(byte('b')),
 		Column("d_rune", Rune).Default('r'),
+
 		Column("d_bool", Bool).Default(false),
 	)
 
@@ -60,18 +61,9 @@ func main() {
 
 	// Insert values
 
-	types.Insert(
-		1, 8, 16, 32, 64,
-		1.32, 1.64,
-		"one", []byte("12"),
-		"A", "Z", true,
-	)
+	types.Insert(1, 8, 16, 32, 64, 1.32, 1.64, "one", []byte("12"), 'A', 'Z', true)
 
-	def.InsertTestData(
-		1, 10, 10.10,
-		"foo", []byte{'1', '2'},
-		"a", "z", false,
-	)
+	def.InsertTestData(1, 10, 10.10, "foo", []byte{'1', '2'}, 'a', 'z', false)
 
 	times.Insert(1, 5*time.Hour+3*time.Minute+12*time.Second,
 		time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))

@@ -59,13 +59,13 @@ const (
 	Int32
 	Int64
 
+	Byte
+	Rune
+
 	Float32
 	Float64
 
 	String
-	Byte
-	Rune
-
 	Binary
 
 	Duration // time.Duration
@@ -89,6 +89,11 @@ func (t sqlType) goString() string {
 	case Int64:
 		return "int64"
 
+	case Byte:
+		return "byte" // uint8 (fits into int16)
+	case Rune:
+		return "rune" // int32
+
 	case Float32:
 		return "float32"
 	case Float64:
@@ -96,11 +101,6 @@ func (t sqlType) goString() string {
 
 	case String:
 		return "string"
-	case Byte:
-		return "byte" // uint8
-	case Rune:
-		return "rune" // int32
-
 	case Binary:
 		return "[]byte"
 
@@ -131,6 +131,11 @@ func (t sqlType) tmplAction() string {
 	case Int64:
 		return "{{.Int64}}"
 
+	case Byte:
+		return "{{.Byte}}"
+	case Rune:
+		return "{{.Rune}}"
+
 	case Float32:
 		return "{{.Float32}}"
 	case Float64:
@@ -138,11 +143,6 @@ func (t sqlType) tmplAction() string {
 
 	case String:
 		return "{{.String}}"
-	case Byte:
-		return "{{.Byte}}"
-	case Rune:
-		return "{{.Rune}}"
-
 	case Binary:
 		return "{{.Binary}}"
 
@@ -179,15 +179,15 @@ type sqlAction struct {
 	Int32 string
 	Int64 string
 
+	Byte string
+	Rune string
+
 	Float32 string
 	Float64 string
 
 	String      string
 	StringLimit string
-	Byte        string
-	Rune        string
-
-	Binary string
+	Binary      string
 
 	Duration string
 	DateTime string
@@ -217,15 +217,15 @@ func getSQLAction(eng Engine) *sqlAction {
 			Int32: "INT",
 			Int64: "BIGINT",
 
+			Byte: "SMALLINT",
+			Rune: "INT",
+
 			Float32: "FLOAT",
 			Float64: "DOUBLE",
 
 			String:      "TEXT",
 			StringLimit: "VARCHAR(255)",
-			Byte:        "CHAR(1)",
-			Rune:        "CHAR(4)",
-
-			Binary: "BLOB",
+			Binary:      "BLOB",
 
 			Duration: "TIME",
 			DateTime: "TIMESTAMP",
@@ -247,15 +247,15 @@ func getSQLAction(eng Engine) *sqlAction {
 			Int32: "integer",
 			Int64: "bigint",
 
+			Byte: "smallint",
+			Rune: "integer",
+
 			Float32: "real",
 			Float64: "double precision",
 
 			String:      "text",
 			StringLimit: "text",
-			Byte:        "character",
-			Rune:        "character varying(4)",
-
-			Binary: "bytea",
+			Binary:      "bytea",
 
 			Duration: "time without time zone",
 			DateTime: "timestamp without time zone",
@@ -276,15 +276,15 @@ func getSQLAction(eng Engine) *sqlAction {
 			Int32: "INTEGER",
 			Int64: "INTEGER",
 
+			Byte: "INTEGER",
+			Rune: "INTEGER",
+
 			Float32: "REAL",
 			Float64: "REAL",
 
 			String:      "TEXT",
 			StringLimit: "TEXT",
-			Byte:        "TEXT",
-			Rune:        "TEXT",
-
-			Binary: "BLOB",
+			Binary:      "BLOB",
 
 			Duration: "INTEGER", // time()
 			DateTime: "TEXT",    // datetime()
