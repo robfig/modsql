@@ -11,8 +11,11 @@ It enables to generate SQL code for PostgreSQL, MySQL and SQLite engines.
 
 ## Issues
 
-+ Don't use time.Duration because it is not supported by sql.Scanner
-+ time.Time is not working
++ Don't use time.Duration because it is not supported by sql.Scanner:
+	code.google.com/p/go/issues/detail?id=4954
+
++ time.Time is not working:
+	https://groups.google.com/forum/#!topic/golang-nuts/4ebvN6Bgv3M
 
 ## License
 
