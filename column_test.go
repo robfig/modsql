@@ -28,9 +28,9 @@ func TestDefaultValue(t *testing.T) {
 	Column("char", Byte).Default(val4)
 	checkError(t, val4)
 
-	val5 := 10 * time.Second
-	Column("duration", Duration).Default(val5)
-	checkError(t, val5)
+	//val5 := 10 * time.Second
+	//Column("duration", Duration).Default(val5)
+	//checkError(t, val5)
 
 	val6 := time.Now()
 	Column("time", DateTime).Default(val6)

@@ -190,7 +190,8 @@ var insert = modsql.NewStatements(map[int]string{
 		for iCol, col := range table.columns {
 			extra := ""
 
-			if !useTime && (col.type_ == Duration || col.type_ == DateTime) {
+			//if !useTime && (col.type_ == Duration || col.type_ == DateTime) {
+			if !useTime && col.type_ == DateTime {
 				useTime = true
 			}
 
@@ -566,8 +567,8 @@ func formatSQL(v []interface{}) string {
 		case string, []byte:
 			res[i] = fmt.Sprintf("'%s'", t)
 
-		case time.Duration:
-			res[i] = fmt.Sprintf("'%s'", TimeReplacer.Replace(t.String()))
+		//case time.Duration:
+			//res[i] = fmt.Sprintf("'%s'", TimeReplacer.Replace(t.String()))
 		case time.Time:
 			res[i] = fmt.Sprintf("'%s'", t.Format(time.RFC3339))
 
@@ -582,17 +583,17 @@ func formatSQL(v []interface{}) string {
 func (md *metadata) genInsertForType(idx int, name string, columns, values []string) string {
 	args := make([]string, len(columns))
 
-	for i, v := range values {
+	for i, _ := range values {
 		addColumn := true
 
-		switch v {
-		case "time.Duration":
-			addColumn = false
-			args[i] = fmt.Sprintf("modsql.TimeReplacer.Replace(t.%s.String())", strings.Title(columns[i]))
+		/*switch v {
+		//case "time.Duration":
+			//addColumn = false
+			//args[i] = fmt.Sprintf("modsql.TimeReplacer.Replace(t.%s.String())", strings.Title(columns[i]))
 		case "time.Time":
 			addColumn = false
 			args[i] = fmt.Sprintf("t.%s.Format(time.RFC3339)", strings.Title(columns[i]))
-		}
+		}*/
 
 		if addColumn {
 			args[i] = "&t." + strings.Title(columns[i])
@@ -621,3 +622,11 @@ func (md *metadata) genInsertForType(idx int, name string, columns, values []str
 		idx,
 	)
 }
+
+/*func (t *Types) Validate() error {
+	v := validate.NewRFCEmail(validate.TrimSpace)
+	t.T_string, err := v.Get(t.T_string)
+	if err != nil {
+		return err
+	}
+}*/

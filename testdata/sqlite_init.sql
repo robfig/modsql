@@ -39,7 +39,6 @@ CREATE TABLE default_value (
 
 CREATE TABLE times (
 	typeId     INTEGER,
-	t_duration INTEGER,
 	t_datetime TEXT
 );
 
@@ -121,8 +120,8 @@ INSERT INTO sex (id, name)
 INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool)
 	VALUES(0, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 65, 90, 1);
 
-INSERT INTO times (typeId, t_duration, t_datetime)
-	VALUES(0, '5:3:12', '2009-11-10T23:00:00Z');
-INSERT INTO times (typeId, t_duration, t_datetime)
-	VALUES(1, NULL, NULL);
+INSERT INTO times (typeId, t_datetime)
+	VALUES(0, '2009-11-10T23:00:00Z');
+INSERT INTO times (typeId, t_datetime)
+	VALUES(1, NULL);
 

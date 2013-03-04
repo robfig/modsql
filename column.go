@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	//"github.com/kless/validate"
 )
 
 type constraintType int
@@ -43,6 +45,7 @@ type column struct {
 	fkColumn string
 
 	defaultValue interface{}
+	//validators   validationType
 }
 
 // Column defines a new column.
@@ -50,6 +53,61 @@ func Column(name string, t sqlType) *column {
 	c := new(column)
 	c.name = name
 	c.type_ = t
+	return c
+}
+
+// PrimaryKey defines the column to primary key.
+func (c *column) PrimaryKey() *column {
+	if c.cons == uniqueCons {
+		c.addErrorCons()
+	}
+	if c.index != 0 {
+		c.addErrorIndex()
+	}
+
+	c.cons |= primaryKey
+	return c
+}
+
+// ForeignKey defines the column to foreign key.
+func (c *column) ForeignKey(table, column string) *column {
+	if c.cons == uniqueCons {
+		c.addErrorCons()
+	}
+	if c.index != 0 {
+		c.addErrorIndex()
+	}
+
+	c.cons |= foreignKey
+	c.fkTable = table
+	c.fkColumn = column
+	return c
+}
+
+// Unique defines the column to UNIQUE constraint.
+func (c *column) Unique() *column {
+	if c.cons == primaryKey || c.cons == foreignKey {
+		c.addErrorCons()
+	}
+	if c.index != 0 {
+		c.addErrorIndex()
+	}
+
+	c.cons = uniqueCons
+	return c
+}
+
+// Index sets an index.
+func (c *column) Index(unique bool) *column {
+	if c.cons != 0 {
+		c.addErrorIndex()
+	}
+
+	if unique {
+		c.index = uniqIndex
+	} else {
+		c.index = noUniqIndex
+	}
 	return c
 }
 
@@ -70,60 +128,13 @@ func (c *column) Default(v interface{}) *column {
 	return c
 }
 
-// Index sets an index.
-func (c *column) Index(unique bool) *column {
-	if c.cons != 0 {
-		c.addErrorIndex()
-	}
-
-	if unique {
-		c.index = uniqIndex
-	} else {
-		c.index = noUniqIndex
+/*// Validate sets some validator to ckeck the value in the actual column.
+func (c *column) Validate(valid ...*validate.Validate) *column {
+	for _, v := range valid {
+		c.validators |= v
 	}
 	return c
-}
-
-// ForeignKey defines the column to foreign key.
-func (c *column) ForeignKey(table, column string) *column {
-	if c.cons == uniqueCons {
-		c.addErrorCons()
-	}
-	if c.index != 0 {
-		c.addErrorIndex()
-	}
-
-	c.cons |= foreignKey
-	c.fkTable = table
-	c.fkColumn = column
-	return c
-}
-
-// PrimaryKey defines the column to primary key.
-func (c *column) PrimaryKey() *column {
-	if c.cons == uniqueCons {
-		c.addErrorCons()
-	}
-	if c.index != 0 {
-		c.addErrorIndex()
-	}
-
-	c.cons |= primaryKey
-	return c
-}
-
-// Unique defines the column to UNIQUE constraint.
-func (c *column) Unique() *column {
-	if c.cons == primaryKey || c.cons == foreignKey {
-		c.addErrorCons()
-	}
-	if c.index != 0 {
-		c.addErrorIndex()
-	}
-
-	c.cons = uniqueCons
-	return c
-}
+}*/
 
 // * * *
 
@@ -175,10 +186,10 @@ func (c *column) checkDefValue() bool {
 			return false
 		}
 
-	case time.Duration:
-		if c.type_ != Duration {
-			return false
-		}
+	//case time.Duration:
+		//if c.type_ != Duration {
+			//return false
+		//}
 	case time.Time:
 		if c.type_ != DateTime {
 			return false

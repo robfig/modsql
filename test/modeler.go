@@ -22,7 +22,7 @@ func main() {
 	types := Table("types", metadata,
 		Column("t_int", Int).PrimaryKey(),
 		Column("t_int8", Int8),
-		Column("t_int16", Int16),
+		Column("t_int16", Int16),//.Validate(),
 		Column("t_int32", Int32),
 		Column("t_int64", Int64),
 
@@ -55,7 +55,7 @@ func main() {
 
 	times := Table("times", metadata,
 		Column("typeId", Int),
-		Column("t_duration", Duration),
+		//Column("t_duration", Duration),
 		Column("t_datetime", DateTime),
 	)
 
@@ -65,9 +65,10 @@ func main() {
 
 	def.InsertTestData(0, 10, 10.10, "foo", []byte{'1', '2'}, 'a', 'z', false)
 
-	times.Insert(0, 5*time.Hour+3*time.Minute+12*time.Second,
+	times.Insert(0,
+		//5*time.Hour+3*time.Minute+12*time.Second,
 		time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))
-	times.Insert(1, nil, nil)
+	times.Insert(1, nil) //, nil)
 
 	// == Examples of relationships
 	//

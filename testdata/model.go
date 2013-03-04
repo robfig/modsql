@@ -45,7 +45,7 @@ var listStatements = []*modsql.Statements{insert}
 var insert = modsql.NewStatements(map[int]string{
 	0:  "INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES({P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P})",
 	1:  "INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES({P}, {P}, {P}, {P}, {P}, {P}, {P}, {P})",
-	2:  "INSERT INTO times (typeId, t_duration, t_datetime) VALUES({P}, {P}, {P})",
+	2:  "INSERT INTO times (typeId, t_datetime) VALUES({P}, {P})",
 	3:  "INSERT INTO account (acc_num, acc_type, acc_descr) VALUES({P}, {P}, {P})",
 	4:  "INSERT INTO sub_account (sub_acc, ref_num, ref_type, sub_descr) VALUES({P}, {P}, {P}, {P})",
 	5:  "INSERT INTO catalog (catalog_id, name, description, price) VALUES({P}, {P}, {P}, {P})",
@@ -104,12 +104,11 @@ func (t *Default_value) StmtInsert() *sql.Stmt { return insert.Stmt[1] }
 
 type Times struct {
 	TypeId     int
-	T_duration time.Duration
 	T_datetime time.Time
 }
 
 func (t *Times) Args() []interface{} {
-	return []interface{}{&t.TypeId, modsql.TimeReplacer.Replace(t.T_duration.String()), t.T_datetime.Format(time.RFC3339)}
+	return []interface{}{&t.TypeId, &t.T_datetime}
 }
 
 func (t *Times) StmtInsert() *sql.Stmt { return insert.Stmt[2] }

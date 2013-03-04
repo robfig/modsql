@@ -44,6 +44,8 @@ The null handling is very different in every SQL engine (http://www.sqlite.org/n
 so instead I prefer to add empty values according to the type (just like in Go).
 Although they are useful for fields related to time and date.
 
+time.Duration is not supported by sql.Scanner: code.google.com/p/go/issues/detail?id=4954
+
 Examples
 
 The directory "testdata" has the files generated from "test/modeler.go" which is
