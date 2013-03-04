@@ -43,9 +43,9 @@ var listStatements = []*modsql.Statements{insert}
 // * * *
 
 var insert = modsql.NewStatements(map[int]string{
-	0:  "INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool) VALUES({P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P})",
-	1:  "INSERT INTO default_value (id, d_int8, d_float32, d_string, d_binary, d_byte, d_rune, d_bool) VALUES({P}, {P}, {P}, {P}, {P}, {P}, {P}, {P})",
-	2:  "INSERT INTO times (typeId, t_datetime) VALUES({P}, {P})",
+	0:  "INSERT INTO types (int_, int8_, int16_, int32_, int64_, float32_, float64_, string_, binary_, byte_, rune_, bool_) VALUES({P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P})",
+	1:  "INSERT INTO default_value (id, int8_, float32_, string_, binary_, byte_, rune_, bool_) VALUES({P}, {P}, {P}, {P}, {P}, {P}, {P}, {P})",
+	2:  "INSERT INTO times (typeId, datetime) VALUES({P}, {P})",
 	3:  "INSERT INTO account (acc_num, acc_type, acc_descr) VALUES({P}, {P}, {P})",
 	4:  "INSERT INTO sub_account (sub_acc, ref_num, ref_type, sub_descr) VALUES({P}, {P}, {P}, {P})",
 	5:  "INSERT INTO catalog (catalog_id, name, description, price) VALUES({P}, {P}, {P}, {P})",
@@ -65,50 +65,50 @@ const (
 )
 
 type Types struct {
-	T_int     int
-	T_int8    int8
-	T_int16   int16
-	T_int32   int32
-	T_int64   int64
-	T_float32 float32
-	T_float64 float64
-	T_string  string
-	T_binary  []byte
-	T_byte    byte
-	T_rune    rune
-	T_bool    bool
+	Int_     int
+	Int8_    int8
+	Int16_   int16
+	Int32_   int32
+	Int64_   int64
+	Float32_ float32
+	Float64_ float64
+	String_  string
+	Binary_  []byte
+	Byte_    byte
+	Rune_    rune
+	Bool_    bool
 }
 
 func (t *Types) Args() []interface{} {
-	return []interface{}{&t.T_int, &t.T_int8, &t.T_int16, &t.T_int32, &t.T_int64, &t.T_float32, &t.T_float64, &t.T_string, &t.T_binary, &t.T_byte, &t.T_rune, &t.T_bool}
+	return []interface{}{&t.Int_, &t.Int8_, &t.Int16_, &t.Int32_, &t.Int64_, &t.Float32_, &t.Float64_, &t.String_, &t.Binary_, &t.Byte_, &t.Rune_, &t.Bool_}
 }
 
 func (t *Types) StmtInsert() *sql.Stmt { return insert.Stmt[0] }
 
 type Default_value struct {
-	Id        int
-	D_int8    int8
-	D_float32 float32
-	D_string  string
-	D_binary  []byte
-	D_byte    byte
-	D_rune    rune
-	D_bool    bool
+	Id       int
+	Int8_    int8
+	Float32_ float32
+	String_  string
+	Binary_  []byte
+	Byte_    byte
+	Rune_    rune
+	Bool_    bool
 }
 
 func (t *Default_value) Args() []interface{} {
-	return []interface{}{&t.Id, &t.D_int8, &t.D_float32, &t.D_string, &t.D_binary, &t.D_byte, &t.D_rune, &t.D_bool}
+	return []interface{}{&t.Id, &t.Int8_, &t.Float32_, &t.String_, &t.Binary_, &t.Byte_, &t.Rune_, &t.Bool_}
 }
 
 func (t *Default_value) StmtInsert() *sql.Stmt { return insert.Stmt[1] }
 
 type Times struct {
-	TypeId     int
-	T_datetime time.Time
+	TypeId   int
+	Datetime time.Time
 }
 
 func (t *Times) Args() []interface{} {
-	return []interface{}{&t.TypeId, &t.T_datetime}
+	return []interface{}{&t.TypeId, &t.Datetime}
 }
 
 func (t *Times) StmtInsert() *sql.Stmt { return insert.Stmt[2] }

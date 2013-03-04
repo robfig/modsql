@@ -7,39 +7,39 @@ CREATE TABLE sex (
 );
 
 CREATE TABLE types (
-	t_int     {{.PostgresInt}} PRIMARY KEY,
-	t_int8    smallint,
-	t_int16   smallint,
-	t_int32   integer,
-	t_int64   bigint,
-	t_float32 real,
-	t_float64 double precision,
-	t_string  text UNIQUE,
-	t_binary  bytea,
-	t_byte    smallint,
-	t_rune    integer,
-	t_bool    boolean,
+	int_     {{.PostgresInt}} PRIMARY KEY,
+	int8_    smallint,
+	int16_   smallint,
+	int32_   integer,
+	int64_   bigint,
+	float32_ real,
+	float64_ double precision,
+	string_  text UNIQUE,
+	binary_  bytea,
+	byte_    smallint,
+	rune_    integer,
+	bool_    boolean,
 
-	UNIQUE (t_float32, t_float64)
+	UNIQUE (float32_, float64_)
 );
-CREATE UNIQUE INDEX idx_types_t_float64 ON types (t_float64);
-CREATE INDEX idx_types_t_rune ON types (t_rune);
-CREATE UNIQUE INDEX idx_types__m1 ON types (t_int16, t_int32);
+CREATE UNIQUE INDEX idx_types_float64_ ON types (float64_);
+CREATE INDEX idx_types_rune_ ON types (rune_);
+CREATE UNIQUE INDEX idx_types__m1 ON types (int16_, int32_);
 
 CREATE TABLE default_value (
-	id        {{.PostgresInt}} PRIMARY KEY,
-	d_int8    smallint DEFAULT 55,
-	d_float32 real DEFAULT 10.2,
-	d_string  text,
-	d_binary  bytea,
-	d_byte    smallint DEFAULT 98,
-	d_rune    integer DEFAULT 114,
-	d_bool    boolean DEFAULT FALSE
+	id       {{.PostgresInt}} PRIMARY KEY,
+	int8_    smallint DEFAULT 55,
+	float32_ real DEFAULT 10.2,
+	string_  text,
+	binary_  bytea,
+	byte_    smallint DEFAULT 98,
+	rune_    integer DEFAULT 114,
+	bool_    boolean DEFAULT FALSE
 );
 
 CREATE TABLE times (
-	typeId     {{.PostgresInt}},
-	t_datetime timestamp with time zone
+	typeId   {{.PostgresInt}},
+	datetime timestamp with time zone
 );
 
 CREATE TABLE account (
@@ -117,11 +117,11 @@ INSERT INTO sex (id, name)
 INSERT INTO sex (id, name)
 	VALUES(1, 'male');
 
-INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool)
+INSERT INTO types (int_, int8_, int16_, int32_, int64_, float32_, float64_, string_, binary_, byte_, rune_, bool_)
 	VALUES(0, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 65, 90, TRUE);
 
-INSERT INTO times (typeId, t_datetime)
+INSERT INTO times (typeId, datetime)
 	VALUES(0, '2009-11-10T23:00:00Z');
-INSERT INTO times (typeId, t_datetime)
+INSERT INTO times (typeId, datetime)
 	VALUES(1, NULL);
 

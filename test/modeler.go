@@ -20,43 +20,43 @@ func main() {
 	)
 
 	types := Table("types", metadata,
-		Column("t_int", Int).PrimaryKey(),
-		Column("t_int8", Int8),
-		Column("t_int16", Int16),//.Validate(),
-		Column("t_int32", Int32),
-		Column("t_int64", Int64),
+		Column("int_", Int).PrimaryKey(),
+		Column("int8_", Int8),
+		Column("int16_", Int16),//.Validate(),
+		Column("int32_", Int32),
+		Column("int64_", Int64),
 
-		Column("t_float32", Float32),
-		Column("t_float64", Float64).Index(true),
+		Column("float32_", Float32),
+		Column("float64_", Float64).Index(true),
 
-		Column("t_string", String).Unique(),
-		Column("t_binary", Binary),
+		Column("string_", String).Unique(),
+		Column("binary_", Binary),
 
-		Column("t_byte", Byte),
-		Column("t_rune", Rune).Index(false),
-		Column("t_bool", Bool),
+		Column("byte_", Byte),
+		Column("rune_", Rune).Index(false),
+		Column("bool_", Bool),
 	)
-	types.Unique("t_float32", "t_float64")
-	types.Index(true, "t_int16", "t_int32")
+	types.Unique("float32_", "float64_")
+	types.Index(true, "int16_", "int32_")
 
 	def := Table("default_value", metadata,
 		Column("id", Int).PrimaryKey(),
-		Column("d_int8", Int8).Default(int8(55)),
-		Column("d_float32", Float32).Default(float32(10.2)),
+		Column("int8_", Int8).Default(int8(55)),
+		Column("float32_", Float32).Default(float32(10.2)),
 
-		Column("d_string", String),
-		Column("d_binary", Binary),
+		Column("string_", String),
+		Column("binary_", Binary),
 
-		Column("d_byte", Byte).Default(byte('b')),
-		Column("d_rune", Rune).Default('r'),
+		Column("byte_", Byte).Default(byte('b')),
+		Column("rune_", Rune).Default('r'),
 
-		Column("d_bool", Bool).Default(false),
+		Column("bool_", Bool).Default(false),
 	)
 
 	times := Table("times", metadata,
 		Column("typeId", Int),
-		//Column("t_duration", Duration),
-		Column("t_datetime", DateTime),
+		//Column("duration_", Duration),
+		Column("datetime", DateTime),
 	)
 
 	// Insert values

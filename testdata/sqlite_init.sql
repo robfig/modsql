@@ -7,39 +7,39 @@ CREATE TABLE sex (
 );
 
 CREATE TABLE types (
-	t_int     INTEGER PRIMARY KEY,
-	t_int8    INTEGER,
-	t_int16   INTEGER,
-	t_int32   INTEGER,
-	t_int64   INTEGER,
-	t_float32 REAL,
-	t_float64 REAL,
-	t_string  TEXT UNIQUE,
-	t_binary  BLOB,
-	t_byte    INTEGER,
-	t_rune    INTEGER,
-	t_bool    BOOL,
+	int_     INTEGER PRIMARY KEY,
+	int8_    INTEGER,
+	int16_   INTEGER,
+	int32_   INTEGER,
+	int64_   INTEGER,
+	float32_ REAL,
+	float64_ REAL,
+	string_  TEXT UNIQUE,
+	binary_  BLOB,
+	byte_    INTEGER,
+	rune_    INTEGER,
+	bool_    BOOL,
 
-	UNIQUE (t_float32, t_float64)
+	UNIQUE (float32_, float64_)
 );
-CREATE UNIQUE INDEX idx_types_t_float64 ON types (t_float64);
-CREATE INDEX idx_types_t_rune ON types (t_rune);
-CREATE UNIQUE INDEX idx_types__m1 ON types (t_int16, t_int32);
+CREATE UNIQUE INDEX idx_types_float64_ ON types (float64_);
+CREATE INDEX idx_types_rune_ ON types (rune_);
+CREATE UNIQUE INDEX idx_types__m1 ON types (int16_, int32_);
 
 CREATE TABLE default_value (
-	id        INTEGER PRIMARY KEY,
-	d_int8    INTEGER DEFAULT 55,
-	d_float32 REAL DEFAULT 10.2,
-	d_string  TEXT,
-	d_binary  BLOB,
-	d_byte    INTEGER DEFAULT 98,
-	d_rune    INTEGER DEFAULT 114,
-	d_bool    BOOL DEFAULT 0
+	id       INTEGER PRIMARY KEY,
+	int8_    INTEGER DEFAULT 55,
+	float32_ REAL DEFAULT 10.2,
+	string_  TEXT,
+	binary_  BLOB,
+	byte_    INTEGER DEFAULT 98,
+	rune_    INTEGER DEFAULT 114,
+	bool_    BOOL DEFAULT 0
 );
 
 CREATE TABLE times (
-	typeId     INTEGER,
-	t_datetime TEXT
+	typeId   INTEGER,
+	datetime TEXT
 );
 
 CREATE TABLE account (
@@ -117,11 +117,11 @@ INSERT INTO sex (id, name)
 INSERT INTO sex (id, name)
 	VALUES(1, 'male');
 
-INSERT INTO types (t_int, t_int8, t_int16, t_int32, t_int64, t_float32, t_float64, t_string, t_binary, t_byte, t_rune, t_bool)
+INSERT INTO types (int_, int8_, int16_, int32_, int64_, float32_, float64_, string_, binary_, byte_, rune_, bool_)
 	VALUES(0, 8, 16, 32, 64, 1.32, 1.64, 'one', '12', 65, 90, 1);
 
-INSERT INTO times (typeId, t_datetime)
+INSERT INTO times (typeId, datetime)
 	VALUES(0, '2009-11-10T23:00:00Z');
-INSERT INTO times (typeId, t_datetime)
+INSERT INTO times (typeId, datetime)
 	VALUES(1, NULL);
 

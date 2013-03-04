@@ -57,7 +57,7 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 	// Check data input from SQL files
 
 	inputTypes := &testdata.Types{0, 8, 16, 32, 64, 1.32, 1.64, "one", []byte("12"), 'A', 'Z', true}
-	scan("SELECT * FROM types WHERE t_int = 0", inputTypes, &testdata.Types{})
+	scan("SELECT * FROM types WHERE int_ = 0", inputTypes, &testdata.Types{})
 
 	inputDef := &testdata.Default_value{0, 10, 10.10, "foo", []byte{'1', '2'}, 'a', 'z', false}
 	scan("SELECT * FROM default_value WHERE Id = 0", inputDef, &testdata.Default_value{})
@@ -73,7 +73,7 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 
 	input0 := &testdata.Types{1, 8, -16, -32, 64, -1.32, -1.64, "a", []byte{1, 2}, 8, 'r', true}
 	insert(input0)
-	scan("SELECT * FROM types WHERE t_int = 1", input0, &testdata.Types{})
+	scan("SELECT * FROM types WHERE int_ = 1", input0, &testdata.Types{})
 
 	input1 := &testdata.Default_value{1, 8, 1.32, "a", []byte{1, 2}, 8, 'r', false}
 	insert(input1)
