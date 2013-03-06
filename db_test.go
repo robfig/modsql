@@ -20,8 +20,6 @@ import (
 )
 
 func TestDatabase(t *testing.T) {
-	_IS_TEST = true
-
 	// == Generate files in directory "testdata"
 	newTestdata := false
 	src := filepath.Join("test", "modeler.go")

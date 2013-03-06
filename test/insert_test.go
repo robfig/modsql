@@ -18,9 +18,8 @@ import (
 
 // testInsert checks SQL statements generated from Go model.
 func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
-	testdata.ENGINE = eng
-	testdata.Init(db)
-	defer testdata.Close()
+	modsql.InitStatements(db, eng, testdata.Insert)
+	defer modsql.CloseStatements()
 
 	// insert inserts data without transaction
 	insert := func(model modsql.Modeler) {
@@ -48,7 +47,7 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 
 	err := insertFromTx(db, inputTx)
 	if err != nil {
-		testdata.Close()
+		modsql.CloseStatements()
 		t.Fatal(err)
 	}
 

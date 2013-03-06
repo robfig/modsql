@@ -110,6 +110,33 @@ func (m *Statements) Close() error {
 	return errExit
 }
 
+// listStatements represents a list of Statements to be prepared and closed
+// all together.
+var listStatements []*Statements
+
+// InitStatements prepares all statements in "listStatements".
+// It hast to be called before of insert data.
+func InitStatements(db *sql.DB, eng Engine, stmts ...*Statements) {
+	listStatements = make([]*Statements, len(stmts))
+	for i, v := range stmts {
+		v.Prepare(db, eng)
+		listStatements[i] = v
+	}
+}
+
+// CloseStatements closes all statements in "listStatements".
+// Returns the first error, if any.
+func CloseStatements() error {
+	var err, errExit error
+
+	for _, v := range listStatements {
+		if err = v.Close(); err != nil && errExit == nil {
+			errExit = err
+		}
+	}
+	return errExit
+}
+
 // * * *
 
 // sqlInt has the integer type for the SQL engine according to the architecture.
