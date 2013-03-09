@@ -40,10 +40,11 @@ http://komlenic.com/244/8-reasons-why-mysqls-enum-data-type-is-evil/
 
 Datetime
 
-Data related to time must be stored in UTC. By this reason, the data type for
-Time in PostgreSQL is defined with "timestamp without time zone".
+That data must be stored in UTC. By this reason, the data type for DateTime in
+PostgreSQL is defined with "timestamp without time zone".
 
-It is used "time.Time{}" to get it a zero, which is better than through NULL values.
+It is used "time.Time{}" to get the initial value to zero, which is better than
+using NULL values.
 
 Unsupported
 
