@@ -73,8 +73,8 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 	inputTimes0 := &testdata.Times{0, time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)}
 	scan("SELECT * FROM times WHERE typeId = 0", inputTimes0, &testdata.Times{})
 
-	//inputTimes1 := &testdata.Times{1, nil}
-	//scan("SELECT * FROM times WHERE typeId = 1", inputTimes1, &testdata.Times{})
+	inputTimes1 := &testdata.Times{1, time.Time{}}
+	scan("SELECT * FROM times WHERE typeId = 1", inputTimes1, &testdata.Times{})
 
 	// Direct insert
 

@@ -123,5 +123,5 @@ INSERT INTO types (int_, int8_, int16_, int32_, int64_, float32_, float64_, stri
 INSERT INTO times (typeId, datetime)
 	VALUES(0, '2009-11-10T23:00:00Z');
 INSERT INTO times (typeId, datetime)
-	VALUES(1, NULL);
+	VALUES(1, '0001-01-01T00:00:00Z');
 

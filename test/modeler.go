@@ -68,7 +68,7 @@ func main() {
 	times.Insert(0,
 		//5*time.Hour+3*time.Minute+12*time.Second,
 		time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))
-	times.Insert(1, nil) //, nil)
+	times.Insert(1, time.Time{})
 
 	// == Examples of relationships
 	//

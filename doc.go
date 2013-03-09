@@ -38,16 +38,17 @@ as explained here:
 
 http://komlenic.com/244/8-reasons-why-mysqls-enum-data-type-is-evil/
 
-Time
+Datetime
 
 Data related to time must be stored in UTC. By this reason, the data type for
 Time in PostgreSQL is defined with "timestamp without time zone".
+
+It is used "time.Time{}" to get it a zero, which is better than through NULL values.
 
 Unsupported
 
 The null handling is very different in every SQL engine (http://www.sqlite.org/nulls.html),
 so instead I prefer to add empty values according to the type (just like in Go).
-Although they are useful for fields related to time and date.
 
 time.Duration is not supported by sql.Scanner: code.google.com/p/go/issues/detail?id=4954
 
