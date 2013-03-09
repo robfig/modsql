@@ -55,7 +55,7 @@ func main() {
 
 	times := Table("times", metadata,
 		Column("typeId", Int),
-		//Column("duration_", Duration),
+		//Column("duration", Duration),
 		Column("datetime", DateTime),
 	)
 

@@ -9,8 +9,9 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"testing"
-	//"time"
+	"time"
 
 	"github.com/kless/modsql"
 	"github.com/kless/modsql/testdata"
@@ -35,8 +36,16 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 		if err := rows.Scan(output.Args()...); err != nil {
 			t.Error(err)
 		} else {
-			if fmt.Sprintf("%v", input) != fmt.Sprintf("%v", output) {
-				t.Errorf("got different data\ninput:  %v\noutput: %v\n", input, output)
+			in := fmt.Sprintf("%v", input)
+			out := fmt.Sprintf("%v", output)
+
+			// The nanoseconds are different in Postgres because it returns fewer digits.
+			if eng == modsql.Postgres && strings.Contains(out, "UTC") {
+				in = strings.SplitN(out, ".", 2)[0]
+				out = strings.SplitN(out, ".", 2)[0]
+			}
+			if in != out {
+				t.Errorf("got different data\ninput:  %v\noutput: %v\n", in, out)
 			}
 		}
 	}
@@ -61,12 +70,11 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 	inputDef := &testdata.Default_value{0, 10, 10.10, "foo", []byte{'1', '2'}, 'a', 'z', false}
 	scan("SELECT * FROM default_value WHERE Id = 0", inputDef, &testdata.Default_value{})
 
-	/*inputTimes0 := &testdata.Times{0, 5*time.Hour+3*time.Minute+12*time.Second,
-		time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)}
+	inputTimes0 := &testdata.Times{0, time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)}
 	scan("SELECT * FROM times WHERE typeId = 0", inputTimes0, &testdata.Times{})
 
-	inputTimes1 := &testdata.Times{1, nil, nil}
-	scan("SELECT * FROM times WHERE typeId = 1", inputTimes1, &testdata.Times{})*/
+	//inputTimes1 := &testdata.Times{1, nil}
+	//scan("SELECT * FROM times WHERE typeId = 1", inputTimes1, &testdata.Times{})
 
 	// Direct insert
 
@@ -78,9 +86,9 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 	insert(input1)
 	scan("SELECT * FROM default_value WHERE id = 1", input1, &testdata.Default_value{})
 
-	/*input2 := &testdata.Times{2, 7 * time.Hour, time.Date(2011, time.November, 10, 23, 0, 0, 0, time.UTC)}
+	input2 := &testdata.Times{2, time.Now().UTC()}
 	insert(input2)
-	scan("SELECT * FROM times WHERE typeId = 2", input2, &testdata.Times{})*/
+	scan("SELECT * FROM times WHERE typeId = 2", input2, &testdata.Times{})
 
 	input3 := &testdata.Account{11, 22, "a"}
 	insert(input3)

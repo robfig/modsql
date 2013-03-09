@@ -39,7 +39,7 @@ CREATE TABLE default_value (
 
 CREATE TABLE times (
 	typeId   INTEGER,
-	datetime TEXT
+	datetime TIMESTAMP
 );
 
 CREATE TABLE account (

@@ -68,8 +68,8 @@ const (
 	String
 	Binary
 
-	//Duration // time.Duration
 	DateTime // time.Time
+	//Duration // time.Duration
 )
 
 // goString returns the type corresponding to Go.
@@ -104,12 +104,11 @@ func (t sqlType) goString() string {
 	case Binary:
 		return "[]byte"
 
-	//case Duration:
-		//return "time.Duration"
 	case DateTime:
 		return "time.Time"
+	//case Duration:
+		//return "time.Duration"
 	}
-
 	panic("unreachable")
 }
 
@@ -146,12 +145,11 @@ func (t sqlType) tmplAction() string {
 	case Binary:
 		return "{{.Binary}}"
 
-	//case Duration:
-		//return "{{.Duration}}"
 	case DateTime:
 		return "{{.DateTime}}"
+	//case Duration:
+		//return "{{.Duration}}"
 	}
-
 	panic("unreachable")
 }
 
@@ -189,8 +187,8 @@ type sqlAction struct {
 	StringLimit string
 	Binary      string
 
-	//Duration string
 	DateTime string
+	//Duration string
 
 	Q string // character of quote
 
@@ -227,8 +225,8 @@ func getSQLAction(eng Engine) *sqlAction {
 			StringLimit: "VARCHAR(255)",
 			Binary:      "BLOB",
 
-			//Duration: "TIME",
 			DateTime: "TIMESTAMP",
+			//Duration: "TIME",
 
 			Q: quoteChar[MySQL],
 
@@ -257,8 +255,8 @@ func getSQLAction(eng Engine) *sqlAction {
 			StringLimit: "text",
 			Binary:      "bytea",
 
+			DateTime: "timestamp without time zone",
 			//Duration: "time without time zone",
-			DateTime: "timestamp with time zone",
 
 			Q: quoteChar[Postgres],
 
@@ -286,8 +284,8 @@ func getSQLAction(eng Engine) *sqlAction {
 			StringLimit: "TEXT",
 			Binary:      "BLOB",
 
-			//Duration: "INTEGER", // time()
-			DateTime: "TEXT",    // datetime()
+			DateTime: "TIMESTAMP",
+			//Duration: "INTEGER",
 
 			Q: quoteChar[SQLite],
 		}

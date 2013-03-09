@@ -38,6 +38,11 @@ as explained here:
 
 http://komlenic.com/244/8-reasons-why-mysqls-enum-data-type-is-evil/
 
+Time
+
+Data related to time must be stored in UTC. By this reason, the data type for
+Time in PostgreSQL is defined with "timestamp without time zone".
+
 Unsupported
 
 The null handling is very different in every SQL engine (http://www.sqlite.org/nulls.html),

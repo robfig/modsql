@@ -39,7 +39,7 @@ CREATE TABLE default_value (
 
 CREATE TABLE times (
 	typeId   {{.PostgresInt}},
-	datetime timestamp with time zone
+	datetime timestamp without time zone
 );
 
 CREATE TABLE account (

@@ -18,7 +18,20 @@ import (
 	"text/template"
 )
 
-var once sync.Once
+// namesToQuote are names which have to be quoted to be used in SQL statements
+// (tables and columns).
+var namesToQuote = [...]string{"user"}
+
+// sqlInt has the integer type for the SQL engine according to the architecture.
+// The values could be changed in function Load according to the architecture.
+var sqlInt = struct {
+	MySQLInt    string
+	PostgresInt string
+}{
+	// architecture of 64-bits
+	"BIGINT",
+	"bigint",
+}
 
 func init() {
 	log.SetFlags(0)
@@ -35,10 +48,6 @@ type Modeler interface {
 	Args() []interface{}
 	StmtInsert() *sql.Stmt
 }
-
-// namesToQuote are names which have to be quoted to be used in SQL statements
-// (tables and columns).
-var namesToQuote = [...]string{"user"}
 
 // SQLReplacer replaces "{P}" with the placeholder parameter and "{Q} with
 // the quote character, according to the SQL engine.
@@ -139,15 +148,7 @@ func CloseStatements() error {
 
 // * * *
 
-// sqlInt has the integer type for the SQL engine according to the architecture.
-var sqlInt = struct {
-	MySQLInt    string
-	PostgresInt string
-}{
-	// architecture of 64-bits
-	"BIGINT",
-	"bigint",
-}
+var once sync.Once
 
 // Load loads a database from a file created by ModSQL.
 func Load(db *sql.DB, filename string) error {

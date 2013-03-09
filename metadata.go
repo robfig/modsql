@@ -535,7 +535,7 @@ func formatSQL(v []interface{}) string {
 		//case time.Duration:
 			//res[i] = fmt.Sprintf("'%s'", TimeReplacer.Replace(t.String()))
 		case time.Time:
-			res[i] = fmt.Sprintf("'%s'", t.Format(time.RFC3339))
+			res[i] = fmt.Sprintf("'%s'", t.Format(time.RFC3339Nano))
 
 		case nil:
 			res[i] = "NULL"
@@ -557,7 +557,7 @@ func (md *metadata) genInsertForType(idx int, name string, columns, values []str
 			//args[i] = fmt.Sprintf("modsql.TimeReplacer.Replace(t.%s.String())", strings.Title(columns[i]))
 		case "time.Time":
 			addColumn = false
-			args[i] = fmt.Sprintf("t.%s.Format(time.RFC3339)", strings.Title(columns[i]))
+			args[i] = fmt.Sprintf("t.%s.Format(time.RFC3339Nano)", strings.Title(columns[i]))
 		}*/
 
 		if addColumn {
