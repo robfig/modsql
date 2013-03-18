@@ -14,8 +14,11 @@ It enables to generate SQL code for PostgreSQL, MySQL and SQLite engines.
 time.Time is working in drivers
 
 + Postgres: "github.com/bmizerany/pq"
++ MySQL: https://github.com/serbaut/go-mysql
 
-	https://groups.google.com/forum/#!topic/golang-nuts/4ebvN6Bgv3M
+https://groups.google.com/forum/#!topic/golang-nuts/4ebvN6Bgv3M
+
+SQLite has issues: https://github.com/mattn/go-sqlite3/issues/43
 
 ## License
 
