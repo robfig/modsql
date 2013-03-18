@@ -9,6 +9,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -29,21 +30,24 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 		}
 	}
 
+	// To remove nanoseconds in timestamps since the drivers return fewer digits.
+	nsec := regexp.MustCompilePOSIX(`\.[0-9]+ \+`)
+
 	// scan checks that output data is the same than input data.
 	scan := func(query string, input, output modsql.Modeler) {
 		rows := db.QueryRow(modsql.SQLReplacer(eng, query))
 
 		if err := rows.Scan(output.Args()...); err != nil {
-			t.Error(err)
+			t.Errorf("query: %q\n%s", query, err)
 		} else {
 			in := fmt.Sprintf("%v", input)
 			out := fmt.Sprintf("%v", output)
 
-			// The nanoseconds are different in Postgres because it returns fewer digits.
-			if eng == modsql.Postgres && strings.Contains(out, "UTC") {
-				in = strings.SplitN(out, ".", 2)[0]
-				out = strings.SplitN(out, ".", 2)[0]
+			if strings.Contains(out, "UTC") { // Field DateTime
+				in = nsec.ReplaceAllLiteralString(in, " +")
+				out = nsec.ReplaceAllLiteralString(out, " +")
 			}
+
 			if in != out {
 				t.Errorf("got different data\ninput:  %v\noutput: %v\n", in, out)
 			}

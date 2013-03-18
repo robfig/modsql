@@ -13,7 +13,8 @@ import (
 	"fmt"
 	"testing"
 
-	_ "github.com/Go-SQL-Driver/MySQL"
+	//_ "github.com/Go-SQL-Driver/MySQL"
+	_ "github.com/serbaut/go-mysql"
 	"github.com/kless/modsql"
 )
 
@@ -29,8 +30,11 @@ import (
 //
 //   mysql> drop database modsql_test;
 func TestMySQL(t *testing.T) {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s@unix(%s)/%s",
-		username, host.mysql, dbname))
+	// Format used in "github.com/Go-SQL-Driver/MySQL"
+	//db, err := sql.Open("mysql", fmt.Sprintf("%s@unix(%s)/%s",
+	//username, host.mysql, dbname))
+	db, err := sql.Open("mysql", fmt.Sprintf("mysql://%s@(unix)/%s?socket=%s",
+		username, dbname, host.mysql))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -11,7 +11,10 @@ It enables to generate SQL code for PostgreSQL, MySQL and SQLite engines.
 
 ## Issues
 
-+ time.Time is only working in driver for PostgreSQL:
+time.Time is working in drivers
+
++ Postgres: "github.com/bmizerany/pq"
+
 	https://groups.google.com/forum/#!topic/golang-nuts/4ebvN6Bgv3M
 
 ## License
