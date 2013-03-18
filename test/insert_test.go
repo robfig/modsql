@@ -76,9 +76,15 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 
 	inputTimes0 := &testdata.Times{0, time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)}
 	scan("SELECT * FROM times WHERE typeId = 0", inputTimes0, &testdata.Times{})
+	if inputTimes0.Datetime.IsZero() {
+		t.Error("inputTimes0.Datetime: should not be zero:", inputTimes0.Datetime)
+	}
 
 	inputTimes1 := &testdata.Times{1, time.Time{}}
 	scan("SELECT * FROM times WHERE typeId = 1", inputTimes1, &testdata.Times{})
+	if !inputTimes1.Datetime.IsZero() {
+		t.Error("inputTimes1.Datetime: should be zero:", inputTimes1.Datetime)
+	}
 
 	// Direct insert
 
@@ -93,6 +99,9 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 	input2 := &testdata.Times{2, time.Now().UTC()}
 	insert(input2)
 	scan("SELECT * FROM times WHERE typeId = 2", input2, &testdata.Times{})
+	if input2.Datetime.IsZero() {
+		t.Error("input2.Datetime: should not be zero:", input2.Datetime)
+	}
 
 	input3 := &testdata.Account{11, 22, "a"}
 	insert(input3)
