@@ -9,9 +9,7 @@ package modsql
 import (
 	"bytes"
 	"fmt"
-	"go/parser"
-	"go/printer"
-	"go/token"
+	"go/format"
 	"io"
 	"io/ioutil"
 	"log"
@@ -439,28 +437,17 @@ func (md *metadata) Write() {
 
 // * * *
 
-// To format Go source code.
-const (
-	_PARSER_MODE  = parser.ParseComments
-	_PRINTER_MODE = printer.TabIndent | printer.UseSpaces
-	_TAB_WIDTH    = 4
-)
-
 // TimeReplacer is a replacer for duration times.
 // It is to be called from the Go code generated.
 var TimeReplacer = strings.NewReplacer("h", ":", "m", ":", "s", "")
 
 // format formats the Go source code.
 func (md *metadata) format(out io.Writer) {
-	fset := token.NewFileSet()
-
-	ast, err := parser.ParseFile(fset, "", []byte(strings.Join(md.goCode, "")), _PARSER_MODE)
+	codeFmt, err := format.Source([]byte(strings.Join(md.goCode, "")))
 	if err != nil {
 		goto _error
 	}
-
-	err = (&printer.Config{_PRINTER_MODE, _TAB_WIDTH}).Fprint(out, fset, ast)
-	if err != nil {
+	if _, err = out.Write(codeFmt); err != nil {
 		goto _error
 	}
 
