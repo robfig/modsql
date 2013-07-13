@@ -19,7 +19,11 @@ import (
 
 func TestSQLite(t *testing.T) {
 	filename := dbname + ".db"
-	defer os.Remove(filename)
+	defer func() {
+		if err := os.Remove(filename); err != nil {
+			t.Log(err)
+		}
+	}()
 
 	db, err := sql.Open("sqlite3", filename)
 	if err != nil {
