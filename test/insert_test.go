@@ -23,7 +23,7 @@ func testInsert(t *testing.T, db *sql.DB, eng modsql.Engine) {
 	modsql.InitStatements(db, eng, testdata.Insert)
 	defer func() {
 		if err := modsql.CloseStatements(); err != nil {
-			t.Log(err)
+			t.Error(err)
 		}
 	}()
 

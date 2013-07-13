@@ -21,7 +21,7 @@ func TestSQLite(t *testing.T) {
 	filename := dbname + ".db"
 	defer func() {
 		if err := os.Remove(filename); err != nil {
-			t.Log(err)
+			t.Error(err)
 		}
 	}()
 
