@@ -4,34 +4,39 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// +build postgres
+// +build gotask
 
 package main
 
 import (
 	"database/sql"
 	"fmt"
-	"testing"
 
 	_ "github.com/bmizerany/pq"
+	"github.com/jingweno/gotask/tasking"
 	"github.com/kless/modsql"
 )
 
-// To create the database:
+// NAME
+//   check data generated from ModSQL into a Postgre database
 //
-//   sudo -u postgres createuser USER --no-superuser --no-createrole --no-createdb
-//   sudo -u postgres createdb modsql_test --owner USER
+// DESCRIPTION
 //
-// Note: substitute "USER" by your user name.
+//   To create the database:
 //
-// To remove it:
+//     sudo -u postgres createuser USER --no-superuser --no-createrole --no-createdb
+//     sudo -u postgres createdb modsql_test --owner USER
 //
-//   sudo -u postgres dropdb modsql_test
-func TestPostgres(t *testing.T) {
+//   Note: substitute "USER" by your user name.
+//
+//   To remove it:
+//
+//     sudo -u postgres dropdb modsql_test
+func TaskTestPostgres(t *tasking.T) {
 	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s host=%s sslmode=disable",
 		username, dbname, host.postgres))
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err) // Fail
 	}
 
 	if err = modsql.Load(db, "postgres_init.sql"); err != nil {
@@ -49,4 +54,8 @@ func TestPostgres(t *testing.T) {
 	}
 
 	db.Close()
+
+	if !t.Failed() {
+		t.Log("--- PASS")
+	}
 }

@@ -4,15 +4,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// +build mysql postgres sqlite
+// +build gotask
 
 package main
 
 import (
-	"log"
 	"os"
 	"os/user"
 	"path/filepath"
+
+	"github.com/jingweno/gotask/tasking"
 )
 
 // For access to databases
@@ -31,13 +32,15 @@ var host = struct {
 }
 
 func init() {
+	var t *tasking.T
+
 	u, err := user.Current()
 	if err != nil {
-		log.Fatal(err)
+		t.Error(err) // Fatal
 	}
 	username = u.Username
 
-	if err = os.Chdir(filepath.Join("..", "testdata")); err != nil {
-		log.Fatal(err)
+	if err = os.Chdir(filepath.Join("data", "sql")); err != nil {
+		t.Error(err) // Fatal
 	}
 }

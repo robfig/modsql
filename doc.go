@@ -55,16 +55,17 @@ time.Duration is not supported by sql.Scanner: code.google.com/p/go/issues/detai
 
 Examples
 
-The directory "testdata" has the files generated from "test/modeler.go" which is
-run through "db_test.go".
-"model.go" is the Go code, and "[engine]*.sql" are the SQL files for every
-engine indicated in the model (function Metadata).
+The directory 'test/data/sql' has the files generated from 'test/modeler.go'
+which is run through 'gotask init'.
+
+"[engine]*.sql" are the SQL files for every engine indicated in the model
+(function Metadata in 'test/modeler.go').
 
 For testing into a SQL engine, there is to run:
 
-   go test -v -tags postgres|mysql|sqlite
+   test> gotask test-postgres|test-mysql|test-sqlite
 
-See files "test/*_test.go" to know how databases were configured.
+See files 'test/[engine]_task.go' to know how databases were configured.
 
 Avoid cascades due to being magic; instead, I handle it from the application layer.
 http://stackoverflow.com/questions/59297/when-why-to-use-cascading-in-sql-server

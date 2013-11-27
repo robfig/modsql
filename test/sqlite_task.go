@@ -1,23 +1,25 @@
-// Copyright 2012 Jonas mg
+// Copyright 2013 Jonas mg
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// +build sqlite
+// +build gotask
 
 package main
 
 import (
 	"database/sql"
 	"os"
-	"testing"
 
+	"github.com/jingweno/gotask/tasking"
 	"github.com/kless/modsql"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestSQLite(t *testing.T) {
+// NAME
+//   test-sqlite - check data generated from ModSQL into a SQLite database
+func TaskTestSQLite(t *tasking.T) {
 	filename := dbname + ".db"
 	defer func() {
 		if err := os.Remove(filename); err != nil {
@@ -27,7 +29,7 @@ func TestSQLite(t *testing.T) {
 
 	db, err := sql.Open("sqlite3", filename)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err) // Fail
 	}
 
 	if err = modsql.Load(db, "sqlite_init.sql"); err != nil {
@@ -45,4 +47,8 @@ func TestSQLite(t *testing.T) {
 	}
 
 	db.Close()
+
+	if !t.Failed() {
+		t.Log("--- PASS")
+	}
 }

@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	metadata := Metadata("testdata", Postgres, MySQL, SQLite)
+	metadata := Metadata("tester", Postgres, MySQL, SQLite)
 
 	Enum("sex", metadata, Int8, 0,
 		"female",
@@ -22,7 +22,7 @@ func main() {
 	types := Table("types", metadata,
 		Column("int_", Int).PrimaryKey(),
 		Column("int8_", Int8),
-		Column("int16_", Int16),//.Validate(),
+		Column("int16_", Int16), //.Validate(),
 		Column("int32_", Int32),
 		Column("int64_", Int64),
 

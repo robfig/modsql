@@ -44,13 +44,12 @@ type metadata struct {
 	sqlTest   []string
 	sqlInsert []string
 
-	dirPath string
 	pkgName string
 }
 
 // Metadata returns a new metadata.
 // The package name is used to create the directory where to generate all files
-// for every engine and for the Go's package.
+// for every engine and for the Go package.
 //
 // The new directory is created in the path where it is run.
 func Metadata(packageName string, eng ...Engine) *metadata {
@@ -60,17 +59,7 @@ func Metadata(packageName string, eng ...Engine) *metadata {
 		}
 	}
 
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	dir = filepath.Join(dir, packageName)
-	if err = os.Mkdir(dir, 0755); err != nil && !os.IsExist(err) {
-		log.Fatal(err)
-	}
-
-	return &metadata{engines: eng, dirPath: dir, pkgName: packageName}
+	return &metadata{engines: eng, pkgName: packageName}
 }
 
 // * * *
@@ -395,8 +384,19 @@ func (md *metadata) Write() {
 		}
 	}
 
+	// == SQL data
+
+	actualDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	dir := filepath.Join(actualDir, "data", "sql")
+	if err = mkdir(dir); err != nil {
+		log.Fatal(err)
+	}
+
 	for _, eng := range md.engines {
-		filename := filepath.Join(md.dirPath, strings.ToLower(eng.String()))
+		filename := filepath.Join(dir, strings.ToLower(eng.String()))
 
 		buf := new(bytes.Buffer)
 		if err = tmplCreate.Execute(buf, getSQLAction(eng)); err != nil {
@@ -425,14 +425,24 @@ func (md *metadata) Write() {
 		}
 	}
 
-	file, err := os.OpenFile(filepath.Join(md.dirPath, "model.go"),
+	// == Model
+
+	dir = filepath.Join(actualDir, md.pkgName)
+	if err = mkdir(dir); err != nil {
+		log.Fatal(err)
+	}
+
+	file, err := os.OpenFile(filepath.Join(dir, "sqlmodel.go"),
 		os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
 
 	md.format(file)
+
+	if err = file.Close(); err != nil {
+		log.Print(err)
+	}
 }
 
 // * * *
@@ -490,6 +500,19 @@ func (md *metadata) genInsert(testdata bool) []string {
 }
 
 // * * *
+
+func mkdir(name string) error {
+	if _, err := os.Stat(name); err != nil {
+		if os.IsNotExist(err) {
+			if err = os.MkdirAll(name, 0755); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	return nil
+}
 
 // formatSQL converts the values to a string formatted in SQL.
 func formatSQL(v []interface{}) string {
