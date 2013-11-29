@@ -11,6 +11,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"path/filepath"
 
 	"github.com/jingweno/gotask/tasking"
 	"github.com/kless/modsql"
@@ -44,16 +45,16 @@ func TaskTestMySQL(t *tasking.T) {
 		t.Fatal(err)
 	}
 
-	if err = modsql.Load(db, "mysql_init.sql"); err != nil {
+	if err = modsql.Load(db, filepath.Join("data", "sql", "mysql_init.sql")); err != nil {
 		t.Error(err)
 	} else {
-		if err = modsql.Load(db, "mysql_test.sql"); err != nil {
+		if err = modsql.Load(db, filepath.Join("data", "sql", "mysql_test.sql")); err != nil {
 			t.Error(err)
 		}
 
 		testInsert(t, db, modsql.MySQL)
 
-		if err = modsql.Load(db, "mysql_drop.sql"); err != nil {
+		if err = modsql.Load(db, filepath.Join("data", "sql", "mysql_drop.sql")); err != nil {
 			t.Error(err)
 		}
 	}

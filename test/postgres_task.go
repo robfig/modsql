@@ -11,10 +11,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"path/filepath"
 
-	_ "github.com/bmizerany/pq"
 	"github.com/jingweno/gotask/tasking"
 	"github.com/kless/modsql"
+	_ "github.com/bmizerany/pq"
 )
 
 // NAME
@@ -39,16 +40,16 @@ func TaskTestPostgres(t *tasking.T) {
 		t.Fatal(err)
 	}
 
-	if err = modsql.Load(db, "postgres_init.sql"); err != nil {
+	if err = modsql.Load(db, filepath.Join("data", "sql", "postgres_init.sql")); err != nil {
 		t.Error(err)
 	} else {
-		if err = modsql.Load(db, "postgres_test.sql"); err != nil {
+		if err = modsql.Load(db, filepath.Join("data", "sql", "postgres_test.sql")); err != nil {
 			t.Error(err)
 		}
 
 		testInsert(t, db, modsql.Postgres)
 
-		if err = modsql.Load(db, "postgres_drop.sql"); err != nil {
+		if err = modsql.Load(db, filepath.Join("data", "sql", "postgres_drop.sql")); err != nil {
 			t.Error(err)
 		}
 	}

@@ -4,15 +4,19 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package main
+// +build gotask
+
+package modsql
 
 import (
-	. "github.com/kless/modsql"
 	"time"
+
+	"github.com/jingweno/gotask/tasking"
+	//. "github.com/kless/modsql"
 )
 
-func main() {
-	metadata := Metadata("tester", Postgres, MySQL, SQLite)
+func taskBuildModel(*tasking.T) {
+	metadata := Metadata("model", Postgres, MySQL, SQLite)
 
 	Enum("sex", metadata, Int8, 0,
 		"female",

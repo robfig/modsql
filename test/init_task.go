@@ -9,9 +9,7 @@
 package main
 
 import (
-	"os"
 	"os/user"
-	"path/filepath"
 
 	"github.com/jingweno/gotask/tasking"
 )
@@ -39,8 +37,6 @@ func init() {
 		t.Fatal(err)
 	}
 	username = u.Username
-
-	if err = os.Chdir(filepath.Join("data", "sql")); err != nil {
-		t.Fatal(err)
-	}
 }
+
+func main() {}

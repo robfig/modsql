@@ -11,6 +11,7 @@ package main
 import (
 	"database/sql"
 	"os"
+	"path/filepath"
 
 	"github.com/jingweno/gotask/tasking"
 	"github.com/kless/modsql"
@@ -32,16 +33,16 @@ func TaskTestSQLite(t *tasking.T) {
 		t.Fatal(err)
 	}
 
-	if err = modsql.Load(db, "sqlite_init.sql"); err != nil {
+	if err = modsql.Load(db, filepath.Join("data", "sql", "sqlite_init.sql")); err != nil {
 		t.Error(err)
 	} else {
-		if err = modsql.Load(db, "sqlite_test.sql"); err != nil {
+		if err = modsql.Load(db, filepath.Join("data", "sql", "sqlite_test.sql")); err != nil {
 			t.Error(err)
 		}
 
 		testInsert(t, db, modsql.SQLite)
 
-		if err = modsql.Load(db, "sqlite_drop.sql"); err != nil {
+		if err = modsql.Load(db, filepath.Join("data", "sql", "sqlite_drop.sql")); err != nil {
 			t.Error(err)
 		}
 	}

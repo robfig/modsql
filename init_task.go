@@ -16,27 +16,24 @@ import (
 )
 
 // NAME
-//   generate files for 'test/modeler.go'
+//   generate files for 'model_task.go'
 func TaskInit(t *tasking.T) {
-	if err := os.Chdir("test"); err != nil {
-		t.Fatal(err)
-	}
-
 	newTestdata := false
-	src := "modeler.go"
+	src := "model_task.go"
 
 	srcInfo, err := os.Stat(src)
 	if err != nil {
 		t.Fatal(err)
 	}
-	dstInfo, err := os.Stat(filepath.Join("tester", "sqlmodel.go"))
+	dstInfo, err := os.Stat(filepath.Join("model", "sqlmodel.go"))
 	if err != nil {
 		newTestdata = true
 	}
 
+	if err := os.Chdir("test"); err != nil {
+		t.Fatal(err)
+	}
 	if newTestdata || srcInfo.ModTime().After(dstInfo.ModTime()) {
-		if err = t.Exec("go", "run", src); err != nil {
-			t.Error(err)
-		}
+		taskBuildModel(t)
 	}
 }
