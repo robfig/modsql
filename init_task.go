@@ -19,7 +19,7 @@ import (
 //   generate files for 'test/modeler.go'
 func TaskInit(t *tasking.T) {
 	if err := os.Chdir("test"); err != nil {
-		t.Error(err) // Fatal
+		t.Fatal(err)
 	}
 
 	newTestdata := false
@@ -27,7 +27,7 @@ func TaskInit(t *tasking.T) {
 
 	srcInfo, err := os.Stat(src)
 	if err != nil {
-		t.Error(err) // Fatal
+		t.Fatal(err)
 	}
 	dstInfo, err := os.Stat(filepath.Join("tester", "sqlmodel.go"))
 	if err != nil {

@@ -36,11 +36,11 @@ func init() {
 
 	u, err := user.Current()
 	if err != nil {
-		t.Error(err) // Fatal
+		t.Fatal(err)
 	}
 	username = u.Username
 
 	if err = os.Chdir(filepath.Join("data", "sql")); err != nil {
-		t.Error(err) // Fatal
+		t.Fatal(err)
 	}
 }

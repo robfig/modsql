@@ -29,7 +29,7 @@ func TaskTestSQLite(t *tasking.T) {
 
 	db, err := sql.Open("sqlite3", filename)
 	if err != nil {
-		t.Error(err) // Fail
+		t.Fatal(err)
 	}
 
 	if err = modsql.Load(db, "sqlite_init.sql"); err != nil {

@@ -36,7 +36,7 @@ func TaskTestPostgres(t *tasking.T) {
 	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s host=%s sslmode=disable",
 		username, dbname, host.postgres))
 	if err != nil {
-		t.Error(err) // Fail
+		t.Fatal(err)
 	}
 
 	if err = modsql.Load(db, "postgres_init.sql"); err != nil {

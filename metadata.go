@@ -463,7 +463,7 @@ func (md *metadata) format(out io.Writer) {
 
 	return
 _error:
-fmt.Println(strings.Join(md.goCode, "")) // TODO: remove
+	//fmt.Println(strings.Join(md.goCode, "")) // TODO: remove
 	log.Fatalf("format Go code: %s", err)
 }
 

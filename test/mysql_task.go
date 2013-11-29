@@ -41,7 +41,7 @@ func TaskTestMySQL(t *tasking.T) {
 	db, err := sql.Open("mysql", fmt.Sprintf("mysql://%s@(unix)/%s?socket=%s",
 		username, dbname, host.mysql))
 	if err != nil {
-		t.Error(err) // Fail
+		t.Fatal(err)
 	}
 
 	if err = modsql.Load(db, "mysql_init.sql"); err != nil {
