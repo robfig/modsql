@@ -15,7 +15,7 @@ import (
 	//. "github.com/kless/modsql"
 )
 
-func taskBuildModel(*tasking.T) {
+func taskModelSQL(*tasking.T) {
 	metadata := Metadata("model", Postgres, MySQL, SQLite)
 
 	Enum("sex", metadata, Int8, 0,

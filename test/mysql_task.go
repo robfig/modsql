@@ -15,8 +15,8 @@ import (
 
 	"github.com/jingweno/gotask/tasking"
 	"github.com/kless/modsql"
-	_ "github.com/serbaut/go-mysql"
-	//_ "github.com/Go-SQL-Driver/MySQL"
+	_ "github.com/go-sql-driver/mysql"
+	//_ "github.com/serbaut/go-mysql"
 )
 
 // NAME
@@ -36,11 +36,11 @@ import (
 //
 //     mysql> drop database modsql_test;
 func TaskTestMySQL(t *tasking.T) {
-	// Format used in "github.com/Go-SQL-Driver/MySQL"
-	//db, err := sql.Open("mysql", fmt.Sprintf("%s@unix(%s)/%s",
-	//username, host.mysql, dbname))
-	db, err := sql.Open("mysql", fmt.Sprintf("mysql://%s@(unix)/%s?socket=%s",
-		username, dbname, host.mysql))
+	// Format used in "github.com/serbaut/go-mysql"
+	//db, err := sql.Open("mysql", fmt.Sprintf("mysql://%s@(unix)/%s?socket=%s",
+		//username, dbname, host.mysql))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s@unix(%s)/%s?parseTime=true",
+		username, host.mysql, dbname))
 	if err != nil {
 		t.Fatal(err)
 	}

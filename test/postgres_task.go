@@ -13,9 +13,9 @@ import (
 	"fmt"
 	"path/filepath"
 
+	_ "github.com/bmizerany/pq"
 	"github.com/jingweno/gotask/tasking"
 	"github.com/kless/modsql"
-	_ "github.com/bmizerany/pq"
 )
 
 // NAME
