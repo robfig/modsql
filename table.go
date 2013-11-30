@@ -32,10 +32,10 @@ type table struct {
 	isEnum    bool // table with list of permitted values that are enumerated
 	startEnum int
 
-	name    string
+	Name    string
 	sqlName string
 	meta    *metadata
-	columns []column
+	Columns []column
 
 	// Constraints and indexes to table level
 	uniqueCons []string
@@ -74,12 +74,12 @@ func Table(name string, meta *metadata, col ...*column) *table {
 	}
 
 	t := new(table)
-	t.name = name
+	t.Name = name
 	t.sqlName = quoteSQL(name)
 	t.meta = meta
 
 	for _, v := range col {
-		t.columns = append(t.columns, *v)
+		t.Columns = append(t.Columns, *v)
 	}
 	meta.tables = append(meta.tables, t)
 
@@ -88,9 +88,9 @@ func Table(name string, meta *metadata, col ...*column) *table {
 
 // Insert generates SQL statements to insert values.
 func (t *table) Insert(a ...interface{}) {
-	if len(a) != len(t.columns) {
+	if len(a) != len(t.Columns) {
 		log.Fatalf("incorrect number of arguments to insert in table %q: have %d, want %d",
-			t.name, len(a), len(t.columns))
+			t.Name, len(a), len(t.Columns))
 	}
 
 	vec := make([]interface{}, 0)
@@ -105,9 +105,9 @@ func (t *table) Insert(a ...interface{}) {
 // InsertTestData generates SQL statements to insert values in test database.
 // It is generated in file names with suffix "_test".
 func (t *table) InsertTestData(a ...interface{}) {
-	if len(a) != len(t.columns) {
+	if len(a) != len(t.Columns) {
 		log.Fatalf("incorrect number of arguments to insert test data in table %q: have %d, want %d",
-			t.name, len(a), len(t.columns))
+			t.Name, len(a), len(t.Columns))
 	}
 
 	vec := make([]interface{}, 0)
@@ -123,7 +123,7 @@ func (t *table) InsertTestData(a ...interface{}) {
 // The keys in the map are the columns of this table, and the values are the
 // foreign columns of the given table.
 func (t *table) ForeignKey(table string, columns ...ForeignColumn) {
-	if table == t.name {
+	if table == t.Name {
 		log.Fatalf("table %q: ForeignKey(): given foreign table can not have "+
 			"the same name than actual table", table)
 	}
@@ -132,15 +132,15 @@ func (t *table) ForeignKey(table string, columns ...ForeignColumn) {
 	found := false
 	var tableColumns []column
 	for _, v := range t.meta.tables {
-		if v.name == table {
-			tableColumns = v.columns
+		if v.Name == table {
+			tableColumns = v.Columns
 			found = true
 			break
 		}
 	}
 	if !found {
 		log.Fatalf("table %q: ForeignKey(): foreign table %q does not exist",
-			t.name, table)
+			t.Name, table)
 	}
 
 	var fk fkConstraint
@@ -156,14 +156,14 @@ func (t *table) ForeignKey(table string, columns ...ForeignColumn) {
 		found = false
 
 		for _, tc := range tableColumns {
-			if tc.name == c {
+			if tc.Name == c {
 				found = true
 				break
 			}
 		}
 		if !found {
 			log.Fatalf("table %q: ForeignKey(): foreign table %q has not column %q",
-				t.name, table, c)
+				t.Name, table, c)
 		}
 	}
 
@@ -196,14 +196,14 @@ func (t *table) existColumns(funcName string, columns []string) {
 	for _, c := range columns {
 		found := false
 
-		for _, tc := range t.columns {
-			if tc.name == c {
+		for _, tc := range t.Columns {
+			if tc.Name == c {
 				found = true
 				break
 			}
 		}
 		if !found {
-			log.Fatalf("table %q: %s(): column %q does not exist", t.name, funcName, c)
+			log.Fatalf("table %q: %s(): column %q does not exist", t.Name, funcName, c)
 		}
 	}
 }

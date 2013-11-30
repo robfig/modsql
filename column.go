@@ -38,7 +38,7 @@ type column struct {
 	index indexType
 
 	type_ sqlType
-	name  string
+	Name  string
 
 	// Foreign key
 	fkTable  string
@@ -51,7 +51,7 @@ type column struct {
 // Column defines a new column.
 func Column(name string, t sqlType) *column {
 	c := new(column)
-	c.name = name
+	c.Name = name
 	c.type_ = t
 	return c
 }
@@ -116,13 +116,13 @@ func (c *column) Default(v interface{}) *column {
 	switch c.type_ {
 	// MySQL: BLOB and TEXT columns cannot be assigned a default value.
 	case String, Binary:
-		log.Fatalf("type of column in %q can not have a default value", c.name)
+		log.Fatalf("type of column in %q can not have a default value", c.Name)
 	}
 	c.defaultValue = v
 
 	if ok := c.checkDefValue(); !ok {
 		columnsErr = append(columnsErr, fmt.Sprintf("\n column %q with type %T",
-			c.name, c.defaultValue),
+			c.Name, c.defaultValue),
 		)
 	}
 	return c
@@ -187,9 +187,9 @@ func (c *column) checkDefValue() bool {
 		}
 
 	//case time.Duration:
-		//if c.type_ != Duration {
-			//return false
-		//}
+	//if c.type_ != Duration {
+	//return false
+	//}
 	case time.Time:
 		if c.type_ != DateTime {
 			return false
@@ -205,11 +205,11 @@ func (c *column) checkDefValue() bool {
 func (c *column) addErrorCons() {
 	columnsErr = append(columnsErr,
 		fmt.Sprintf("\n column %q only can have set a primary key, foreign key or unique constraint",
-			c.name))
+			c.Name))
 }
 
 func (c *column) addErrorIndex() {
 	columnsErr = append(columnsErr,
 		fmt.Sprintf("\n column %q only can have set an index or a constraint",
-			c.name))
+			c.Name))
 }

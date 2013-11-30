@@ -116,18 +116,18 @@ var Insert = modsql.NewStatements(map[int]string{
 		// == Get the length of largest field
 		fieldMaxLen := 2 // minimum length (id)
 
-		for _, c := range table.columns {
-			if len(c.name) > fieldMaxLen {
-				fieldMaxLen = len(c.name)
+		for _, c := range table.Columns {
+			if len(c.Name) > fieldMaxLen {
+				fieldMaxLen = len(c.Name)
 			}
 		}
 		// ==
 
 		if !table.isEnum {
 			md.goCode = append(md.goCode,
-				fmt.Sprintf("\ntype %s struct {\n", strings.Title(table.name)))
+				fmt.Sprintf("\ntype %s struct {\n", strings.Title(table.Name)))
 		} else {
-			md.goCode = append(md.goCode, "\n// "+table.name+"\nconst(\n")
+			md.goCode = append(md.goCode, "\n// "+table.Name+"\nconst(\n")
 		}
 
 		md.sqlCreate = append(md.sqlCreate,
@@ -139,7 +139,7 @@ var Insert = modsql.NewStatements(map[int]string{
 		columnNames := make([]string, 0)
 		columnValues := make([]string, 0)
 
-		for iCol, col := range table.columns {
+		for iCol, col := range table.Columns {
 			extra := ""
 
 			//if !useTime && (col.type_ == Duration || col.type_ == DateTime) {
@@ -151,16 +151,16 @@ var Insert = modsql.NewStatements(map[int]string{
 				type_ := col.type_.goString()
 
 				md.goCode = append(md.goCode,
-					fmt.Sprintf("%s %s\n", strings.Title(col.name), type_))
-				columnNames = append(columnNames, col.name)
+					fmt.Sprintf("%s %s\n", strings.Title(col.Name), type_))
+				columnNames = append(columnNames, col.Name)
 				columnValues = append(columnValues, type_)
 			} else if iCol == 0 {
-				name := table.name
+				name := table.Name
 
 				// Get the first part of the table name; until '_' or letter is upper
-				for iName, letter := range table.name[1:] {
+				for iName, letter := range table.Name[1:] {
 					if unicode.IsUpper(letter) || letter == '_' {
-						name = table.name[:iName+1]
+						name = table.Name[:iName+1]
 						break
 					}
 				}
@@ -194,7 +194,7 @@ var Insert = modsql.NewStatements(map[int]string{
 
 				if !limit {
 					for _, v := range table.uniqueCons {
-						if col.name == v {
+						if col.Name == v {
 							limit = true
 							break
 						}
@@ -202,7 +202,7 @@ var Insert = modsql.NewStatements(map[int]string{
 				}
 				if !limit {
 					for _, v := range table.pkCons {
-						if col.name == v {
+						if col.Name == v {
 							limit = true
 							break
 						}
@@ -212,7 +212,7 @@ var Insert = modsql.NewStatements(map[int]string{
 				L:
 					for _, fk := range table.fkCons {
 						for _, v := range fk.src {
-							if col.name == v {
+							if col.Name == v {
 								limit = true
 								break L
 							}
@@ -225,7 +225,7 @@ var Insert = modsql.NewStatements(map[int]string{
 				}
 			}
 			// ==
-			nameQuoted := quoteFieldSQL(col.name)
+			nameQuoted := quoteFieldSQL(col.Name)
 
 			md.sqlCreate = append(md.sqlCreate, fmt.Sprintf("\n\t%s %s%s",
 				nameQuoted, sqlAlign(fieldMaxLen, len(nameQuoted)), sqlString))
@@ -258,13 +258,13 @@ var Insert = modsql.NewStatements(map[int]string{
 				}
 				columnIndex = append(columnIndex,
 					fmt.Sprintf("CREATE %sINDEX idx_%s_%s ON %s (%s);\n",
-						unique, table.name, col.name, table.sqlName, col.name))
+						unique, table.Name, col.Name, table.sqlName, col.Name))
 			}
 
 			md.sqlCreate = append(md.sqlCreate, extra)
 
 			// The last column
-			if iCol+1 == len(table.columns) {
+			if iCol+1 == len(table.Columns) {
 				var cons []string
 
 				if len(table.uniqueCons) != 0 {
@@ -289,7 +289,7 @@ var Insert = modsql.NewStatements(map[int]string{
 					md.goCode = append(md.goCode, "}\n")
 
 					md.goCode = append(md.goCode,
-						md.genInsertForType(iTable, table.name, columnNames, columnValues),
+						md.genInsertForType(iTable, table.Name, columnNames, columnValues),
 					)
 					iTable++
 				} else {
@@ -307,7 +307,7 @@ var Insert = modsql.NewStatements(map[int]string{
 
 					columnIndex = append(columnIndex,
 						fmt.Sprintf("CREATE %sINDEX idx_%s_%s ON %s (%s);\n",
-							unique, table.name, name, table.sqlName,
+							unique, table.Name, name, table.sqlName,
 							strings.Join(v.index, ", ")))
 				}
 				if len(columnIndex) != 0 {
@@ -483,8 +483,8 @@ func (md *metadata) genInsert(testdata bool) []string {
 		if len(data) != 0 {
 			var columns []string
 
-			for _, col := range table.columns {
-				columns = append(columns, quoteSQL(col.name))
+			for _, col := range table.Columns {
+				columns = append(columns, quoteSQL(col.Name))
 			}
 			for _, v := range data {
 				insert = append(insert, fmt.Sprintf("\nINSERT INTO %s (%s)\n\tVALUES(%s);",
@@ -543,7 +543,7 @@ func formatSQL(v []interface{}) string {
 			res[i] = fmt.Sprintf("'%s'", t)
 
 		//case time.Duration:
-			//res[i] = fmt.Sprintf("'%s'", TimeReplacer.Replace(t.String()))
+		//res[i] = fmt.Sprintf("'%s'", TimeReplacer.Replace(t.String()))
 		case time.Time:
 			res[i] = fmt.Sprintf("'%s'", t.Format(time.RFC3339Nano))
 
@@ -587,9 +587,9 @@ func (md *metadata) genInsertForType(idx int, name string, columns, values []str
 	return fmt.Sprintf(
 		"func (t *%s) Args() []interface{} {\n"+
 			"return []interface{}{%s}\n"+
-		"}\n\n"+
+			"}\n\n"+
 
-		"func (t *%s) StmtInsert() *sql.Stmt { return Insert.Stmt[%d] }",
+			"func (t *%s) StmtInsert() *sql.Stmt { return Insert.Stmt[%d] }",
 
 		name,
 		strings.Join(args, ", "),
